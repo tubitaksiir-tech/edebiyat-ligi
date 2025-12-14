@@ -4,7 +4,7 @@ import time
 import os
 import base64
 
-# --- 1. SAYFA AYARLARI (EN BAŞTA OLMALI) ---
+# --- SAYFA AYARLARI ---
 st.set_page_config(
     page_title="Edebiyat Ligi",
     page_icon="📚",
@@ -14,26 +14,7 @@ st.set_page_config(
 # GOOGLE FORM LİNKİ
 GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
 
-# --- 2. SESSION STATE (BU KISIM EN ÜSTE TAŞINDI - HATAYI ÇÖZEN YER) ---
-# Değişkenler burada tanımlanır ki kodun geri kalanı hata vermesin.
-if 'page' not in st.session_state:
-    st.session_state.page = "MENU"
-if 'kategori' not in st.session_state:
-    st.session_state.kategori = None 
-if 'xp' not in st.session_state:
-    st.session_state.xp = 0
-if 'soru_sayisi' not in st.session_state:
-    st.session_state.soru_sayisi = 0
-if 'mevcut_soru' not in st.session_state:
-    st.session_state.mevcut_soru = None
-if 'cevap_verildi' not in st.session_state:
-    st.session_state.cevap_verildi = False
-if 'sema_hoca_kizdi' not in st.session_state:
-    st.session_state.sema_hoca_kizdi = False
-if 'sanat_aciklama' not in st.session_state:
-    st.session_state.sanat_aciklama = ""
-
-# --- 3. SES ÇALMA FONKSİYONU ---
+# --- SES ÇALMA FONKSİYONU ---
 def get_audio_html(sound_type):
     if sound_type == "dogru":
         audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_bb630cc098.mp3"
@@ -42,7 +23,7 @@ def get_audio_html(sound_type):
     return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
-# 4. VERİTABANLARI
+# 1. VERİTABANLARI
 # ======================================================
 @st.cache_data
 def get_game_db(kategori):
@@ -150,17 +131,20 @@ def get_ozet_db():
 @st.cache_data
 def get_sanatlar_db():
     return [
-        {"sanat": "Teşbih (Benzetme)", "beyit": "Cennet gibi güzel vatanım...", "aciklama": "Burada vatan (benzeyen), cennete (benzetilen) benzetilmiştir. 'Gibi' edatı kullanılmıştır."},
-        {"sanat": "İstiare (Eğretileme)", "beyit": "Şakaklarıma kar mı yağdı ne var?", "aciklama": "Burada beyaz saç (benzeyen) söylenmemiş, sadece 'kar' (benzetilen) söylenerek İstiare yapılmıştır."},
-        {"sanat": "Tezat (Zıtlık)", "beyit": "Ağlarım hatıra geldikçe gülüştüklerimiz.", "aciklama": "'Ağlamak' ve 'Gülüşmek' zıt anlamlı kelimeler bir arada kullanılmıştır."},
-        {"sanat": "Hüsnü Talil (Güzel Neden)", "beyit": "Güzel şeyler düşünelim diye / Yemyeşil oluvermiş ağaçlar", "aciklama": "Ağaçların yeşermesi doğal bir olaydır ama şair bunu 'biz güzel düşünelim diye' diyerek güzel bir nedene bağlamıştır."},
-        {"sanat": "Telmih (Hatırlatma)", "beyit": "Gökyüzünde İsa ile, Tur dağında Musa ile...", "aciklama": "Hz. İsa ve Hz. Musa peygamberlere ait olaylar hatırlatılmıştır."},
-        {"sanat": "Tecahülü Arif (Bilmezlik)", "beyit": "Göz gördü gönül sevdi seni ey yüzü mahım / Kurbanın olam var mı benim bunda günahım?", "aciklama": "Şair aşık olduğunu bildiği halde, 'günahım var mı' diye sorarak bilmezlikten geliyor."},
-        {"sanat": "Mübalağa (Abartma)", "beyit": "Bir ah çeksem dağı taşı eritir / Gözüm yaşı değirmeni yürütür", "aciklama": "Gözyaşıyla değirmen yürütmek imkansız bir abartıdır."},
-        {"sanat": "İntak (Konuşturma)", "beyit": "Ben ki toz kanatlı bir kelebeğim / Minicik gövdeme yüklü Kafdağı", "aciklama": "Kelebek insan gibi konuşturulmuştur."},
-        {"sanat": "Tevriye (İki Anlamlılık)", "beyit": "Bu kadar letafet çünkü sende var / Beyaz gerdanında bir de ben gerek", "aciklama": "'Ben' kelimesi hem vücuttaki siyah nokta hem de 1. tekil şahıs (kendisi) olarak iki anlama gelecek şekilde kullanılmıştır."},
-        {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "'Balık baştan kokar' atasözü şiirde kullanılmıştır."},
-        {"sanat": "Teşhis (Kişileştirme)", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler (eli kolu bağlı olmak, ağlamak) verilmiştir."}
+        {"sanat": "Teşbih (Benzetme)", "beyit": "Bin atlı akınlarda çocuklar gibi şendik / Bin atlı o gün dev gibi bir orduyu yendik", "aciklama": "Askerler sevinç yönünden çocuklara, güç yönünden devlere benzetilmiştir. (Yahya Kemal)"},
+        {"sanat": "İstiare (Eğretileme)", "beyit": "Bir hilal uğruna ya Rab, ne güneşler batıyor!", "aciklama": "'Güneşler' denilerek askerler kastedilmiş ama asker söylenmemiştir. (Mehmet Akif)"},
+        {"sanat": "Tezat (Zıtlık)", "beyit": "Neden böyle düşman görünürsünüz / Yıllar yılı dost bildiğim aynalar?", "aciklama": "Dost ve Düşman zıt kavramlardır. (Cahit Sıtkı)"},
+        {"sanat": "Hüsnü Talil (Güzel Neden)", "beyit": "Sen gelmedin diye / Soldu bütün çiçekler", "aciklama": "Çiçeklerin solması doğal bir olaydır, ama şair bunu sevgilinin gelmemesine bağlamıştır."},
+        {"sanat": "Telmih (Hatırlatma)", "beyit": "Vefasız Aslı'ya yol gösteren bu / Kerem'in sazına cevap veren bu", "aciklama": "Kerem ile Aslı hikayesi hatırlatılmıştır. (Ahmet Kutsi Tecer)"},
+        {"sanat": "Tecahülü Arif (Bilmezlik)", "beyit": "Şakaklarıma kar mı yağdı ne var? / Benim mi Allah'ım bu çizgili yüz?", "aciklama": "Şair yaşlandığını ve yüzündeki çizgilerin kendisine ait olduğunu bildiği halde bilmezden geliyor. (Cahit Sıtkı)"},
+        {"sanat": "Mübalağa (Abartma)", "beyit": "Ölüm indirmede gökler, ölü püskürmede yer / O ne müthiş tipidir: Savrulur enkaz-ı beşer", "aciklama": "Savaşın şiddeti abartılarak anlatılmıştır. (Mehmet Akif)"},
+        {"sanat": "İntak (Konuşturma)", "beyit": "Küçük bir çeşmeyim yurdumun unutulmuş bir dağında / Hiç kesilmeyecek suyum yıldızların aydınlığında", "aciklama": "Çeşme insan gibi konuşturulmuştur. İntak varsa Teşhis de vardır."},
+        {"sanat": "Tevriye (İki Anlamlılık)", "beyit": "Baki kalan bu kubbede bir hoş sada imiş", "aciklama": "'Baki' kelimesi hem 'sonsuz' hem de şairin adı olan 'Baki' anlamına gelir."},
+        {"sanat": "İrsal-i Mesel", "beyit": "Kirpikleri uzundur yarin hayale sığmaz / Meşhur bir meseldir mızrak çuvala sığmaz", "aciklama": "'Mızrak çuvala sığmaz' atasözü kullanılmıştır."},
+        {"sanat": "Teşhis (Kişileştirme)", "beyit": "O çay ağır akar, yorgun mu bilmem / Mehtabı hasta mı, solgun mu bilmem", "aciklama": "Çay (nehir) ve mehtaba yorgunluk, hastalık gibi insani özellikler verilmiştir."},
+        {"sanat": "Kinaye (Değinmece)", "beyit": "Bulamadım dünyada gönüle mekan / Nerde bir gül bitse etrafı diken", "aciklama": "Diken sözüyle hem gerçek diken hem de 'insana sıkıntı veren şeyler' kastedilmiştir."},
+        {"sanat": "Tariz (İğneleme)", "beyit": "Tahir Efendi bana kelp (köpek) demiş / İltifatı bu sözle zahirdir", "aciklama": "Şair aslında övmüyor, dalga geçiyor. (Nefi)"},
+        {"sanat": "İstifham (Soru Sorma)", "beyit": "Kim bu cennet vatanın uğruna olmaz ki feda?", "aciklama": "Cevap bekleme amacı gütmeden soru sorulmuştur."}
     ]
 
 @st.cache_data
@@ -245,6 +229,27 @@ def get_reading_db():
         "Tarık Buğra": {"bio": "Tarihi ve psikolojik derinlikli romanlar yazar.", "eserler": {"Küçük Ağa": "Kuvayi Milliye bilinci."}},
     }
 
+# --- SESSION STATE ---
+if 'page' not in st.session_state:
+    st.session_state.page = "MENU"
+if 'kategori' not in st.session_state:
+    st.session_state.kategori = None 
+if 'xp' not in st.session_state:
+    st.session_state.xp = 0
+if 'soru_sayisi' not in st.session_state:
+    st.session_state.soru_sayisi = 0
+if 'mevcut_soru' not in st.session_state:
+    st.session_state.mevcut_soru = None
+if 'cevap_verildi' not in st.session_state:
+    st.session_state.cevap_verildi = False
+if 'sema_hoca_kizdi' not in st.session_state:
+    st.session_state.sema_hoca_kizdi = False
+if 'sanat_aciklama' not in st.session_state:
+    st.session_state.sanat_aciklama = ""
+# YENİ: Sorunun bitip bitmediğini kontrol eden değişken
+if 'soru_bitti' not in st.session_state:
+    st.session_state.soru_bitti = False
+
 # --- CSS VE TASARIM ---
 oyun_deseni = "https://www.transparenttextures.com/patterns/cubes.png"
 okuma_deseni = "https://www.transparenttextures.com/patterns/candy-cane.png"
@@ -272,8 +277,14 @@ st.markdown(f"""
     .menu-card {{ background-color: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 20px; text-align: center; border: 4px solid #2d3436; cursor: pointer; transition: all 0.2s; margin-bottom: 15px; box-shadow: 0 6px 0px #d63031; }}
     .menu-card:hover {{ transform: translateY(-5px); background-color: #ffffff; }}
     .menu-title {{ font-size: 18px; font-weight: 900; color: #d63031; text-transform: uppercase; }}
+    
+    /* Butonlar */
     .stButton button {{ background-color: #d63031 !important; color: white !important; border-radius: 15px !important; font-weight: 900 !important; border: 3px solid #000 !important; box-shadow: 0 5px 0 #000 !important; }}
     .stButton button:active {{ box-shadow: 0 0 0 #000 !important; transform: translateY(5px); }}
+    
+    /* Sonraki Soru Butonu (YEŞİL) */
+    .next-btn button {{ background-color: #2ecc71 !important; box-shadow: 0 5px 0 #27ae60 !important; }}
+    
     .question-card {{ background-color: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 25px; border: 4px solid #2d3436; box-shadow: 0 8px 0px #2d3436; text-align: center; margin-bottom: 25px; }}
     .stRadio {{ background-color: rgba(255, 255, 255, 0.9) !important; padding: 15px; border-radius: 20px; border: 3px solid #2d3436; }}
     .creator-name {{ background-color: #2d3436; color: #00cec9 !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; letter-spacing: 2px; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
@@ -351,6 +362,7 @@ if st.session_state.page == "MENU":
             st.session_state.page = "GAME"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
     with c2:
@@ -360,6 +372,7 @@ if st.session_state.page == "MENU":
             st.session_state.page = "GAME"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
     with c3:
@@ -369,15 +382,17 @@ if st.session_state.page == "MENU":
             st.session_state.page = "GAME"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
     with c4:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">EDEBİ SANATLAR</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨"):
             st.session_state.kategori = "SANATLAR"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
 
@@ -399,7 +414,7 @@ elif st.session_state.page == "STUDY":
     if secilen_yazar != "Seçiniz...":
         bilgi = db_study[secilen_yazar]
         st.markdown(f"<div class='bio-box'><b>✍️ {secilen_yazar}</b><br>{bilgi['bio']}</div>", unsafe_allow_html=True)
-        st.markdown("#### 📚 Eserleri")
+        st.markdown("#### 📚 Eserleri ve Önemli Notlar")
         for eser, ozet in bilgi['eserler'].items():
             with st.expander(f"📖 {eser}"):
                 st.markdown(ozet, unsafe_allow_html=True)
@@ -409,6 +424,7 @@ elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
     level = (st.session_state.soru_sayisi // 5) + 1
     
+    # SEMA HOCA UYARISI
     if st.session_state.sema_hoca_kizdi:
         st.markdown("""
         <div class="sema-hoca">
@@ -432,6 +448,7 @@ elif st.session_state.page == "GAME":
     st.markdown(f"<div class='mobile-score'><span style='color:#d63031;'>⭐ Lv {level}</span><span style='color:#00cec9;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
+    # SORU KARTI TASARIMI
     if st.session_state.kategori == "SANATLAR":
         title_text = "BU HANGİ EDEBİ SANAT?"
         content_text = f'"{soru["eser"]}"'
@@ -449,32 +466,43 @@ elif st.session_state.page == "GAME":
 
     col1, col2 = st.columns([3, 1])
     with col1:
-        cevap = st.radio("Seçim:", soru['siklar'], label_visibility="collapsed")
+        # ŞIKLAR - Cevap verildiyse disabled (kilitli) olsun
+        cevap = st.radio("Seçim:", soru['siklar'], label_visibility="collapsed", disabled=st.session_state.soru_bitti)
     with col2:
         st.write("") 
         st.write("")
-        kontrol_buton = st.button("YANITLA 🚀", type="primary", use_container_width=True)
-
-    if kontrol_buton:
-        if not st.session_state.cevap_verildi:
-            if cevap == soru['dogru_cevap']:
-                st.session_state.xp += 100
-                st.markdown(get_audio_html("dogru"), unsafe_allow_html=True) # ANINDA SES
-                st.success("MÜKEMMEL! +100 XP 🎯")
-                st.balloons()
-            else:
-                st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True) # ANINDA SES
-                st.session_state.sema_hoca_kizdi = True
-                st.error(f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔")
-                st.session_state.xp = max(0, st.session_state.xp - 20)
-            
-            if st.session_state.kategori == "SANATLAR" and "aciklama" in soru:
-                st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-            if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
-                st.info(f"Romanın Adı: **{soru['eser_adi']}**")
-
-            st.session_state.soru_sayisi += 1
-            st.session_state.cevap_verildi = True
-            time.sleep(2)
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        
+        # Eğer soru henüz bitmediyse YANITLA butonu göster
+        if not st.session_state.soru_bitti:
+            if st.button("YANITLA 🚀", type="primary", use_container_width=True):
+                st.session_state.cevap_verildi = True
+                
+                if cevap == soru['dogru_cevap']:
+                    st.session_state.xp += 100
+                    st.markdown(get_audio_html("dogru"), unsafe_allow_html=True) # HIZLI SES
+                    st.success("MÜKEMMEL! +100 XP 🎯")
+                    st.balloons()
+                else:
+                    st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True) # HIZLI SES
+                    st.session_state.sema_hoca_kizdi = True # UYARIYI AÇ
+                    st.error(f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔")
+                    st.session_state.xp = max(0, st.session_state.xp - 20)
+                
+                # AÇIKLAMALAR
+                if st.session_state.kategori == "SANATLAR" and "aciklama" in soru:
+                    st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
+                if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
+                    st.info(f"Romanın Adı: **{soru['eser_adi']}**")
+                
+                st.session_state.soru_bitti = True # SORU BİTTİ DURUMUNA GEÇ
+                st.rerun() # Sayfayı yenile ki buton değişsin ve uyarı gelsin
+        
+        # Soru bittiyse SIRADAKİ SORU butonu göster
+        else:
+            if st.button("SIRADAKİ SORU ➡️", type="primary", use_container_width=True, key="next_btn"):
+                st.session_state.soru_sayisi += 1
+                st.session_state.soru_bitti = False
+                st.session_state.cevap_verildi = False
+                st.session_state.sema_hoca_kizdi = False # UYARIYI KAPAT
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
