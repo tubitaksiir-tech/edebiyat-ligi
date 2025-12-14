@@ -14,6 +14,13 @@ st.set_page_config(
 # GOOGLE FORM LİNKİ
 GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
 
+# --- ARKA PLAN RESMİNİ KODA GÖMME (BASE64) ---
+# Bu fonksiyon, resmin kaybolmamasını ve her yerde çalışmasını sağlar.
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
 # --- SES ÇALMA FONKSİYONU ---
 def get_audio_html(sound_type):
     if sound_type == "dogru":
@@ -29,50 +36,50 @@ def get_audio_html(sound_type):
 def get_game_db(kategori):
     if kategori == "CUMHURİYET":
         return {
-            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed", "Başını Vermeyen Şehit", "Perili Köşk"], "Roman": ["Efruz Bey"]},
-            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları", "Türkleşmek İslamlaşmak Muasırlaşmak"]},
-            "Yakup Kadri Karaosmanoğlu": {"Roman": ["Yaban", "Kiralık Konak", "Sodom ve Gomore", "Nur Baba", "Ankara", "Panorama", "Bir Sürgün", "Hep O Şarkı"], "Anı": ["Zoraki Diplomat", "Anamın Kitabı", "Gençlik ve Edebiyat Hatıraları"]},
-            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık", "Yolpalas Cinayeti", "Kalp Ağrısı"], "Anı": ["Mor Salkımlı Ev", "Türk'ün Ateşle İmtihanı"]},
-            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi", "Dudaktan Kalbe", "Akşam Güneşi", "Kavak Yelleri"]},
-            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu", "Bir Tereddüdün Romanı", "Sözde Kızlar"]},
-            "Tarık Buğra": {"Roman": ["Küçük Ağa", "Osmancık", "İbişin Rüyası", "Firavun İmanı", "Yağmur Beklerken", "Dönemeçte"]},
-            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan", "Şahmerdan", "Mahalle Kahvesi"]},
-            "Sabahattin Ali": {"Roman": ["Kürk Mantolu Madonna", "Kuyucaklı Yusuf", "İçimizdeki Şeytan"], "Hikaye": ["Değirmen", "Kağnı", "Ses", "Yeni Dünya"]},
-            "Ahmet Hamdi Tanpınar": {"Roman": ["Huzur", "Saatleri Ayarlama Enstitüsü", "Sahnenin Dışındakiler", "Mahur Beste", "Aydaki Kadın"], "Deneme": ["Beş Şehir"]},
-            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı", "Ben ve Ötesi"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey", "Tohum", "Para"]},
-            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin", "835 Satır", "Jokond ile Si-Ya-U"]},
-            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi", "Yılanı Öldürseler", "Orta Direk", "Teneke", "Demirciler Çarşısı Cinayeti"]},
-            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları", "Sessiz Ev", "Kar", "Beyaz Kale"]},
+            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed"], "Roman": ["Efruz Bey"]},
+            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları"]},
+            "Yakup Kadri Karaosmanoğlu": {"Roman": ["Yaban", "Kiralık Konak", "Sodom ve Gomore", "Nur Baba", "Ankara", "Panorama"], "Anı": ["Zoraki Diplomat"]},
+            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık"], "Anı": ["Mor Salkımlı Ev"]},
+            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi"]},
+            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu"]},
+            "Tarık Buğra": {"Roman": ["Küçük Ağa", "Osmancık", "İbişin Rüyası", "Firavun İmanı"]},
+            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan"]},
+            "Sabahattin Ali": {"Roman": ["Kürk Mantolu Madonna", "Kuyucaklı Yusuf", "İçimizdeki Şeytan"], "Hikaye": ["Değirmen", "Kağnı"]},
+            "Ahmet Hamdi Tanpınar": {"Roman": ["Huzur", "Saatleri Ayarlama Enstitüsü", "Sahnenin Dışındakiler"], "Deneme": ["Beş Şehir"]},
+            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey"]},
+            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin"]},
+            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi"]},
+            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları"]},
             "Oğuz Atay": {"Roman": ["Tutunamayanlar", "Tehlikeli Oyunlar", "Bir Bilim Adamının Romanı"], "Hikaye": ["Korkuyu Beklerken"]},
-            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar", "Yağmur Kaçağı", "Elde Var Hüzün"], "Roman": ["Kurtlar Sofrası", "Sokaktaki Adam"]},
-            "Cemal Süreya": {"Şiir": ["Üvercinka", "Sevda Sözleri", "Göçebe", "Beni Öp Sonra Doğur Beni"]},
-            "Adalet Ağaoğlu": {"Roman": ["Ölmeye Yatmak", "Bir Düğün Gecesi", "Fikrimin İnce Gülü", "Yüksek Gerilim", "Ruh Üşümesi"]},
-            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği", "Cemile", "Baba Evi", "Avare Yıllar"]},
-            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları", "Rahmet Yolları Kesti", "Köyün Kamburu", "Yol Ayrımı"]},
-            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı", "Yezidin Kızı", "Nilgün"]},
+            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar"], "Roman": ["Kurtlar Sofrası"]},
+            "Cemal Süreya": {"Şiir": ["Üvercinka", "Sevda Sözleri", "Göçebe"]},
+            "Adalet Ağaoğlu": {"Roman": ["Ölmeye Yatmak", "Bir Düğün Gecesi", "Fikrimin İnce Gülü"]},
+            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği"]},
+            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları"]},
+            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı"]},
             "Mehmet Akif Ersoy": {"Şiir": ["Safahat"]},
-            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul", "Eğil Dağlar"]},
-            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi", "Dinle Neyden"], "Tiyatro": ["Akın", "Canavar"]},
-            "Memduh Şevket Esendal": {"Roman": ["Ayaşlı ve Kiracıları", "Vassaf Bey"], "Hikaye": ["Otlakçı", "Mendil Altında"]},
-            "Orhan Veli Kanık": {"Şiir": ["Garip", "Vazgeçemediğim", "Destan Gibi", "Yenisi"]},
-            "Cahit Sıtkı Tarancı": {"Şiir": ["Otuz Beş Yaş", "Düşten Güzel", "Ömrümde Sükut"]},
-            "Ahmet Muhip Dıranas": {"Şiir": ["Fahriye Abla", "Serenad", "Olvido", "Kar"], "Tiyatro": ["Gölgeler"]},
-            "Ziya Osman Saba": {"Şiir": ["Sebil ve Güvercinler", "Geçen Zaman", "Nefes Almak"], "Hikaye": ["Mesut İnsanlar Fotoğrafhanesi"]},
-            "Arif Damar": {"Şiir": ["Günden Güne", "İstanbul Bulutu", "Kedi Aklı"]},
-            "Ferit Edgü": {"Roman": ["Hakkari'de Bir Mevsim (O)", "Kimse"], "Hikaye": ["Bir Gemide", "Çığlık"]},
+            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul"]},
+            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi"], "Tiyatro": ["Akın", "Canavar"]},
+            "Memduh Şevket Esendal": {"Roman": ["Ayaşlı ve Kiracıları"], "Hikaye": ["Otlakçı", "Mendil Altında"]},
+            "Orhan Veli Kanık": {"Şiir": ["Garip", "Vazgeçemediğim", "Destan Gibi"]},
+            "Cahit Sıtkı Tarancı": {"Şiir": ["Otuz Beş Yaş", "Düşten Güzel"]},
+            "Ahmet Muhip Dıranas": {"Şiir": ["Fahriye Abla", "Serenad", "Olvido"]},
+            "Ziya Osman Saba": {"Şiir": ["Sebil ve Güvercinler", "Geçen Zaman"], "Hikaye": ["Mesut İnsanlar Fotoğrafhanesi"]},
+            "Arif Damar": {"Şiir": ["Günden Güne", "İstanbul Bulutu"]},
+            "Ferit Edgü": {"Roman": ["Hakkari'de Bir Mevsim (O)"], "Hikaye": ["Bir Gemide", "Çığlık"]},
             "Enis Behiç Koryürek": {"Şiir": ["Miras", "Güneşin Ölümü"], "Destan": ["Gemiciler"]},
-            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler", "Çevre", "Divançe"]},
-            "Hilmi Yavuz": {"Şiir": ["Bakış Kuşu", "Bedreddin Üzerine Şiirler", "Doğu Şiirleri"]},
-            "Cahit Külebi": {"Şiir": ["Adamın Biri", "Rüzgar", "Atatürk Kurtuluş Savaşı'nda", "Yeşeren Otlar"]},
+            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler"]},
+            "Hilmi Yavuz": {"Şiir": ["Bakış Kuşu", "Doğu Şiirleri"]},
+            "Cahit Külebi": {"Şiir": ["Adamın Biri", "Rüzgar", "Atatürk Kurtuluş Savaşı'nda"]},
             "Fazıl Hüsnü Dağlarca": {"Şiir": ["Havaya Çizilen Dünya", "Çocuk ve Allah", "Üç Şehitler Destanı"]},
             "Salah Birsel": {"Deneme": ["Kahveler Kitabı", "Ah Beyoğlu Vah Beyoğlu"], "Şiir": ["Dünya İşleri"]},
-            "Oktay Rifat": {"Şiir": ["Perçemli Sokak", "Karga ile Tilki", "Aşık Merdiveni"]},
-            "Melih Cevdet Anday": {"Şiir": ["Rahatı Kaçan Ağaç", "Kolları Bağlı Odysseus", "Telgrafhane"]},
+            "Oktay Rifat": {"Şiir": ["Perçemli Sokak", "Karga ile Tilki"]},
+            "Melih Cevdet Anday": {"Şiir": ["Rahatı Kaçan Ağaç", "Kolları Bağlı Odysseus"]},
             "Yusuf Atılgan": {"Roman": ["Aylak Adam", "Anayurt Oteli"]},
-            "Haldun Taner": {"Tiyatro": ["Keşanlı Ali Destanı", "Gözlerimi Kaparım Vazifemi Yaparım"], "Hikaye": ["Şişhaneye Yağmur Yağıyordu", "On İkiye Bir Var"]},
+            "Haldun Taner": {"Tiyatro": ["Keşanlı Ali Destanı"], "Hikaye": ["Şişhaneye Yağmur Yağıyordu"]},
             "Sezai Karakoç": {"Şiir": ["Monna Rosa", "Körfez", "Hızırla Kırk Saat"]},
-            "Turgut Uyar": {"Şiir": ["Göğe Bakma Durağı", "Dünyanın En Güzel Arabistanı", "Tütünler Islak"]},
-            "Edip Cansever": {"Şiir": ["Yerçekimli Karanfil", "Masa Da Masaymış", "İkindi Üstü"]},
+            "Turgut Uyar": {"Şiir": ["Göğe Bakma Durağı", "Dünyanın En Güzel Arabistanı"]},
+            "Edip Cansever": {"Şiir": ["Yerçekimli Karanfil", "Masa Da Masaymış"]},
             "Ece Ayhan": {"Şiir": ["Bakışsız Bir Kedi Kara", "Yort Savul"]},
             "Falih Rıfkı Atay": {"Anı": ["Çankaya", "Zeytindağı"]},
             "Nurullah Ataç": {"Deneme": ["Günlerin Getirdiği", "Karalama Defteri"]},
@@ -195,65 +202,91 @@ if 'calisma_yazar' not in st.session_state:
 if 'soru_bitti' not in st.session_state:
     st.session_state.soru_bitti = False
 
-# --- CSS TASARIMI (4. SEÇENEK: MODERN KİTAP VEKTÖRÜ) ---
-# İstedigin "Modern seamless book pattern" stili için güvenilir, yüksek kaliteli, tekrar eden bir görsel URL'si
-# Bu, senin 4. seçenek olarak beğendiğin tarza en yakın, temiz bir vektörel kitap desenidir.
-bg_image_url = "https://img.freepik.com/free-vector/library-seamless-pattern_23-2147513364.jpg" 
+# --- CSS TASARIMI (SENİN YOLLADIĞIN RESİM İÇİN ÖZEL AYARLAR) ---
+if os.path.exists("background.jpg"):
+    bg_image_css = f"""
+        background-image: url("data:image/jpg;base64,{get_base64_of_bin_file('background.jpg')}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    """
+else:
+    # Resim yoksa yedek desen
+    bg_image_css = "background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); background-color: #d7ccc8;"
 
-# YAN MENÜ RENGİ (Koyu Kahve/Bordo - Kitaplarla uyumlu)
+# YAN MENÜ RENGİ (Koyu Deri Rengi - Resimle Uyumlu)
 sidebar_color = "#3e2723" 
 
 st.markdown(f"""
     <style>
     /* ARKA PLAN AYARLARI */
     .stApp {{
-        background-image: url("{bg_image_url}");
-        background-size: 400px; /* Desenin boyutu (Küçük olursa tekrar eder) */
-        background-repeat: repeat;
-        background-attachment: fixed;
+        {bg_image_css}
     }}
     
     html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
     }}
     
-    /* YAN MENÜ (İSTATİSTİKLER) */
+    /* YAN MENÜ (İSTATİSTİKLER) - KOYU KAHVE VE BEYAZ YAZI */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
-        border-right: 4px solid #d7ccc8;
+        border-right: 4px solid #a1887f;
     }}
-    /* Yan menüdeki TÜM yazılar BEYAZ olsun */
+    /* Yan menüdeki TÜM yazılar ve ikonlar BEYAZ olsun */
     [data-testid="stSidebar"] * {{
         color: #ffffff !important;
     }}
     
-    /* SORU KARTI VE ŞIKLAR (BEYAZ ZEMİN, SİYAH YAZI - OKUNABİLİRLİK İÇİN) */
+    /* GENEL KUTU TASARIMI (SORULAR, MENÜLER VB.) */
+    /* Desenli arka planda okunabilirlik için %95 OPAK BEYAZ/KREM ZEMİN */
+    
+    /* Soru Kartı */
     .question-card {{
-        background-color: rgba(255, 255, 255, 0.95); /* %95 Beyaz */
+        background-color: rgba(255, 248, 225, 0.96) !important; /* Krem */
         padding: 25px;
         border-radius: 20px;
         border: 4px solid #5d4037; /* Koyu kahve çerçeve */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
         text-align: center;
         margin-bottom: 25px;
     }}
-    /* Soru kartının içindeki yazılar SİYAH olsun */
+    /* Soru kartı içindeki yazılar SİMSİYAH */
     .question-card div, .question-card span, .question-card p {{
         color: #000000 !important;
     }}
     
-    /* Şık Kutuları */
+    /* Şık Kutuları (Radio) */
     .stRadio {{
-        background-color: rgba(255, 255, 255, 0.95) !important;
+        background-color: rgba(255, 248, 225, 0.96) !important;
         padding: 20px;
         border-radius: 20px;
         border: 3px solid #5d4037;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }}
-    /* Şık yazıları SİYAH */
+    /* Şık yazıları SİMSİYAH */
     .stRadio label p {{
         color: #000000 !important;
         font-size: 18px !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+    }}
+    
+    /* Menü Kartları */
+    .menu-card {{ 
+        background-color: rgba(255, 248, 225, 0.96); 
+        padding: 20px; 
+        border-radius: 20px; 
+        text-align: center; 
+        border: 4px solid #5d4037; 
+        cursor: pointer; 
+        margin-bottom: 15px; 
+        box-shadow: 0 6px 0px #3e2723; 
+    }}
+    .menu-title {{ 
+        font-size: 18px; 
+        font-weight: 900; 
+        color: #5d4037; 
+        text-transform: uppercase; 
     }}
     
     /* BUTONLAR */
@@ -284,32 +317,27 @@ st.markdown(f"""
     }}
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
 
-    /* Özür Dilerim Butonu Konumu */
+    /* Özür Dilerim Butonu */
     .ozur-container {{
         position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%);
         z-index: 100000;
     }}
-    /* Özür Dilerim Butonu Stili */
     div[data-testid="stVerticalBlock"] > div > div[class*="ozur-container"] button {{
         background-color: white !important; color: #c62828 !important; border: 3px solid #c62828 !important;
     }}
 
     /* Okuma Köşesi Kartları */
-    .bio-box {{ background-color: rgba(255, 255, 255, 0.95); color: black !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffb300; margin-bottom: 20px; font-size: 16px; }}
+    .bio-box {{ background-color: rgba(255, 248, 225, 0.96); color: black !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffb300; margin-bottom: 20px; font-size: 16px; }}
     .bio-box b, .bio-box div {{ color: black !important; }}
-    
-    /* Menü Kartları */
-    .menu-card {{ background-color: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 20px; text-align: center; border: 4px solid #5d4037; cursor: pointer; margin-bottom: 15px; box-shadow: 0 6px 0px #3e2723; }}
-    .menu-title {{ font-size: 18px; font-weight: 900; color: #5d4037; text-transform: uppercase; }}
     
     /* İsim Tabelası */
     .creator-name {{ background-color: #3e2723; color: #ffca28 !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
     /* Mobil Skor */
-    .mobile-score {{ background-color: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 15px; border: 3px solid #5d4037; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: black !important; }}
+    .mobile-score {{ background-color: rgba(255, 248, 225, 0.96); padding: 10px; border-radius: 15px; border: 3px solid #5d4037; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: black !important; }}
     .mobile-score span {{ color: black !important; }}
     
-    .sanat-aciklama {{ background-color: rgba(255, 253, 231, 0.95); color: black !important; border-left: 6px solid #fbc02d; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+    .sanat-aciklama {{ background-color: rgba(255, 253, 231, 0.96); color: black !important; border-left: 6px solid #fbc02d; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
     .sanat-aciklama div, .sanat-aciklama b {{ color: black !important; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; box-shadow: 0 4px 0 #1b5e20; margin-top: 15px; }}
