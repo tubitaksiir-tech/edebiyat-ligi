@@ -14,7 +14,13 @@ st.set_page_config(
 # GOOGLE FORM LİNKİ
 GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
 
-# --- ARKA PLAN VE SES FONKSİYONLARI ---
+# --- RENK PALETİ VE DEĞİŞKENLER (EN BAŞTA TANIMLANDI - HATA ÇÖZÜMÜ) ---
+sidebar_color = "#1b3a1a"
+card_bg_color = "#2e5a27"
+text_color_cream = "#fffbe6"
+red_warning_color = "#c62828"
+
+# --- SES ÇALMA FONKSİYONU ---
 def get_audio_html(sound_type):
     if sound_type == "dogru":
         audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_bb630cc098.mp3"
@@ -23,109 +29,136 @@ def get_audio_html(sound_type):
     return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
-# 1. VERİTABANLARI
+# 1. DEVASA OYUN VERİTABANI (CUMHURİYET FULL + DİVAN)
 # ======================================================
 @st.cache_data
 def get_game_db(kategori):
     if kategori == "CUMHURİYET":
         return {
-            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed"], "Roman": ["Efruz Bey"]},
-            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları"]},
-            "Yakup Kadri Karaosmanoğlu": {"Roman": ["Yaban", "Kiralık Konak", "Sodom ve Gomore", "Nur Baba", "Ankara", "Panorama"], "Anı": ["Zoraki Diplomat"]},
-            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık"], "Anı": ["Mor Salkımlı Ev"]},
-            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi"]},
-            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu"]},
-            "Tarık Buğra": {"Roman": ["Küçük Ağa", "Osmancık", "İbişin Rüyası", "Firavun İmanı"]},
-            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan"]},
-            "Sabahattin Ali": {"Roman": ["Kürk Mantolu Madonna", "Kuyucaklı Yusuf", "İçimizdeki Şeytan"], "Hikaye": ["Değirmen", "Kağnı"]},
-            "Ahmet Hamdi Tanpınar": {"Roman": ["Huzur", "Saatleri Ayarlama Enstitüsü", "Sahnenin Dışındakiler"], "Deneme": ["Beş Şehir"]},
-            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey"]},
-            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin"]},
-            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi"]},
-            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları"]},
-            "Oğuz Atay": {"Roman": ["Tutunamayanlar", "Tehlikeli Oyunlar", "Bir Bilim Adamının Romanı"], "Hikaye": ["Korkuyu Beklerken"]},
-            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar"], "Roman": ["Kurtlar Sofrası"]},
-            "Cemal Süreya": {"Şiir": ["Üvercinka", "Sevda Sözleri", "Göçebe"]},
-            "Adalet Ağaoğlu": {"Roman": ["Ölmeye Yatmak", "Bir Düğün Gecesi", "Fikrimin İnce Gülü"]},
-            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği"]},
-            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları"]},
-            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı"]},
+            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed", "Başını Vermeyen Şehit", "Perili Köşk", "Bahar ve Kelebekler", "Harem", "Yalnız Efe"], "Roman": ["Efruz Bey"]},
+            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları", "Türkleşmek İslamlaşmak Muasırlaşmak"]},
+            "Yakup Kadri Karaosmanoğlu": {"Roman": ["Yaban", "Kiralık Konak", "Sodom ve Gomore", "Nur Baba", "Ankara", "Panorama", "Bir Sürgün", "Hep O Şarkı"], "Anı": ["Zoraki Diplomat", "Anamın Kitabı", "Gençlik ve Edebiyat Hatıraları", "Politikada 45 Yıl"]},
+            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık", "Yolpalas Cinayeti", "Kalp Ağrısı", "Zeyno'nun Oğlu", "Yeni Turan"], "Anı": ["Mor Salkımlı Ev", "Türk'ün Ateşle İmtihanı"]},
+            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi", "Dudaktan Kalbe", "Akşam Güneşi", "Kavak Yelleri", "Damga", "Bir Kadın Düşmanı", "Değirmen"]},
+            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu", "Bir Tereddüdün Romanı", "Sözde Kızlar", "Mahşer", "Canan", "Biz İnsanlar"]},
+            "Tarık Buğra": {"Roman": ["Küçük Ağa", "Osmancık", "İbişin Rüyası", "Firavun İmanı", "Yağmur Beklerken", "Dönemeçte", "Gençliğim Eyvah", "Yalnızlar"]},
+            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan", "Şahmerdan", "Mahalle Kahvesi", "Havada Bulut", "Kumpanya"]},
+            "Sabahattin Ali": {"Roman": ["Kürk Mantolu Madonna", "Kuyucaklı Yusuf", "İçimizdeki Şeytan"], "Hikaye": ["Değirmen", "Kağnı", "Ses", "Yeni Dünya", "Sırça Köşk"]},
+            "Ahmet Hamdi Tanpınar": {"Roman": ["Huzur", "Saatleri Ayarlama Enstitüsü", "Sahnenin Dışındakiler", "Mahur Beste", "Aydaki Kadın"], "Deneme": ["Beş Şehir", "Yaşadığım Gibi"]},
+            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı", "Ben ve Ötesi"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey", "Tohum", "Para", "Sabır Taşı", "Ahşap Konak"]},
+            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin", "835 Satır", "Jokond ile Si-Ya-U", "Benerci Kendini Niçin Öldürdü"]},
+            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi", "Yılanı Öldürseler", "Orta Direk", "Teneke", "Demirciler Çarşısı Cinayeti", "Binboğalar Efsanesi", "Çakırcalı Efe"]},
+            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları", "Sessiz Ev", "Kar", "Beyaz Kale", "Yeni Hayat", "Kafamda Bir Tuhaflık"]},
+            "Oğuz Atay": {"Roman": ["Tutunamayanlar", "Tehlikeli Oyunlar", "Bir Bilim Adamının Romanı"], "Hikaye": ["Korkuyu Beklerken"], "Tiyatro": ["Oyunlarla Yaşayanlar"]},
+            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar", "Yağmur Kaçağı", "Elde Var Hüzün", "Bela Çiçeği"], "Roman": ["Kurtlar Sofrası", "Sokaktaki Adam", "Bıçağın Ucu", "Sırtlan Payı"]},
+            "Cemal Süreya": {"Şiir": ["Üvercinka", "Sevda Sözleri", "Göçebe", "Beni Öp Sonra Doğur Beni", "Uçurumda Açan", "Sıcak Nal"]},
+            "Adalet Ağaoğlu": {"Roman": ["Ölmeye Yatmak", "Bir Düğün Gecesi", "Fikrimin İnce Gülü", "Yüksek Gerilim", "Ruh Üşümesi", "Hayır"]},
+            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği", "Cemile", "Baba Evi", "Avare Yıllar", "Gurbet Kuşları", "Devlet Kuşu"]},
+            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları", "Rahmet Yolları Kesti", "Köyün Kamburu", "Yol Ayrımı", "Kurt Kanunu", "Bozkırdaki Çekirdek"]},
+            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı", "Yezidin Kızı", "Nilgün", "Çete", "Anahtar"]},
             "Mehmet Akif Ersoy": {"Şiir": ["Safahat"]},
-            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul"]},
-            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi"], "Tiyatro": ["Akın", "Canavar"]},
-            "Memduh Şevket Esendal": {"Roman": ["Ayaşlı ve Kiracıları"], "Hikaye": ["Otlakçı", "Mendil Altında"]},
-            "Orhan Veli Kanık": {"Şiir": ["Garip", "Vazgeçemediğim", "Destan Gibi"]},
-            "Cahit Sıtkı Tarancı": {"Şiir": ["Otuz Beş Yaş", "Düşten Güzel"]},
-            "Ahmet Muhip Dıranas": {"Şiir": ["Fahriye Abla", "Serenad", "Olvido"]},
-            "Ziya Osman Saba": {"Şiir": ["Sebil ve Güvercinler", "Geçen Zaman"], "Hikaye": ["Mesut İnsanlar Fotoğrafhanesi"]},
-            "Arif Damar": {"Şiir": ["Günden Güne", "İstanbul Bulutu"]},
-            "Ferit Edgü": {"Roman": ["Hakkari'de Bir Mevsim (O)"], "Hikaye": ["Bir Gemide", "Çığlık"]},
+            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul", "Eğil Dağlar", "Siyasi Hikayeler"]},
+            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi", "Dinle Neyden", "Gönülden Gönüle"], "Tiyatro": ["Akın", "Canavar", "Yayla Kartalı"]},
+            "Memduh Şevket Esendal": {"Roman": ["Ayaşlı ve Kiracıları", "Vassaf Bey"], "Hikaye": ["Otlakçı", "Mendil Altında", "Temiz Sevgiler", "Ev Ona Yakıştı"]},
+            "Orhan Veli Kanık": {"Şiir": ["Garip", "Vazgeçemediğim", "Destan Gibi", "Yenisi", "Karşı"]},
+            "Cahit Sıtkı Tarancı": {"Şiir": ["Otuz Beş Yaş", "Düşten Güzel", "Ömrümde Sükut", "Ziya'ya Mektuplar"]},
+            "Ahmet Muhip Dıranas": {"Şiir": ["Fahriye Abla", "Serenad", "Olvido", "Kar"], "Tiyatro": ["Gölgeler", "O Böyle İstemezdi"]},
+            "Ziya Osman Saba": {"Şiir": ["Sebil ve Güvercinler", "Geçen Zaman", "Nefes Almak"], "Hikaye": ["Mesut İnsanlar Fotoğrafhanesi", "Değişen İstanbul"]},
+            "Arif Damar": {"Şiir": ["Günden Güne", "İstanbul Bulutu", "Kedi Aklı", "Saat Sekizi Geç Vurdu"]},
+            "Ferit Edgü": {"Roman": ["Hakkari'de Bir Mevsim (O)", "Kimse"], "Hikaye": ["Bir Gemide", "Çığlık", "Doğu Öyküleri", "Eylülün Gölgesinde Bir Yazdı"]},
             "Enis Behiç Koryürek": {"Şiir": ["Miras", "Güneşin Ölümü"], "Destan": ["Gemiciler"]},
-            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler"]},
-            "Hilmi Yavuz": {"Şiir": ["Bakış Kuşu", "Doğu Şiirleri"]},
-            "Cahit Külebi": {"Şiir": ["Adamın Biri", "Rüzgar", "Atatürk Kurtuluş Savaşı'nda"]},
-            "Fazıl Hüsnü Dağlarca": {"Şiir": ["Havaya Çizilen Dünya", "Çocuk ve Allah", "Üç Şehitler Destanı"]},
-            "Salah Birsel": {"Deneme": ["Kahveler Kitabı", "Ah Beyoğlu Vah Beyoğlu"], "Şiir": ["Dünya İşleri"]},
-            "Oktay Rifat": {"Şiir": ["Perçemli Sokak", "Karga ile Tilki"]},
-            "Melih Cevdet Anday": {"Şiir": ["Rahatı Kaçan Ağaç", "Kolları Bağlı Odysseus"]},
-            "Yusuf Atılgan": {"Roman": ["Aylak Adam", "Anayurt Oteli"]},
-            "Haldun Taner": {"Tiyatro": ["Keşanlı Ali Destanı"], "Hikaye": ["Şişhaneye Yağmur Yağıyordu"]},
-            "Sezai Karakoç": {"Şiir": ["Monna Rosa", "Körfez", "Hızırla Kırk Saat"]},
-            "Turgut Uyar": {"Şiir": ["Göğe Bakma Durağı", "Dünyanın En Güzel Arabistanı"]},
-            "Edip Cansever": {"Şiir": ["Yerçekimli Karanfil", "Masa Da Masaymış"]},
-            "Ece Ayhan": {"Şiir": ["Bakışsız Bir Kedi Kara", "Yort Savul"]},
-            "Falih Rıfkı Atay": {"Anı": ["Çankaya", "Zeytindağı"]},
-            "Nurullah Ataç": {"Deneme": ["Günlerin Getirdiği", "Karalama Defteri"]},
-            "Ahmet Kutsi Tecer": {"Şiir": ["Orada Bir Köy Var Uzakta"], "Tiyatro": ["Koçyiğit Köroğlu"]},
-            "Fakir Baykurt": {"Roman": ["Yılanların Öcü", "Kaplumbağalar"]},
-            "Latife Tekin": {"Roman": ["Sevgili Arsız Ölüm"]}
+            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler", "Çevre", "Divançe", "Eski Toprak", "Yaz Dönemi"]},
+            "Hilmi Yavuz": {"Şiir": ["Bakış Kuşu", "Bedreddin Üzerine Şiirler", "Doğu Şiirleri", "Gizemli Şiirler", "Zaman Şiirleri"]},
+            "Cahit Külebi": {"Şiir": ["Adamın Biri", "Rüzgar", "Atatürk Kurtuluş Savaşı'nda", "Yeşeren Otlar", "Süt", "Türk Mavisi"]},
+            "Fazıl Hüsnü Dağlarca": {"Şiir": ["Havaya Çizilen Dünya", "Çocuk ve Allah", "Üç Şehitler Destanı", "Çakırın Destanı", "Toprak Ana"]},
+            "Salah Birsel": {"Deneme": ["Kahveler Kitabı", "Ah Beyoğlu Vah Beyoğlu", "Boğaziçi Şıngır Mıngır", "Sergüzeşt-i Nono Bey"], "Şiir": ["Dünya İşleri"]},
+            "Oktay Rifat": {"Şiir": ["Perçemli Sokak", "Karga ile Tilki", "Aşık Merdiveni", "Elleri Var Özgürlüğün", "Yaşayıp Ölmek"]},
+            "Melih Cevdet Anday": {"Şiir": ["Rahatı Kaçan Ağaç", "Kolları Bağlı Odysseus", "Telgrafhane", "Teknenin Ölümü", "Göçebe Denizin Üstünde"]},
+            "Yusuf Atılgan": {"Roman": ["Aylak Adam", "Anayurt Oteli", "Canistan"]},
+            "Haldun Taner": {"Tiyatro": ["Keşanlı Ali Destanı", "Gözlerimi Kaparım Vazifemi Yaparım", "Sersem Kocanın Kurnaz Karısı"], "Hikaye": ["Şişhaneye Yağmur Yağıyordu", "On İkiye Bir Var", "Yalıda Sabah", "Sancho'nun Sabah Yürüyüşü"]},
+            "Sezai Karakoç": {"Şiir": ["Monna Rosa", "Körfez", "Hızırla Kırk Saat", "Şahdamar", "Taha'nın Kitabı", "Gül Muştusu"]},
+            "Turgut Uyar": {"Şiir": ["Göğe Bakma Durağı", "Dünyanın En Güzel Arabistanı", "Tütünler Islak", "Divan", "Kayayı Delen İncir"]},
+            "Edip Cansever": {"Şiir": ["Yerçekimli Karanfil", "Masa Da Masaymış", "İkindi Üstü", "Dirlik Düzenlik", "Tragedyalar", "Ben Ruhi Bey Nasılım"]},
+            "Ece Ayhan": {"Şiir": ["Bakışsız Bir Kedi Kara", "Yort Savul", "Kinar Hanımın Denizleri", "Devlet ve Tabiat", "Sivil Şiirler"]},
+            "Falih Rıfkı Atay": {"Anı": ["Çankaya", "Zeytindağı"], "Gezi": ["Deniz Aşırı", "Taymis Kıyıları", "Tuna Kıyıları", "Bizim Akdeniz"]},
+            "Nurullah Ataç": {"Deneme": ["Günlerin Getirdiği", "Karalama Defteri", "Sözden Söze", "Okuruma Mektuplar", "Prospero ile Caliban"]},
+            "Ahmet Kutsi Tecer": {"Şiir": ["Orada Bir Köy Var Uzakta"], "Tiyatro": ["Koçyiğit Köroğlu", "Köşebaşı", "Satılık Ev", "Bir Pazar Günü"]},
+            "Fakir Baykurt": {"Roman": ["Yılanların Öcü", "Kaplumbağalar", "Tırpan", "Irazca'nın Dirliği", "Onuncu Köy"]},
+            "Latife Tekin": {"Roman": ["Sevgili Arsız Ölüm", "Berci Kristin Çöp Masalları", "Gece Dersleri", "Buzdan Kılıçlar"]},
+            "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin"], "Hikaye": ["Son Emel"]},
+            "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı"]}
         }
     else: # DİVAN
         return {
-            "Fuzuli": {"Mesnevi": ["Leyla ile Mecnun", "Bengü Bade"], "Nesir": ["Şikayetname"]},
+            "Fuzuli": {"Mesnevi": ["Leyla ile Mecnun", "Bengü Bade", "Sohbetü'l Esmar"], "Nesir": ["Şikayetname", "Hadikatü's Süeda", "Rind ü Zahid"]},
             "Baki": {"Şiir": ["Kanuni Mersiyesi", "Baki Divanı"], "Nesir": ["Fezail-i Mekke"]},
-            "Nefi": {"Hiciv": ["Siham-ı Kaza"]},
-            "Nabi": {"Mesnevi": ["Hayriye", "Hayrabad"], "Gezi": ["Tuhfetü'l Haremeyn"]},
+            "Nefi": {"Hiciv": ["Siham-ı Kaza"], "Mesnevi": ["Tuhfetü’l-Uşşak"]},
+            "Nabi": {"Mesnevi": ["Hayriye", "Hayrabad", "Surname"], "Gezi": ["Tuhfetü'l Haremeyn"]},
             "Şeyh Galip": {"Mesnevi": ["Hüsnü Aşk"]},
             "Şeyhi": {"Fabl": ["Harname"], "Mesnevi": ["Hüsrev ü Şirin"]},
-            "Katip Çelebi": {"Bibliyografya": ["Keşfü'z Zunun"], "Coğrafya": ["Cihannüma"]},
+            "Katip Çelebi": {"Bibliyografya": ["Keşfü'z Zunun"], "Coğrafya": ["Cihannüma"], "Tarih": ["Fezleke"]},
             "Evliya Çelebi": {"Gezi": ["Seyahatname"]},
-            "Ali Şir Nevai": {"Sözlük": ["Muhakemetü'l Lügateyn"], "Tezkire": ["Mecalisü'n Nefais"]},
-            "Sinan Paşa": {"Süslü Nesir": ["Tazarruname"]},
+            "Ali Şir Nevai": {"Sözlük": ["Muhakemetü'l Lügateyn"], "Tezkire": ["Mecalisü'n Nefais"], "Mesnevi": ["Lisanü't Tayr"]},
+            "Sinan Paşa": {"Süslü Nesir": ["Tazarruname", "Maarifname"]},
             "Mercimek Ahmet": {"Sade Nesir": ["Kabusname"]},
             "Süleyman Çelebi": {"Mesnevi": ["Vesiletü'n Necat (Mevlid)"]},
-            "Ahmedi": {"Mesnevi": ["İskendername"]},
+            "Ahmedi": {"Mesnevi": ["İskendername", "Cemşid ü Hurşid"]},
             "Babürşah": {"Anı": ["Babürname"]},
             "Seydi Ali Reis": {"Gezi": ["Mir'atü'l Memalik"]},
             "Yirmisekiz Çelebi Mehmet": {"Sefaretname": ["Paris Sefaretnamesi"]},
-            "Gülşehri": {"Mesnevi": ["Mantıku't Tayr"]},
-            "Kaygusuz Abdal": {"Nesir": ["Budalaname"]},
+            "Gülşehri": {"Mesnevi": ["Mantıku't Tayr", "Felekname"]},
+            "Kaygusuz Abdal": {"Nesir": ["Budalaname", "Muglataname", "Gevhername"]},
             "Aşık Paşa": {"Mesnevi": ["Garibname"]},
             "Hoca Dehhani": {"Destan": ["Selçuklu Şehnamesi"]},
             "Kadı Burhaneddin": {"Şiir": ["Tuyuğlar"]},
-            "Nedim": {"Şiir": ["Şarkı Formu"]},
-            "Nergisi": {"Nesir": ["Nergisi Hamsesi"]}
+            "Nedim": {"Şiir": ["Şarkı Formu", "Nedim Divanı"]},
+            "Nergisi": {"Nesir": ["Nergisi Hamsesi"]},
+            "Veysi": {"Nesir": ["Habname"]},
+            "Karacaoğlan": {"Şiir": ["Koşma", "Semai", "Varsağı"]},
+            "Pir Sultan Abdal": {"Şiir": ["Nefesler"]},
+            "Eşrefoğlu Rumi": {"Tasavvuf": ["Müzekkin Nüfus"]},
+            "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
+            "Zati": {"Mesnevi": ["Şem ü Pervane"]}
         }
 
+# ======================================================
+# 2. ROMAN ÖZETLERİ VERİTABANI (GENİŞLETİLMİŞ)
+# ======================================================
 @st.cache_data
 def get_ozet_db():
     return [
-        {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır."},
+        {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır. Türk edebiyatının ilk edebi romanıdır."},
+        {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "Türk edebiyatının ilk tarihi romanıdır. II. Selim döneminde İran'la yapılan savaşları ve Cezmi'nin kahramanlıklarını anlatır."},
         {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey, alafrangalık özentisi, mirasyedi bir gençtir. Periveş adlı kadını soylu sanır. Yanlış batılılaşma mizahi dille anlatılır."},
-        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Mai ve Siyah", "ozet": "Ahmet Cemil'in şair olma hayalleri (Mai) ile hayatın acı gerçekleri (Siyah) arasındaki çatışma anlatılır."},
-        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Aşk-ı Memnu", "ozet": "Bihter, Adnan Bey ile evlenir ancak Behlül ile yasak aşk yaşar. Firdevs Hanım ve Nihal diğer karakterlerdir."},
-        {"yazar": "Mehmet Rauf", "roman": "Eylül", "ozet": "Suat, Süreyya ve Necip arasındaki yasak aşkı anlatan ilk psikolojik romandır."},
-        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Yaban", "ozet": "Ahmet Celal, bir Anadolu köyüne yerleşir. Köylü-aydın çatışması işlenir."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Çalıkuşu", "ozet": "Feride, Kamran'a küsüp Anadolu'da öğretmenlik yapar."},
-        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı."},
+        {"yazar": "Samipaşazade Sezai", "roman": "Sergüzeşt", "ozet": "Kafkasya'dan kaçırılıp İstanbul'a getirilen esir kız Dilber'in acıklı hikayesi. Dilber, Celal Bey'e aşık olur ama Nil Nehri'ne atlayarak intihar eder."},
+        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Mai ve Siyah", "ozet": "Ahmet Cemil'in şair olma hayalleri (Mai) ile hayatın acı gerçekleri (Siyah) arasındaki çatışma anlatılır. Batılı anlamda ilk teknik romandır."},
+        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Aşk-ı Memnu", "ozet": "Bihter, Adnan Bey ile evlenir ancak Behlül ile yasak aşk yaşar. Firdevs Hanım, Nihal ve Beşir diğer karakterlerdir."},
+        {"yazar": "Mehmet Rauf", "roman": "Eylül", "ozet": "Suat, Süreyya ve Necip arasındaki yasak aşkı anlatan, olaydan çok psikolojik tahlillere dayanan ilk psikolojik romandır."},
+        {"yazar": "Hüseyin Rahmi Gürpınar", "roman": "Şıpsevdi", "ozet": "Meftun Bey, alafranga züppe bir tiptir. Zengin Kasım Efendi'nin kızı Edibe ile parası için evlenmek ister. Gulyabani ve Mürebbiye ile benzer temadadır."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Yaban", "ozet": "Ahmet Celal, bir Anadolu köyüne yerleşir. Köylü onu düşman ve 'Yaban' olarak görür. Aydın-Halk çatışması işlenir."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Kiralık Konak", "ozet": "Naim Efendi (Gelenek), Servet Bey (Yozlaşma) ve Seniha (Köklerinden kopuş) üzerinden üç nesil arasındaki çatışmayı anlatır."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Sodom ve Gomore", "ozet": "Mütareke dönemi İstanbul'unda işgalcilerle işbirliği yapan yozlaşmış çevreleri anlatır. Leyla ve Necdet baş karakterlerdir."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Çalıkuşu", "ozet": "Feride, Kamran'a küsüp Anadolu'da öğretmenlik yapar. İdealist öğretmen tipinin en güzel örneğidir."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Yeşil Gece", "ozet": "Öğretmen Şahin Efendi'nin softalarla ve yobazlıkla mücadelesini anlatan tezli bir romandır."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Yaprak Dökümü", "ozet": "Ali Rıza Bey ve ailesinin yanlış batılılaşma ve ahlaki çöküş nedeniyle dağılmasını anlatır."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Sinekli Bakkal", "ozet": "Rabia ve Peregrini aşkı üzerinden II. Abdülhamit dönemi İstanbul'unu ve Doğu-Batı sentezini anlatır."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Vurun Kahpeye", "ozet": "Aliye Öğretmen'in Anadolu'da yobaz Hacı Fettah ve işbirlikçiler tarafından linç edilmesini anlatan Kurtuluş Savaşı romanıdır."},
+        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı. Psikolojik tahliller yoğundur."},
+        {"yazar": "Peyami Safa", "roman": "Fatih-Harbiye", "ozet": "Neriman'ın Fatih (Doğu) ile Harbiye (Batı) arasında kalışını, Şinasi ve Macit üzerinden anlatır."},
         {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Saatleri Ayarlama Enstitüsü", "ozet": "Hayri İrdal ve Halit Ayarcı üzerinden Türk toplumunun modernleşme ironisi anlatılır."},
-        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. Küçük burjuva aydınının dramı."},
-        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i İstanbul sokaklarında arar."},
-        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'nın zulmüne başkaldıran Memed'in eşkıya oluşu."},
-        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı hüzünlü aşk."},
-        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı ve psikolojik çöküşü."},
+        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Huzur", "ozet": "Mümtaz ve Nuran aşkı, İstanbul sevgisi ve II. Dünya Savaşı huzursuzluğu işlenir."},
+        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. Küçük burjuva aydınının dramını anlatan postmodern bir eserdir."},
+        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i İstanbul sokaklarında arar. Şeyh Galip'in Hüsn ü Aşk'ına göndermeler vardır."},
+        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'nın zulmüne başkaldıran Memed'in dağa çıkıp eşkıya olmasını ve köylü haklarını savunmasını anlatır."},
+        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı hüzünlü aşk ve sonrasında içine kapanışı anlatılır."},
+        {"yazar": "Sabahattin Ali", "roman": "Kuyucaklı Yusuf", "ozet": "Yusuf'un ailesinin öldürülmesi, Kaymakam tarafından evlat edinilmesi ve Muazzez'e olan aşkı anlatılır."},
+        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı ve psikolojik çöküşü. Gecikmeli Ankara treniyle gelen kadını bekler."},
         {"yazar": "Adalet Ağaoğlu", "roman": "Ölmeye Yatmak", "ozet": "Aysel'in bir otel odasında intiharı düşünürken geçmişiyle hesaplaşması."},
-        {"yazar": "Ferit Edgü", "roman": "Hakkari'de Bir Mevsim", "ozet": "Bir öğretmenin Hakkari'nin Pirkanis köyündeki yalnızlığı ve köylülerle iletişimi (O adlı roman)."}
+        {"yazar": "Ferit Edgü", "roman": "Hakkari'de Bir Mevsim", "ozet": "Bir öğretmenin Hakkari'nin Pirkanis köyündeki yalnızlığı ve köylülerle iletişimi (O adlı roman)."},
+        {"yazar": "Kemal Tahir", "roman": "Devlet Ana", "ozet": "Osmanlı'nın kuruluşunu, Ertuğrul Gazi ve Osman Bey üzerinden anlatan tarihi romandır."},
+        {"yazar": "Kemal Tahir", "roman": "Yorgun Savaşçı", "ozet": "Milli Mücadele dönemini Cehennem Yüzbaşı Cemil üzerinden anlatan tarihi roman."},
+        {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Kuvayi Milliye karşıtlığından, Akşehir'de bilinçlenerek Milli Mücadele destekçisine dönüşmesi."},
+        {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın (İflahsızın Yusuf, Köse Hasan, Pehlivan Ali) dramı."}
     ]
 
 @st.cache_data
@@ -144,6 +177,9 @@ def get_sanatlar_db():
         {"sanat": "Teşhis (Kişileştirme)", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler (eli kolu bağlı olmak, ağlamak) verilmiştir."}
     ]
 
+# ======================================================
+# 4. OKUMA KÖŞESİ VERİTABANI (DETAYLANDIRILMIŞ)
+# ======================================================
 @st.cache_data
 def get_reading_db():
     return {
@@ -157,7 +193,7 @@ def get_reading_db():
         "Ahmet Hamdi Tanpınar": {
             "bio": "Rüya, Zaman ve Bilinçaltı kavramlarını işler. Şiirde sembolisttir.",
             "eserler": {
-                "Huzur": "Mümtaz ve Nuran aşkı üzerinden Doğu-Batı çatışması.",
+                "Huzur": "Mümtaz ve Nuran aşkı üzerinden Doğu-Batı çatışması. AYT favorisidir.",
                 "Beş Şehir": "Ankara, Erzurum, Konya, Bursa ve İstanbul üzerine denemeler."
             }
         },
@@ -169,8 +205,15 @@ def get_reading_db():
         "Cahit Sıtkı Tarancı": {"bio": "Ölüm, yaşama sevinci ve yalnızlık. 'Otuz Beş Yaş' şairidir.", "eserler": {"Otuz Beş Yaş": "Ölüm korkusu."}},
         "Behçet Necatigil": {"bio": "Evler Şairi. Modern insanın yalnızlığı.", "eserler": {"Kapalı Çarşı": "Şehir ve insan."}},
         "Fazıl Hüsnü Dağlarca": {"bio": "'Türkçem benim ses bayrağım' der. Destan şairidir.", "eserler": {"Üç Şehitler Destanı": "Kurtuluş Savaşı."}},
-        "Peyami Safa": {"bio": "Psikolojik romanın güçlü kalemi.", "eserler": {"Fatih-Harbiye": "Doğu-Batı çatışması."}},
+        "Peyami Safa": {"bio": "Psikolojik romanın güçlü kalemi. Doğu-Batı çatışması.", "eserler": {"Fatih-Harbiye": "Kültür çatışması.", "Dokuzuncu Hariciye Koğuşu": "Psikolojik roman."}},
         "Tarık Buğra": {"bio": "Tarihi ve psikolojik derinlikli romanlar.", "eserler": {"Küçük Ağa": "Kuvayi Milliye bilinci."}},
+        "Halide Edip Adıvar": {"bio": "Milli Mücadele'nin kadın kahramanı.", "eserler": {"Sinekli Bakkal": "Töre romanı.", "Ateşten Gömlek": "Kurtuluş Savaşı."}},
+        "Reşat Nuri Güntekin": {"bio": "Anadolu romancısı. Realizm.", "eserler": {"Çalıkuşu": "İdealist öğretmen.", "Yaprak Dökümü": "Sosyal değişim."}},
+        "Mehmet Rauf": {"bio": "Servet-i Fünun yazarı. Psikolojik roman.", "eserler": {"Eylül": "İlk psikolojik roman."}},
+        "Yakup Kadri Karaosmanoğlu": {"bio": "Nehir romanlarıyla toplum tarihini yazar.", "eserler": {"Yaban": "Aydın-Köylü çatışması.", "Kiralık Konak": "Kuşak çatışması."}},
+        "Sait Faik Abasıyanık": {"bio": "Durum hikayecisi. İstanbul aşığı.", "eserler": {"Semaver": "Sıradan insanlar.", "Alemdağ'da Var Bir Yılan": "Sürrealizm."}},
+        "Oğuz Atay": {"bio": "Postmodernizmin öncüsü.", "eserler": {"Tutunamayanlar": "Aydın bunalımı."}},
+        "Namık Kemal": {"bio": "Vatan şairi. Tanzimat 1. Dönem.", "eserler": {"İntibah": "İlk edebi roman.", "Vatan Yahut Silistre": "İlk tiyatro."}}
     }
 
 # --- SESSION STATE ---
@@ -195,15 +238,8 @@ if 'calisma_yazar' not in st.session_state:
 if 'soru_bitti' not in st.session_state:
     st.session_state.soru_bitti = False
 
-# --- CSS TASARIMI (SENİN GÖNDERDİĞİN KESİN LİNK) ---
-# Artık yerel dosya kontrolü yok, direkt senin linkin kullanılıyor.
+# --- CSS TASARIMI (KESİN RESİM LİNKİ - YEŞİL KİTAPLAR) ---
 bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
-
-# ANA RENK PALETİ
-sidebar_color = "#1b3a1a" # Çok koyu orman yeşili (Yan Menü)
-card_bg_color = "#2e5a27" # Koyu yeşil kart arka planı
-text_color_cream = "#fffbe6" # Krem/Beyaz metin rengi
-red_warning_color = "#c62828" # Kırmızı uyarı rengi
 
 st.markdown(f"""
     <style>
@@ -224,14 +260,11 @@ st.markdown(f"""
         background-color: {sidebar_color} !important;
         border-right: 4px solid #3e7a39;
     }}
-    /* Yan menüdeki TÜM yazılar BEYAZ olsun */
     [data-testid="stSidebar"] * {{
         color: #ffffff !important;
     }}
     
-    /* GENEL KUTU TASARIMI (KOYU YEŞİL ZEMİN, BEYAZ YAZI) */
-    
-    /* Soru Kartı */
+    /* SORU KARTI */
     .question-card {{
         background-color: {card_bg_color} !important;
         padding: 25px;
@@ -241,12 +274,11 @@ st.markdown(f"""
         text-align: center;
         margin-bottom: 25px;
     }}
-    /* Soru kartı içindeki yazılar BEYAZ/KREM */
     .question-card div, .question-card span, .question-card p {{
         color: {text_color_cream} !important;
     }}
     
-    /* Şık Kutuları (Radio) */
+    /* ŞIK KUTULARI */
     .stRadio {{
         background-color: {card_bg_color} !important;
         padding: 20px;
@@ -254,14 +286,13 @@ st.markdown(f"""
         border: 3px solid #3e7a39;
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }}
-    /* Şık yazıları BEYAZ/KREM */
     .stRadio label p {{
         color: {text_color_cream} !important;
         font-size: 18px !important;
         font-weight: 700 !important;
     }}
     
-    /* Menü Kartları */
+    /* MENÜ KARTLARI */
     .menu-card {{ 
         background-color: {card_bg_color}; 
         padding: 20px; 
@@ -294,66 +325,32 @@ st.markdown(f"""
         transform: translateY(5px);
     }}
     
-    /* YEŞİL GEÇ BUTONU */
-    .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
-    
-    /* ==================================================================
-       SEMA HOCA UYARI KUTUSU VE İÇİNDEKİ BUTON TASARIMI (ÖNEMLİ KISIM)
-    ================================================================== */
-    
-    /* Kırmızı Uyarı Kutusunun Üst Kısmı (Yazılar) */
-    .sema-hoca-alert-box {
-        background-color: {red_warning_color};
-        color: white;
-        padding: 30px 30px 10px 30px; /* Alt boşluk az */
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
-        border: 6px solid white;
-        border-bottom: none; /* Alt kenarlık yok, butonla birleşecek */
-        text-align: center;
-    }
-    
-    /* Kırmızı Uyarı Kutusunun Alt Kısmı (Butonu Saran Kısım) */
-    .sema-hoca-button-container {
-        background-color: {red_warning_color};
-        padding: 0px 30px 30px 30px; /* Üst boşluk az */
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
-        border: 6px solid white;
-        border-top: none; /* Üst kenarlık yok */
-        text-align: center;
-        display: flex;
-        justify-content: center;
-    }
-    
-    /* Tüm kutuyu ekranda sabitleyen dış katman */
-    .sema-hoca-fixed-wrapper {
-         position: fixed;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         z-index: 99999; /* En üstte */
-         animation: shake 0.5s;
-         box-shadow: 0 0 100px rgba(0,0,0,0.9);
-    }
-    
-    /* Kutunun içindeki Özür Dilerim butonunun özel stili */
-    .sema-hoca-button-container button {
-         background-color: white !important;
-         color: {red_warning_color} !important;
-         border: 2px solid {red_warning_color} !important;
-         font-weight: bold !important;
-    }
-    /* ================================================================== */
+    /* SEMA HOCA UYARI KUTUSU */
+    .sema-hoca {{ 
+        position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); 
+        background-color: {red_warning_color}; color: white !important; padding: 30px; 
+        border-radius: 20px; border: 6px solid white; z-index: 99999; 
+        text-align: center; 
+        box-shadow: 0 0 100px rgba(0,0,0,0.9); animation: shake 0.5s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }}
+    @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
 
-    /* Okuma Köşesi Kartları */
+    /* ÖZÜR DİLERİM BUTONU (KUTUNUN İÇİNDE) */
+    .ozur-btn-in-box button {{
+        background-color: white !important; color: {red_warning_color} !important; 
+        border: 3px solid {red_warning_color} !important;
+        margin-top: 20px; font-weight: bold; font-size: 16px; padding: 10px 20px;
+    }}
+
+    /* OKUMA KÖŞESİ KARTLARI */
     .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
     .bio-box b, .bio-box div, .bio-box span {{ color: {text_color_cream} !important; }}
     
-    /* İsim Tabelası */
+    /* İSİM TABELASI */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
-    /* Mobil Skor */
+    /* MOBİL SKOR */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
     .mobile-score span {{ color: {text_color_cream} !important; }}
     
@@ -511,26 +508,19 @@ elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
     level = (st.session_state.soru_sayisi // 5) + 1
     
-    # 1. SEMA HOCA UYARISI (En Üst Katman - DÜZELTİLDİ)
+    # 1. SEMA HOCA UYARISI (En Üst Katman)
     if st.session_state.sema_hoca_kizdi:
-        # Dış katman (Fixed pozisyon)
-        st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
-        
-        # Üst kısım (Yazılar)
         st.markdown("""
-            <div class="sema-hoca-alert-box">
-                <div style="font-size: 60px;">😡</div>
-                <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
-                <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-            </div>
+        <div class="sema-hoca">
+            <div style="font-size: 60px;">😡</div>
+            <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
+            <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
+            <div class="ozur-btn-in-box">
         """, unsafe_allow_html=True)
         
-        # Alt kısım (Butonu saran kırmızı alan)
-        st.markdown('<div class="sema-hoca-button-container">', unsafe_allow_html=True)
-        
-        # Özür Dilerim Butonu
+        # Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE)
         if st.button("Özür Dilerim 😔"):
-            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat
+            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat (Notu okumak için)
             if st.session_state.kategori == "SANATLAR":
                 st.session_state.sema_hoca_kizdi = False
                 st.rerun()
@@ -543,9 +533,7 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-                
-        st.markdown('</div>', unsafe_allow_html=True) # Buton konteynerini kapat
-        st.markdown('</div>', unsafe_allow_html=True) # Dış katmanı kapat
+        st.markdown('</div></div>', unsafe_allow_html=True)
     
     with st.sidebar:
         st.header("🏆 DURUM")
