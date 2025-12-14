@@ -204,10 +204,13 @@ if os.path.exists("background.jpg"):
     bg_image_css = f"background-image: url('data:image/jpg;base64,{img_data}');"
 else:
     # Eğer background.jpg yoksa, senin görseline çok benzeyen yüksek kaliteli bir online alternatif
-    bg_image_css = "background-image: url('https://img.freepik.com/free-vector/hand-drawn-library-pattern_23-2149429596.jpg?w=2000');"
+    bg_image_css = "background-image: url('https://i.pinimg.com/originals/1d/53/45/1d534535163202316457001720331001.jpg');"
 
-# YAN MENÜ RENGİ (Görseldeki yeşil tonlarına uygun koyu haki/zeytin yeşili)
-sidebar_color = "#33691e" 
+# ANA RENK PALETİ
+sidebar_color = "#1b3a1a" # Çok koyu orman yeşili (Yan Menü)
+card_bg_color = "#2e5a27" # Koyu yeşil kart arka planı
+text_color_cream = "#fffbe6" # Krem/Beyaz metin rengi
+red_warning_color = "#c62828" # Kırmızı uyarı rengi
 
 st.markdown(f"""
     <style>
@@ -226,60 +229,60 @@ st.markdown(f"""
     /* YAN MENÜ (İSTATİSTİKLER) */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
-        border-right: 4px solid #aed581;
+        border-right: 4px solid #3e7a39;
     }}
     /* Yan menüdeki TÜM yazılar BEYAZ olsun */
     [data-testid="stSidebar"] * {{
         color: #ffffff !important;
     }}
     
-    /* SORU KARTI VE ŞIKLAR (OKUNABİLİRLİK İÇİN YARI SAYDAM ZEMİN) */
+    /* GENEL KUTU TASARIMI (KOYU YEŞİL ZEMİN, BEYAZ YAZI) */
     
     /* Soru Kartı */
     .question-card {{
-        background-color: rgba(255, 255, 255, 0.95) !important; /* %95 Beyaz */
+        background-color: {card_bg_color} !important;
         padding: 25px;
         border-radius: 20px;
-        border: 4px solid #33691e; /* Koyu yeşil çerçeve */
+        border: 4px solid #3e7a39; /* Biraz daha açık yeşil çerçeve */
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         text-align: center;
         margin-bottom: 25px;
     }}
-    /* Soru kartı içindeki yazılar SİMSİYAH */
+    /* Soru kartı içindeki yazılar BEYAZ/KREM */
     .question-card div, .question-card span, .question-card p {{
-        color: #000000 !important;
+        color: {text_color_cream} !important;
     }}
     
     /* Şık Kutuları (Radio) */
     .stRadio {{
-        background-color: rgba(255, 255, 255, 0.95) !important;
+        background-color: {card_bg_color} !important;
         padding: 20px;
         border-radius: 20px;
-        border: 3px solid #33691e;
+        border: 3px solid #3e7a39;
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }}
-    /* Şık yazıları SİMSİYAH */
+    /* Şık yazıları BEYAZ/KREM */
     .stRadio label p {{
-        color: #000000 !important;
+        color: {text_color_cream} !important;
         font-size: 18px !important;
         font-weight: 700 !important;
     }}
     
     /* Menü Kartları */
     .menu-card {{ 
-        background-color: rgba(255, 255, 255, 0.95); 
+        background-color: {card_bg_color}; 
         padding: 20px; 
         border-radius: 20px; 
         text-align: center; 
-        border: 4px solid #33691e; 
+        border: 4px solid #3e7a39; 
         cursor: pointer; 
         margin-bottom: 15px; 
-        box-shadow: 0 6px 0px #1b5e20; 
+        box-shadow: 0 6px 0px #1b3a1a; 
     }}
     .menu-title {{ 
         font-size: 18px; 
         font-weight: 900; 
-        color: #33691e; 
+        color: {text_color_cream}; 
         text-transform: uppercase; 
     }}
     
@@ -301,38 +304,37 @@ st.markdown(f"""
     /* YEŞİL GEÇ BUTONU */
     .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
     
-    /* Sema Hoca Uyarı Kutusu */
+    /* Sema Hoca Uyarı Kutusu (Kırmızı) */
     .sema-hoca {{ 
         position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); 
-        background-color: #c62828; color: white !important; padding: 40px; 
-        border-radius: 20px; border: 8px solid white; z-index: 99999; 
-        font-size: 30px; font-weight: 900; text-align: center; 
+        background-color: {red_warning_color}; color: white !important; padding: 30px; 
+        border-radius: 20px; border: 6px solid white; z-index: 99999; 
+        text-align: center; 
         box-shadow: 0 0 100px rgba(0,0,0,0.9); animation: shake 0.5s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
     }}
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
 
-    /* Özür Dilerim Butonu */
-    .ozur-container {{
-        position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%);
-        z-index: 100000;
-    }}
-    div[data-testid="stVerticalBlock"] > div > div[class*="ozur-container"] button {{
-        background-color: white !important; color: #c62828 !important; border: 3px solid #c62828 !important;
+    /* Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE) */
+    .ozur-btn-in-box button {{
+        background-color: white !important; color: {red_warning_color} !important; 
+        border: 3px solid {red_warning_color} !important;
+        margin-top: 20px; font-weight: bold; font-size: 16px; padding: 10px 20px;
     }}
 
     /* Okuma Köşesi Kartları */
-    .bio-box {{ background-color: rgba(255, 255, 255, 0.95); color: black !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffb300; margin-bottom: 20px; font-size: 16px; }}
-    .bio-box b, .bio-box div {{ color: black !important; }}
+    .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
+    .bio-box b, .bio-box div, .bio-box span {{ color: {text_color_cream} !important; }}
     
     /* İsim Tabelası */
-    .creator-name {{ background-color: #33691e; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
+    .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
     /* Mobil Skor */
-    .mobile-score {{ background-color: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 15px; border: 3px solid #33691e; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: black !important; }}
-    .mobile-score span {{ color: black !important; }}
+    .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
+    .mobile-score span {{ color: {text_color_cream} !important; }}
     
-    .sanat-aciklama {{ background-color: rgba(255, 253, 231, 0.95); color: black !important; border-left: 6px solid #fbc02d; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
-    .sanat-aciklama div, .sanat-aciklama b {{ color: black !important; }}
+    .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+    .sanat-aciklama div, .sanat-aciklama b {{ color: {text_color_cream} !important; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; box-shadow: 0 4px 0 #1b5e20; margin-top: 15px; }}
     </style>
@@ -392,13 +394,13 @@ if st.session_state.page == "MENU":
         if os.path.exists("background.jpg"):
             with open("background.jpg", "rb") as f:
                 img_data = base64.b64encode(f.read()).decode()
-            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="120" style="border-radius:10px; border:2px solid #33691e;">', unsafe_allow_html=True)
+            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="120" style="border-radius:10px; border:3px solid #3e7a39;">', unsafe_allow_html=True)
         else:
             st.info("Logo")
             
     with col_title:
         st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="background-color:#fff8e1; padding:10px; border-radius:15px; border:3px solid #33691e; color:#33691e !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="background-color:#2e5a27; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:#fffbe6 !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
     st.markdown("---")
     
     c1, c2, c3, c4 = st.columns(4)
@@ -444,14 +446,14 @@ if st.session_state.page == "MENU":
             st.rerun()
 
     st.markdown("---")
-    st.markdown("""<div class="menu-card" style="background-color:#ffeaa7; border-color:#ffb300;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#e65100;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:black;">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
+    st.markdown("""<div class="menu-card" style="background-color:#2e5a27; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:#fffbe6;">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
     if st.button("OKUMA KÖŞESİNE GİR ☕", use_container_width=True):
         st.session_state.page = "STUDY"
         st.rerun()
 
 # --- STUDY SAYFASI ---
 elif st.session_state.page == "STUDY":
-    st.markdown("<h1 style='color:#c0392b; font-weight:900; text-align:center;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:#2e5a27; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
     if st.button("⬅️ ANA MENÜYE DÖN"):
         st.session_state.page = "MENU"
         st.rerun()
@@ -472,10 +474,10 @@ elif st.session_state.page == "STUDY":
         bilgi = db_study[yazar]
         st.markdown("---")
         st.markdown(f"<div class='bio-box'><b>✍️ {yazar}</b><br>{bilgi['bio']}</div>", unsafe_allow_html=True)
-        st.markdown("#### 📚 Eserleri ve Önemli Notlar")
+        st.markdown(f"<h4 style='color:{text_color_cream}'>📚 Eserleri ve Önemli Notlar</h4>", unsafe_allow_html=True)
         for eser, ozet in bilgi['eserler'].items():
             with st.expander(f"📖 {eser}"):
-                st.markdown(f"<span style='color:black;'>{ozet}</span>", unsafe_allow_html=True)
+                st.markdown(f"<span style='color:{text_color_cream};'>{ozet}</span>", unsafe_allow_html=True)
         if st.button("LİSTEYİ KAPAT / TEMİZLE"):
             st.session_state.calisma_yazar = None
             st.rerun()
@@ -489,13 +491,13 @@ elif st.session_state.page == "GAME":
     if st.session_state.sema_hoca_kizdi:
         st.markdown("""
         <div class="sema-hoca">
-            😡 SEMA HOCAN<br>ÇOK KIZDI!<br>
-            <span style="font-size:20px; color:#ffeaa7;">Nasıl Bilemezsin?!</span>
-        </div>
+            <div style="font-size: 60px;">😡</div>
+            <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
+            <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
+            <div class="ozur-btn-in-box">
         """, unsafe_allow_html=True)
         
-        # Özür Dilerim Butonu
-        st.markdown('<div class="ozur-container">', unsafe_allow_html=True)
+        # Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE)
         if st.button("Özür Dilerim 😔"):
             # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat (Notu okumak için)
             if st.session_state.kategori == "SANATLAR":
@@ -510,7 +512,7 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div></div>', unsafe_allow_html=True)
     
     with st.sidebar:
         st.header("🏆 DURUM")
@@ -524,7 +526,7 @@ elif st.session_state.page == "GAME":
             st.session_state.xp = 0
             st.rerun()
 
-    st.markdown(f"<div class='mobile-score'><span style='color:#33691e;'>⭐ Lv {level}</span><span style='color:#2e7d32;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='mobile-score'><span style='color:{text_color_cream};'>⭐ Lv {level}</span><span style='color:#aed581;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
     if st.session_state.kategori == "SANATLAR":
@@ -540,7 +542,7 @@ elif st.session_state.page == "GAME":
         content_text = f"✨ {soru['eser']} ✨"
         sub_text = "Kime aittir?"
         
-    st.markdown(f"""<div class="question-card"><div style="color:#33691e; font-weight:bold; font-size:16px;">{title_text}</div><div style="font-size:22px; font-weight:900; color:#d84315; margin: 15px 0; padding:10px; background:#fff3e0; border-radius:10px;">{content_text}</div><div style="font-size:18px; font-weight:bold; color:black;">{sub_text}</div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="question-card"><div style="color:{text_color_cream}; font-weight:bold; font-size:16px;">{title_text}</div><div style="font-size:22px; font-weight:900; color:#ffeb3b; margin: 15px 0; padding:10px; background:#3e7a39; border-radius:10px;">{content_text}</div><div style="font-size:18px; font-weight:bold; color:{text_color_cream};">{sub_text}</div></div>""", unsafe_allow_html=True)
 
     col1, col2 = st.columns([3, 1])
     with col1:
