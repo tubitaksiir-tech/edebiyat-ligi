@@ -14,14 +14,7 @@ st.set_page_config(
 # GOOGLE FORM LİNKİ
 GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
 
-# --- ARKA PLAN RESMİNİ KODA GÖMME (BASE64) ---
-# Bu fonksiyon, resmin kaybolmamasını ve her yerde çalışmasını sağlar.
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-# --- SES ÇALMA FONKSİYONU ---
+# --- ARKA PLAN VE SES FONKSİYONLARI ---
 def get_audio_html(sound_type):
     if sound_type == "dogru":
         audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_bb630cc098.mp3"
@@ -202,52 +195,53 @@ if 'calisma_yazar' not in st.session_state:
 if 'soru_bitti' not in st.session_state:
     st.session_state.soru_bitti = False
 
-# --- CSS TASARIMI (SENİN YOLLADIĞIN RESİM İÇİN ÖZEL AYARLAR) ---
+# --- CSS TASARIMI (YEŞİL SARMAŞIKLI KİTAP GÖRSELİNE UYGUN) ---
+# Resim URL'si (Senin beğendiğin tarzın çok benzeri, güvenilir bir kaynak)
+# VEYA sen 'background.jpg' olarak kendi dosyanı yüklersen onu kullanır.
 if os.path.exists("background.jpg"):
-    bg_image_css = f"""
-        background-image: url("data:image/jpg;base64,{get_base64_of_bin_file('background.jpg')}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    """
+    with open("background.jpg", "rb") as f:
+        img_data = base64.b64encode(f.read()).decode()
+    bg_image_css = f"background-image: url('data:image/jpg;base64,{img_data}');"
 else:
-    # Resim yoksa yedek desen
-    bg_image_css = "background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); background-color: #d7ccc8;"
+    # Eğer background.jpg yoksa, senin görseline çok benzeyen yüksek kaliteli bir online alternatif
+    bg_image_css = "background-image: url('https://img.freepik.com/free-vector/hand-drawn-library-pattern_23-2149429596.jpg?w=2000');"
 
-# YAN MENÜ RENGİ (Koyu Deri Rengi - Resimle Uyumlu)
-sidebar_color = "#3e2723" 
+# YAN MENÜ RENGİ (Görseldeki yeşil tonlarına uygun koyu haki/zeytin yeşili)
+sidebar_color = "#33691e" 
 
 st.markdown(f"""
     <style>
     /* ARKA PLAN AYARLARI */
     .stApp {{
         {bg_image_css}
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }}
     
     html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
     }}
     
-    /* YAN MENÜ (İSTATİSTİKLER) - KOYU KAHVE VE BEYAZ YAZI */
+    /* YAN MENÜ (İSTATİSTİKLER) */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
-        border-right: 4px solid #a1887f;
+        border-right: 4px solid #aed581;
     }}
-    /* Yan menüdeki TÜM yazılar ve ikonlar BEYAZ olsun */
+    /* Yan menüdeki TÜM yazılar BEYAZ olsun */
     [data-testid="stSidebar"] * {{
         color: #ffffff !important;
     }}
     
-    /* GENEL KUTU TASARIMI (SORULAR, MENÜLER VB.) */
-    /* Desenli arka planda okunabilirlik için %95 OPAK BEYAZ/KREM ZEMİN */
+    /* SORU KARTI VE ŞIKLAR (OKUNABİLİRLİK İÇİN YARI SAYDAM ZEMİN) */
     
     /* Soru Kartı */
     .question-card {{
-        background-color: rgba(255, 248, 225, 0.96) !important; /* Krem */
+        background-color: rgba(255, 255, 255, 0.95) !important; /* %95 Beyaz */
         padding: 25px;
         border-radius: 20px;
-        border: 4px solid #5d4037; /* Koyu kahve çerçeve */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        border: 4px solid #33691e; /* Koyu yeşil çerçeve */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         text-align: center;
         margin-bottom: 25px;
     }}
@@ -258,10 +252,10 @@ st.markdown(f"""
     
     /* Şık Kutuları (Radio) */
     .stRadio {{
-        background-color: rgba(255, 248, 225, 0.96) !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
         padding: 20px;
         border-radius: 20px;
-        border: 3px solid #5d4037;
+        border: 3px solid #33691e;
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }}
     /* Şık yazıları SİMSİYAH */
@@ -273,30 +267,30 @@ st.markdown(f"""
     
     /* Menü Kartları */
     .menu-card {{ 
-        background-color: rgba(255, 248, 225, 0.96); 
+        background-color: rgba(255, 255, 255, 0.95); 
         padding: 20px; 
         border-radius: 20px; 
         text-align: center; 
-        border: 4px solid #5d4037; 
+        border: 4px solid #33691e; 
         cursor: pointer; 
         margin-bottom: 15px; 
-        box-shadow: 0 6px 0px #3e2723; 
+        box-shadow: 0 6px 0px #1b5e20; 
     }}
     .menu-title {{ 
         font-size: 18px; 
         font-weight: 900; 
-        color: #5d4037; 
+        color: #33691e; 
         text-transform: uppercase; 
     }}
     
-    /* BUTONLAR */
+    /* BUTONLAR (Kiremit Rengi - Yeşil ile Kontrast) */
     .stButton button {{
-        background-color: #d84315 !important; /* Kiremit Rengi */
+        background-color: #d84315 !important;
         color: white !important;
         border-radius: 15px !important;
         font-weight: 900 !important;
         border: 2px solid #fff !important;
-        box-shadow: 0 5px 0 #3e2723 !important;
+        box-shadow: 0 5px 0 #bf360c !important;
         font-size: 18px !important;
     }}
     .stButton button:active {{
@@ -327,17 +321,17 @@ st.markdown(f"""
     }}
 
     /* Okuma Köşesi Kartları */
-    .bio-box {{ background-color: rgba(255, 248, 225, 0.96); color: black !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffb300; margin-bottom: 20px; font-size: 16px; }}
+    .bio-box {{ background-color: rgba(255, 255, 255, 0.95); color: black !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffb300; margin-bottom: 20px; font-size: 16px; }}
     .bio-box b, .bio-box div {{ color: black !important; }}
     
     /* İsim Tabelası */
-    .creator-name {{ background-color: #3e2723; color: #ffca28 !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
+    .creator-name {{ background-color: #33691e; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
     /* Mobil Skor */
-    .mobile-score {{ background-color: rgba(255, 248, 225, 0.96); padding: 10px; border-radius: 15px; border: 3px solid #5d4037; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: black !important; }}
+    .mobile-score {{ background-color: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 15px; border: 3px solid #33691e; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: black !important; }}
     .mobile-score span {{ color: black !important; }}
     
-    .sanat-aciklama {{ background-color: rgba(255, 253, 231, 0.96); color: black !important; border-left: 6px solid #fbc02d; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+    .sanat-aciklama {{ background-color: rgba(255, 253, 231, 0.95); color: black !important; border-left: 6px solid #fbc02d; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
     .sanat-aciklama div, .sanat-aciklama b {{ color: black !important; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; box-shadow: 0 4px 0 #1b5e20; margin-top: 15px; }}
@@ -398,13 +392,13 @@ if st.session_state.page == "MENU":
         if os.path.exists("background.jpg"):
             with open("background.jpg", "rb") as f:
                 img_data = base64.b64encode(f.read()).decode()
-            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="120" style="border-radius:10px; border:2px solid #5d4037;">', unsafe_allow_html=True)
+            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="120" style="border-radius:10px; border:2px solid #33691e;">', unsafe_allow_html=True)
         else:
             st.info("Logo")
             
     with col_title:
         st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="background-color:#fff8e1; padding:10px; border-radius:15px; border:3px solid #5d4037; color:#5d4037 !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="background-color:#fff8e1; padding:10px; border-radius:15px; border:3px solid #33691e; color:#33691e !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
     st.markdown("---")
     
     c1, c2, c3, c4 = st.columns(4)
@@ -530,7 +524,7 @@ elif st.session_state.page == "GAME":
             st.session_state.xp = 0
             st.rerun()
 
-    st.markdown(f"<div class='mobile-score'><span style='color:#5d4037;'>⭐ Lv {level}</span><span style='color:#2e7d32;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='mobile-score'><span style='color:#33691e;'>⭐ Lv {level}</span><span style='color:#2e7d32;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
     if st.session_state.kategori == "SANATLAR":
@@ -546,7 +540,7 @@ elif st.session_state.page == "GAME":
         content_text = f"✨ {soru['eser']} ✨"
         sub_text = "Kime aittir?"
         
-    st.markdown(f"""<div class="question-card"><div style="color:#5d4037; font-weight:bold; font-size:16px;">{title_text}</div><div style="font-size:22px; font-weight:900; color:#d84315; margin: 15px 0; padding:10px; background:#fff3e0; border-radius:10px;">{content_text}</div><div style="font-size:18px; font-weight:bold; color:black;">{sub_text}</div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="question-card"><div style="color:#33691e; font-weight:bold; font-size:16px;">{title_text}</div><div style="font-size:22px; font-weight:900; color:#d84315; margin: 15px 0; padding:10px; background:#fff3e0; border-radius:10px;">{content_text}</div><div style="font-size:18px; font-weight:bold; color:black;">{sub_text}</div></div>""", unsafe_allow_html=True)
 
     col1, col2 = st.columns([3, 1])
     with col1:
