@@ -195,16 +195,9 @@ if 'calisma_yazar' not in st.session_state:
 if 'soru_bitti' not in st.session_state:
     st.session_state.soru_bitti = False
 
-# --- CSS TASARIMI (YEŞİL SARMAŞIKLI KİTAP GÖRSELİNE UYGUN) ---
-# Resim URL'si (Senin beğendiğin tarzın çok benzeri, güvenilir bir kaynak)
-# VEYA sen 'background.jpg' olarak kendi dosyanı yüklersen onu kullanır.
-if os.path.exists("background.jpg"):
-    with open("background.jpg", "rb") as f:
-        img_data = base64.b64encode(f.read()).decode()
-    bg_image_css = f"background-image: url('data:image/jpg;base64,{img_data}');"
-else:
-    # Eğer background.jpg yoksa, senin görseline çok benzeyen yüksek kaliteli bir online alternatif
-    bg_image_css = "background-image: url('https://i.pinimg.com/originals/1d/53/45/1d534535163202316457001720331001.jpg');"
+# --- CSS TASARIMI (SENİN GÖNDERDİĞİN KESİN LİNK) ---
+# Artık yerel dosya kontrolü yok, direkt senin linkin kullanılıyor.
+bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
 
 # ANA RENK PALETİ
 sidebar_color = "#1b3a1a" # Çok koyu orman yeşili (Yan Menü)
@@ -216,7 +209,7 @@ st.markdown(f"""
     <style>
     /* ARKA PLAN AYARLARI */
     .stApp {{
-        {bg_image_css}
+        background-image: url("{bg_image_url}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -243,7 +236,7 @@ st.markdown(f"""
         background-color: {card_bg_color} !important;
         padding: 25px;
         border-radius: 20px;
-        border: 4px solid #3e7a39; /* Biraz daha açık yeşil çerçeve */
+        border: 4px solid #3e7a39;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         text-align: center;
         margin-bottom: 25px;
@@ -286,7 +279,7 @@ st.markdown(f"""
         text-transform: uppercase; 
     }}
     
-    /* BUTONLAR (Kiremit Rengi - Yeşil ile Kontrast) */
+    /* BUTONLAR */
     .stButton button {{
         background-color: #d84315 !important;
         color: white !important;
@@ -304,23 +297,54 @@ st.markdown(f"""
     /* YEŞİL GEÇ BUTONU */
     .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
     
-    /* Sema Hoca Uyarı Kutusu (Kırmızı) */
-    .sema-hoca {{ 
-        position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); 
-        background-color: {red_warning_color}; color: white !important; padding: 30px; 
-        border-radius: 20px; border: 6px solid white; z-index: 99999; 
-        text-align: center; 
-        box-shadow: 0 0 100px rgba(0,0,0,0.9); animation: shake 0.5s;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }}
-    @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
-
-    /* Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE) */
-    .ozur-btn-in-box button {{
-        background-color: white !important; color: {red_warning_color} !important; 
-        border: 3px solid {red_warning_color} !important;
-        margin-top: 20px; font-weight: bold; font-size: 16px; padding: 10px 20px;
-    }}
+    /* ==================================================================
+       SEMA HOCA UYARI KUTUSU VE İÇİNDEKİ BUTON TASARIMI (ÖNEMLİ KISIM)
+    ================================================================== */
+    
+    /* Kırmızı Uyarı Kutusunun Üst Kısmı (Yazılar) */
+    .sema-hoca-alert-box {
+        background-color: {red_warning_color};
+        color: white;
+        padding: 30px 30px 10px 30px; /* Alt boşluk az */
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border: 6px solid white;
+        border-bottom: none; /* Alt kenarlık yok, butonla birleşecek */
+        text-align: center;
+    }
+    
+    /* Kırmızı Uyarı Kutusunun Alt Kısmı (Butonu Saran Kısım) */
+    .sema-hoca-button-container {
+        background-color: {red_warning_color};
+        padding: 0px 30px 30px 30px; /* Üst boşluk az */
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        border: 6px solid white;
+        border-top: none; /* Üst kenarlık yok */
+        text-align: center;
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* Tüm kutuyu ekranda sabitleyen dış katman */
+    .sema-hoca-fixed-wrapper {
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 99999; /* En üstte */
+         animation: shake 0.5s;
+         box-shadow: 0 0 100px rgba(0,0,0,0.9);
+    }
+    
+    /* Kutunun içindeki Özür Dilerim butonunun özel stili */
+    .sema-hoca-button-container button {
+         background-color: white !important;
+         color: {red_warning_color} !important;
+         border: 2px solid {red_warning_color} !important;
+         font-weight: bold !important;
+    }
+    /* ================================================================== */
 
     /* Okuma Köşesi Kartları */
     .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
@@ -487,19 +511,26 @@ elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
     level = (st.session_state.soru_sayisi // 5) + 1
     
-    # 1. SEMA HOCA UYARISI (En Üst Katman)
+    # 1. SEMA HOCA UYARISI (En Üst Katman - DÜZELTİLDİ)
     if st.session_state.sema_hoca_kizdi:
+        # Dış katman (Fixed pozisyon)
+        st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
+        
+        # Üst kısım (Yazılar)
         st.markdown("""
-        <div class="sema-hoca">
-            <div style="font-size: 60px;">😡</div>
-            <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
-            <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-            <div class="ozur-btn-in-box">
+            <div class="sema-hoca-alert-box">
+                <div style="font-size: 60px;">😡</div>
+                <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
+                <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
+            </div>
         """, unsafe_allow_html=True)
         
-        # Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE)
+        # Alt kısım (Butonu saran kırmızı alan)
+        st.markdown('<div class="sema-hoca-button-container">', unsafe_allow_html=True)
+        
+        # Özür Dilerim Butonu
         if st.button("Özür Dilerim 😔"):
-            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat (Notu okumak için)
+            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat
             if st.session_state.kategori == "SANATLAR":
                 st.session_state.sema_hoca_kizdi = False
                 st.rerun()
@@ -512,7 +543,9 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-        st.markdown('</div></div>', unsafe_allow_html=True)
+                
+        st.markdown('</div>', unsafe_allow_html=True) # Buton konteynerini kapat
+        st.markdown('</div>', unsafe_allow_html=True) # Dış katmanı kapat
     
     with st.sidebar:
         st.header("🏆 DURUM")
