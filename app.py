@@ -7,7 +7,7 @@ import urllib.parse
 # --- SAYFA AYARLARI ---
 st.set_page_config(
     page_title="Edebiyat Ligi",
-    page_icon="🎮",
+    page_icon="📱",
     layout="centered"
 )
 
@@ -77,39 +77,57 @@ def get_divan_db():
         "Sünbülzade Vehbi": {"Sözlük/Mesnevi": ["Lütfiyye", "Tuhfe-i Vehbi"]}
     }
 
-# --- YENİ OYUN TASARIMI (CSS) ---
-# Geometrik küp deseni
+# --- MOBİL UYUMLU TASARIM (CSS) ---
 oyun_deseni = "https://www.transparenttextures.com/patterns/cubes.png"
 
 st.markdown(f"""
     <style>
-    /* YENİ OYUN ARKA PLANI (PEMBE-KIRMIZI-YEŞİL) */
+    /* ARKA PLAN */
     .stApp {{
-        /* Canlı, oyun gibi bir renk geçişi */
         background: linear-gradient(135deg, #ff9ff3, #ff6b6b, #51cf66);
-        /* Üzerine geometrik desen ekle ve renklerle karıştır */
         background-image: linear-gradient(135deg, rgba(255,159,243,0.8), rgba(255,107,107,0.8), rgba(81,207,102,0.8)), url("{oyun_deseni}");
         background-blend-mode: overlay;
         background-attachment: fixed;
-        background-size: cover, auto;
+        background-size: cover;
     }}
     
-    /* Yazıların okunabilirliği için genel ayar */
     html, body, p, div, label, h1, h2, h3, h6 {{
         color: #000000 !important;
         font-family: 'Segoe UI', sans-serif;
     }}
     
-    /* Yan Menü (Koyu Oyun Paneli) */
+    /* Yan Menü */
     [data-testid="stSidebar"] {{
         background-color: #2d3436 !important;
-        border-right: 4px solid #00cec9; /* Neon Turkuaz Çizgi */
+        border-right: 4px solid #00cec9;
     }}
     [data-testid="stSidebar"] * {{
         color: white !important;
     }}
     
-    /* Ana Menü Kartları (Daha canlı) */
+    /* --- MOBİL OPTİMİZASYON KODLARI (RESPONSIVE) --- */
+    @media (max-width: 768px) {{
+        /* Başlıkları küçült */
+        .creator-name {{ font-size: 16px !important; padding: 10px !important; letter-spacing: 1px !important; }}
+        h1 {{ font-size: 24px !important; padding: 10px !important; }}
+        
+        /* Menü kartlarını sıkıştır */
+        .menu-card {{ padding: 20px !important; }}
+        .menu-title {{ font-size: 22px !important; }}
+        
+        /* Soru kartını ekrana yay */
+        .question-card {{ padding: 15px !important; margin-bottom: 15px !important; }}
+        .question-text {{ font-size: 24px !important; }}
+        
+        /* Şıkların yazı boyutunu ayarla */
+        .stRadio label p {{ font-size: 16px !important; }}
+        
+        /* Logo ve başlığı ortala */
+        [data-testid="stColumn"] {{ text-align: center !important; }}
+        [data-testid="stImage"] {{ margin: 0 auto !important; }}
+    }}
+
+    /* Ana Menü Kartları */
     .menu-card {{
         background-color: rgba(255, 255, 255, 0.95);
         padding: 40px;
@@ -119,11 +137,10 @@ st.markdown(f"""
         cursor: pointer;
         transition: all 0.2s;
         margin-bottom: 20px;
-        box-shadow: 0 8px 0px #d63031; /* Kalın kırmızı gölge */
+        box-shadow: 0 8px 0px #d63031;
     }}
     .menu-card:hover {{
         transform: translateY(-5px);
-        box-shadow: 0 12px 0px #d63031;
         background-color: #ffffff;
     }}
     .menu-title {{
@@ -133,7 +150,7 @@ st.markdown(f"""
         text-transform: uppercase;
     }}
     
-    /* Butonlar (Oyun Butonu Gibi) */
+    /* Butonlar */
     .stButton button {{
         background-color: #d63031 !important;
         color: white !important;
@@ -142,11 +159,7 @@ st.markdown(f"""
         border: 3px solid #000 !important;
         box-shadow: 0 5px 0 #000 !important;
         font-size: 18px !important;
-        transition: all 0.1s;
-    }}
-    .stButton button:hover {{
-        box-shadow: 0 2px 0 #000 !important;
-        transform: translateY(3px);
+        width: 100%; /* Mobilde tam genişlik */
     }}
     .stButton button:active {{
         box-shadow: 0 0 0 #000 !important;
@@ -167,13 +180,6 @@ st.markdown(f"""
         border: 3px solid #006266;
         box-shadow: 0 5px 0 #006266;
         margin-top: 20px;
-        transition: all 0.1s;
-    }}
-    .kaydet-btn:hover {{
-        background-color: #00cec9;
-        box-shadow: 0 2px 0 #006266;
-        transform: translateY(3px);
-        color: white;
     }}
     
     /* Soru Kartı */
@@ -182,7 +188,7 @@ st.markdown(f"""
         padding: 30px;
         border-radius: 25px;
         border: 4px solid #2d3436;
-        box-shadow: 0 10px 0px #2d3436;
+        box-shadow: 0 8px 0px #2d3436;
         text-align: center;
         margin-bottom: 25px;
     }}
@@ -190,19 +196,15 @@ st.markdown(f"""
     /* Şıkların Kutusu */
     .stRadio {{
         background-color: rgba(255, 255, 255, 0.9) !important;
-        padding: 20px;
+        padding: 15px;
         border-radius: 20px;
         border: 3px solid #2d3436;
-    }}
-    .stRadio label p {{
-        font-weight: 600 !important;
-        font-size: 18px !important;
     }}
 
     /* İsim Tabelası */
     .creator-name {{
         background-color: #2d3436;
-        color: #00cec9 !important; /* Neon turkuaz yazı */
+        color: #00cec9 !important;
         text-align: center;
         padding: 15px;
         font-weight: 900;
@@ -215,14 +217,26 @@ st.markdown(f"""
         text-transform: uppercase;
     }}
     
-    /* Başlık arka planı */
+    /* Mobil Skor Paneli */
+    .mobile-score {{
+        background-color: rgba(255,255,255,0.9);
+        padding: 10px;
+        border-radius: 15px;
+        border: 3px solid #2d3436;
+        text-align: center;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-around;
+        font-weight: bold;
+        font-size: 18px;
+    }}
+    
     h1 {{
         background-color: rgba(255,255,255,0.8);
-        padding: 15px 25px;
+        padding: 10px 20px;
         border-radius: 20px;
         display: inline-block;
         border: 4px solid #2d3436;
-        box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -239,7 +253,7 @@ if 'mevcut_soru' not in st.session_state:
 if 'cevap_verildi' not in st.session_state:
     st.session_state.cevap_verildi = False
 
-# --- SORU ÜRETME FONKSİYONU ---
+# --- SORU ÜRETME ---
 def yeni_soru_uret():
     if st.session_state.kategori == "CUMHURİYET":
         db = get_cumhuriyet_db()
@@ -275,21 +289,31 @@ col_logo, col_title = st.columns([1, 2])
 with col_logo:
     resim_adi = "background.jpg" 
     if os.path.exists(resim_adi):
-        st.image(resim_adi, width=160)
+        st.image(resim_adi, width=130) # Mobilde çok yer kaplamasın diye küçülttük
     else:
         st.info("Logo")
 
 with col_title:
-    st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
     if st.session_state.kategori:
         baslik = f"{st.session_state.kategori}<br>EDEBİYATI"
     else:
         baslik = "EDEBİYAT<br>LİGİ"
     st.markdown(f'<h1 style="color:#2d3436 !important; font-weight:900; text-align:center;">{baslik}</h1>', unsafe_allow_html=True)
 
+# 2. MOBİL SKOR TABLOSU (Sayfanın en tepesinde görünsün)
+level = (st.session_state.soru_sayisi // 5) + 1
+if st.session_state.kategori:
+    st.markdown(f"""
+    <div class="mobile-score">
+        <span style="color:#d63031;">⭐ Level {level}</span>
+        <span style="color:#00cec9;">💎 {st.session_state.xp} XP</span>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.markdown("---")
 
-# 2. MENÜ EKRANI
+# 3. MENÜ EKRANI
 if st.session_state.kategori is None:
     st.markdown("<div style='background-color:rgba(255,255,255,0.9); padding:15px; border-radius:20px; border:3px solid #2d3436; box-shadow: 5px 5px 0 rgba(0,0,0,0.1);'><h3 style='text-align:center; margin:0; font-weight:bold;'>🎮 Lütfen Yarışmak İstediğin Alanı Seç:</h3></div>", unsafe_allow_html=True)
     st.write("")
@@ -299,12 +323,11 @@ if st.session_state.kategori is None:
     with col1:
         st.markdown("""
         <div class="menu-card">
-            <div style="font-size:70px;">🇹🇷</div>
+            <div style="font-size:50px;">🇹🇷</div>
             <div class="menu-title">CUMHURİYET</div>
-            <div style="font-weight:bold; color:#555; margin-top:10px;">Roman, Hikaye, Şiir</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("CUMHURİYET SEÇ", use_container_width=True):
+        if st.button("SEÇ: CUMHURİYET", use_container_width=True):
             st.session_state.kategori = "CUMHURİYET"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
@@ -314,27 +337,24 @@ if st.session_state.kategori is None:
     with col2:
         st.markdown("""
         <div class="menu-card">
-            <div style="font-size:70px;">📜</div>
+            <div style="font-size:50px;">📜</div>
             <div class="menu-title">DİVAN</div>
-            <div style="font-weight:bold; color:#555; margin-top:10px;">Mesnevi, Tezkire, Hiciv</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("DİVAN SEÇ", use_container_width=True):
+        if st.button("SEÇ: DİVAN", use_container_width=True):
             st.session_state.kategori = "DİVAN"
             st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
 
-# 3. OYUN EKRANI
+# 4. OYUN EKRANI
 else:
-    level = (st.session_state.soru_sayisi // 5) + 1
     soru = st.session_state.mevcut_soru
     
-    # YAN MENÜ
+    # YAN MENÜ (Masaüstü için detaylı, mobilde gizli kalabilir çünkü yukarıya skor koyduk)
     with st.sidebar:
         st.header("🏆 OYUN DURUMU")
-        st.caption(f"MOD: {st.session_state.kategori}")
         st.metric("⭐ Level", f"{level}")
         st.metric("💎 Puan (XP)", f"{st.session_state.xp}")
         
@@ -354,7 +374,7 @@ else:
         """, unsafe_allow_html=True)
         
         st.markdown("---")
-        if st.button("⬅️ ANA MENÜYE DÖN"):
+        if st.button("⬅️ MENÜYE DÖN"):
             st.session_state.kategori = None 
             st.session_state.xp = 0
             st.rerun()
@@ -364,9 +384,9 @@ else:
 
     st.markdown(f"""
     <div class="question-card">
-        <div style="color:#636e72; font-weight:bold; font-size:18px;">GÖREV TÜRÜ: {soru['tur']}</div>
-        <div style="font-size:32px; font-weight:900; color:#d63031; margin: 20px 0; text-transform:uppercase; text-shadow: 2px 2px 0px rgba(0,0,0,0.1);">✨ {soru['eser']} ✨</div>
-        <div style="font-size:20px; font-weight:bold;">Bu eser kime aittir?</div>
+        <div style="color:#636e72; font-weight:bold; font-size:16px;">GÖREV: {soru['tur']}</div>
+        <div style="font-size:26px; font-weight:900; color:#d63031; margin: 15px 0; text-transform:uppercase; text-shadow: 2px 2px 0px rgba(0,0,0,0.1);">✨ {soru['eser']} ✨</div>
+        <div style="font-size:18px; font-weight:bold;">Bu eser kime aittir?</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -385,11 +405,11 @@ else:
                 st.success("MÜKEMMEL! +100 XP 🎯")
                 st.balloons()
             else:
-                st.error(f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔")
+                st.error(f"YANLIŞ! Doğru: {soru['dogru_cevap']} 💔")
                 st.session_state.xp = max(0, st.session_state.xp - 20)
             
             st.session_state.soru_sayisi += 1
             st.session_state.cevap_verildi = True
-            time.sleep(1.5)
+            time.sleep(1)
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
