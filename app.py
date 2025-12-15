@@ -17,8 +17,10 @@ GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAK
 # --- RENK PALETİ ---
 sidebar_color = "#1b3a1a"
 card_bg_color = "#2e5a27"
-text_color_cream = "#ffffff" # Bembeyaz yazı (Okunabilirlik için)
+text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
+# Okuma köşesi özet kutusu rengi (Hafif saydam siyah/yeşil karışımı)
+reading_box_color = "rgba(20, 40, 20, 0.9)" 
 
 # --- SES ÇALMA FONKSİYONU ---
 def get_audio_html(sound_type):
@@ -327,40 +329,50 @@ st.markdown(f"""
     .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
     
     /* Sema Hoca Uyarı Kutusu */
-    .sema-hoca-wrapper {{
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.5); /* Hafif karartma */
-        z-index: 99998;
-        display: flex; justify-content: center; align-items: center;
+    .sema-hoca-fixed-wrapper {{
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 99999; /* En üstte */
+         animation: shake 0.5s;
+         box-shadow: 0 0 100px rgba(0,0,0,0.9);
+         border-radius: 20px;
+         overflow: hidden;
+         border: 6px solid white;
     }}
     
-    .sema-hoca-box {{
+    .sema-hoca-alert-box-body {{
         background-color: {red_warning_color};
-        padding: 40px;
-        border-radius: 20px;
-        border: 8px solid white;
+        color: white;
         text-align: center;
-        box-shadow: 0 0 100px rgba(0,0,0,0.9);
-        animation: shake 0.5s;
-        z-index: 99999;
+        padding: 30px;
     }}
     
-    @keyframes shake {{ 0% {{ transform: rotate(0deg); }} 25% {{ transform: rotate(5deg); }} 50% {{ transform: rotate(0eg); }} 75% {{ transform: rotate(-5deg); }} 100% {{ transform: rotate(0deg); }} }}
-
-    /* Özür Dilerim Butonu */
-    .ozur-btn-container button {{
-        background-color: white !important;
-        color: {red_warning_color} !important;
-        border: 3px solid {red_warning_color} !important;
-        margin-top: 20px;
-        font-weight: bold;
+    .sema-hoca-alert-box-body button {{
+         background-color: white !important;
+         color: {red_warning_color} !important;
+         border: 2px solid {red_warning_color} !important;
+         font-weight: bold !important;
+         margin-top: 20px;
     }}
+
+    @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
 
     /* Okuma Köşesi Kartları */
     .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
     .bio-box b, .bio-box div, .bio-box span {{ color: {text_color_cream} !important; }}
-    
+
+    /* OKUMA KÖŞESİ ESER DETAY KUTULARI (EXPANDER İÇİ) */
+    .eser-icerik-kutusu {{
+        background-color: {card_bg_color}; 
+        color: {text_color_cream}; 
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid #3e7a39; 
+        margin-top: 5px;
+    }}
+
     /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
@@ -513,7 +525,7 @@ elif st.session_state.page == "STUDY":
         st.markdown(f"<h4 style='color:{text_color_cream}'>📚 Eserleri ve Önemli Notlar</h4>", unsafe_allow_html=True)
         for eser, ozet in bilgi['eserler'].items():
             with st.expander(f"📖 {eser}"):
-                st.markdown(f"<span style='color:{text_color_cream};'>{ozet}</span>", unsafe_allow_html=True)
+                st.markdown(f"<div class='eser-icerik-kutusu'>{ozet}</div>", unsafe_allow_html=True)
         if st.button("LİSTEYİ KAPAT / TEMİZLE"):
             st.session_state.calisma_yazar = None
             st.rerun()
@@ -523,21 +535,16 @@ elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
     level = (st.session_state.soru_sayisi // 5) + 1
     
-    # SEMA HOCA UYARISI
+    # 1. SEMA HOCA UYARISI (En Üst Katman - DÜZELTİLDİ)
     if st.session_state.sema_hoca_kizdi:
-        # Arka planı hafif karartmak için wrapper
-        st.markdown('<div class="sema-hoca-wrapper">', unsafe_allow_html=True)
-        
-        # Kutu içeriği
+        st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
         st.markdown("""
-            <div class="sema-hoca-box">
+            <div class="sema-hoca-alert-box-body">
                 <div style="font-size: 60px;">😡</div>
-                <div style="font-weight:900; font-size: 30px; color: white;">SEMA HOCAN<br>ÇOK KIZDI!</div>
+                <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
                 <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-                <div class="ozur-btn-container">
         """, unsafe_allow_html=True)
         
-        # Butonu Streamlit oluşturur, biz CSS ile kutu içine taşırız
         if st.button("Özür Dilerim 😔"):
             if st.session_state.kategori == "SANATLAR":
                 st.session_state.sema_hoca_kizdi = False
@@ -549,8 +556,8 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-        
-        st.markdown('</div></div></div>', unsafe_allow_html=True) # Divleri kapat
+                
+        st.markdown('</div></div>', unsafe_allow_html=True)
     
     with st.sidebar:
         st.header("🏆 DURUM")
@@ -584,12 +591,15 @@ elif st.session_state.page == "GAME":
 
     col1, col2 = st.columns([3, 1])
     with col1:
+        # CEVAP VERİLDİYSE ŞIKLARI KİLİTLE
         cevap = st.radio("Seçim:", soru['siklar'], label_visibility="collapsed", disabled=st.session_state.soru_bitti)
     with col2:
         st.write("") 
         st.write("")
         
+        # --- BUTON MANTIĞI ---
         if not st.session_state.soru_bitti:
+            # Soru henüz cevaplanmadıysa YANITLA butonu
             if st.button("YANITLA 🚀", type="primary", use_container_width=True):
                 st.session_state.cevap_verildi = True
                 
@@ -599,15 +609,18 @@ elif st.session_state.page == "GAME":
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
                     
+                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
                         st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
 
+                    # SANATLAR ise açıklamayı gösterip bekle
                     if st.session_state.kategori == "SANATLAR":
                         if "aciklama" in soru:
                             st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-                        st.session_state.soru_bitti = True
+                        st.session_state.soru_bitti = True # Butonu "Sıradaki" yap
                         st.rerun()
                     
+                    # DİĞER MODLAR İSE -> DİREKT GEÇ
                     else:
                         time.sleep(2.0)
                         st.session_state.soru_sayisi += 1
@@ -618,7 +631,7 @@ elif st.session_state.page == "GAME":
 
                 else: # YANLIŞ CEVAP
                     st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True)
-                    st.session_state.sema_hoca_kizdi = True
+                    st.session_state.sema_hoca_kizdi = True # Sema Hoca Kızdı!
                     
                     msg = f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔"
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
@@ -627,12 +640,15 @@ elif st.session_state.page == "GAME":
                     st.error(msg)
                     st.session_state.xp = max(0, st.session_state.xp - 20)
                     
+                    # Sanatlarda yanlış yapılsa bile açıklama hazırlanır
                     if st.session_state.kategori == "SANATLAR":
                         st.session_state.soru_bitti = True
                     
                     st.rerun()
         
+        # Soru Bitti (Cevaplandı) -> Sadece SANATLAR modunda buraya düşer
         elif st.session_state.soru_bitti and not st.session_state.sema_hoca_kizdi:
+            # Açıklamayı tekrar göster
             if "aciklama" in soru:
                 st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
                 
