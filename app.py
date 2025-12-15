@@ -264,7 +264,9 @@ st.markdown(f"""
         color: #ffffff !important;
     }}
     
-    /* SORU KARTI */
+    /* GENEL KUTU TASARIMI (KOYU YEŞİL ZEMİN, BEYAZ YAZI) */
+    
+    /* Soru Kartı */
     .question-card {{
         background-color: {card_bg_color} !important;
         padding: 25px;
@@ -278,7 +280,7 @@ st.markdown(f"""
         color: {text_color_cream} !important;
     }}
     
-    /* ŞIK KUTULARI */
+    /* Şık Kutuları (Radio) */
     .stRadio {{
         background-color: {card_bg_color} !important;
         padding: 20px;
@@ -292,7 +294,7 @@ st.markdown(f"""
         font-weight: 700 !important;
     }}
     
-    /* MENÜ KARTLARI */
+    /* Menü Kartları */
     .menu-card {{ 
         background-color: {card_bg_color}; 
         padding: 20px; 
@@ -325,32 +327,66 @@ st.markdown(f"""
         transform: translateY(5px);
     }}
     
-    /* SEMA HOCA UYARI KUTUSU */
-    .sema-hoca {{ 
-        position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); 
-        background-color: {red_warning_color}; color: white !important; padding: 30px; 
-        border-radius: 20px; border: 6px solid white; z-index: 99999; 
-        text-align: center; 
-        box-shadow: 0 0 100px rgba(0,0,0,0.9); animation: shake 0.5s;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }}
+    /* YEŞİL GEÇ BUTONU */
+    .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
+    
+    /* ==================================================================
+       SEMA HOCA UYARI KUTUSU VE İÇİNDEKİ BUTON TASARIMI
+    ================================================================== */
+    
+    /* Tüm kutuyu ekranda sabitleyen dış katman */
+    .sema-hoca-fixed-wrapper {
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 99999; /* En üstte */
+         animation: shake 0.5s;
+         box-shadow: 0 0 100px rgba(0,0,0,0.9);
+         border-radius: 20px; /* Köşeleri yuvarlat */
+         overflow: hidden; /* İçerik taşmasını önle */
+         border: 6px solid white; /* Beyaz dış çerçeve */
+    }
+
+    /* Kırmızı Uyarı Kutusunun Ana Gövdesi (Yazılar ve Buton için arka plan) */
+    .sema-hoca-alert-box-body {
+        background-color: {red_warning_color};
+        color: white;
+        text-align: center;
+        padding: 30px; /* İç boşluk */
+    }
+    
+    /* Kutunun içindeki Özür Dilerim butonunun özel stili */
+    .sema-hoca-alert-box-body button {
+         background-color: white !important;
+         color: {red_warning_color} !important;
+         border: 2px solid {red_warning_color} !important;
+         font-weight: bold !important;
+         margin-top: 20px; /* Yazılardan ayır */
+    }
+
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
+    /* ================================================================== */
 
-    /* ÖZÜR DİLERİM BUTONU (KUTUNUN İÇİNDE) */
-    .ozur-btn-in-box button {{
-        background-color: white !important; color: {red_warning_color} !important; 
-        border: 3px solid {red_warning_color} !important;
-        margin-top: 20px; font-weight: bold; font-size: 16px; padding: 10px 20px;
-    }}
-
-    /* OKUMA KÖŞESİ KARTLARI */
+    /* Okuma Köşesi Kartları */
     .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
     .bio-box b, .bio-box div, .bio-box span {{ color: {text_color_cream} !important; }}
+
+    /* OKUMA KÖŞESİ ESER DETAY KUTULARI (EXPANDER İÇİ) */
+    .eser-icerik-kutusu {
+        background-color: {card_bg_color}; /* Koyu yeşil arka plan */
+        color: {text_color_cream}; /* Beyaz/Krem yazı rengi */
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid #3e7a39; /* Hafif açık yeşil çerçeve */
+        margin-top: 5px;
+    }
+
     
-    /* İSİM TABELASI */
+    /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
-    /* MOBİL SKOR */
+    /* Mobil Skor */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
     .mobile-score span {{ color: {text_color_cream} !important; }}
     
@@ -421,7 +457,8 @@ if st.session_state.page == "MENU":
             
     with col_title:
         st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="background-color:#2e5a27; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:#fffbe6 !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
+        # BAŞLIK DA ARTIK KOYU ZEMİN ÜSTÜNDE KREM YAZI
+        st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
     st.markdown("---")
     
     c1, c2, c3, c4 = st.columns(4)
@@ -467,14 +504,14 @@ if st.session_state.page == "MENU":
             st.rerun()
 
     st.markdown("---")
-    st.markdown("""<div class="menu-card" style="background-color:#2e5a27; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:#fffbe6;">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
     if st.button("OKUMA KÖŞESİNE GİR ☕", use_container_width=True):
         st.session_state.page = "STUDY"
         st.rerun()
 
 # --- STUDY SAYFASI ---
 elif st.session_state.page == "STUDY":
-    st.markdown("<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:#2e5a27; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:{card_bg_color}; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
     if st.button("⬅️ ANA MENÜYE DÖN"):
         st.session_state.page = "MENU"
         st.rerun()
@@ -485,7 +522,7 @@ elif st.session_state.page == "STUDY":
     cols = st.columns(3)
     for i, yazar in enumerate(yazar_listesi):
         with cols[i % 3]:
-            # Beyaz kart görünümlü butonlar
+            # Kartlar da artık koyu
             if st.button(f"👤 {yazar}", use_container_width=True):
                 st.session_state.calisma_yazar = yazar
     
@@ -498,7 +535,8 @@ elif st.session_state.page == "STUDY":
         st.markdown(f"<h4 style='color:{text_color_cream}'>📚 Eserleri ve Önemli Notlar</h4>", unsafe_allow_html=True)
         for eser, ozet in bilgi['eserler'].items():
             with st.expander(f"📖 {eser}"):
-                st.markdown(f"<span style='color:{text_color_cream};'>{ozet}</span>", unsafe_allow_html=True)
+                # Eser içeriği için özel, okunaklı kutu
+                st.markdown(f"<div class='eser-icerik-kutusu'>{ozet}</div>", unsafe_allow_html=True)
         if st.button("LİSTEYİ KAPAT / TEMİZLE"):
             st.session_state.calisma_yazar = None
             st.rerun()
@@ -508,19 +546,22 @@ elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
     level = (st.session_state.soru_sayisi // 5) + 1
     
-    # 1. SEMA HOCA UYARISI (En Üst Katman)
+    # 1. SEMA HOCA UYARISI (En Üst Katman - DÜZELTİLDİ)
     if st.session_state.sema_hoca_kizdi:
+        # Dış katman (Fixed pozisyon - Tümünü saran çerçeve)
+        st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
+        
+        # Tek bir gövde (Hem yazılar hem buton bunun içinde olacak)
         st.markdown("""
-        <div class="sema-hoca">
-            <div style="font-size: 60px;">😡</div>
-            <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
-            <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-            <div class="ozur-btn-in-box">
+            <div class="sema-hoca-alert-box-body">
+                <div style="font-size: 60px;">😡</div>
+                <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
+                <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
         """, unsafe_allow_html=True)
         
-        # Özür Dilerim Butonu (Uyarı Kutusunun İÇİNDE)
+        # Özür Dilerim Butonu (Gövdenin içinde)
         if st.button("Özür Dilerim 😔"):
-            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat (Notu okumak için)
+            # A) EDEBİ SANATLAR İSE: Sadece uyarıyı kapat
             if st.session_state.kategori == "SANATLAR":
                 st.session_state.sema_hoca_kizdi = False
                 st.rerun()
@@ -533,7 +574,9 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-        st.markdown('</div></div>', unsafe_allow_html=True)
+                
+        st.markdown('</div>', unsafe_allow_html=True) # Gövdeyi kapat
+        st.markdown('</div>', unsafe_allow_html=True) # Dış katmanı kapat
     
     with st.sidebar:
         st.header("🏆 DURUM")
@@ -585,6 +628,10 @@ elif st.session_state.page == "GAME":
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
                     
+                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME (ROMAN İSMİ BURAYA EKLENDİ)
+                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
+                        st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
+
                     # SANATLAR ise açıklamayı gösterip bekle
                     if st.session_state.kategori == "SANATLAR":
                         if "aciklama" in soru:
@@ -594,7 +641,7 @@ elif st.session_state.page == "GAME":
                     
                     # DİĞER MODLAR İSE -> DİREKT GEÇ
                     else:
-                        time.sleep(1.2)
+                        time.sleep(2.0) # Roman ismini okumak için biraz daha süre
                         st.session_state.soru_sayisi += 1
                         st.session_state.soru_bitti = False
                         st.session_state.cevap_verildi = False
@@ -604,7 +651,13 @@ elif st.session_state.page == "GAME":
                 else: # YANLIŞ CEVAP
                     st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True)
                     st.session_state.sema_hoca_kizdi = True # Sema Hoca Kızdı!
-                    st.error(f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔")
+                    
+                    # Yanlış yapınca da doğru roman ismini gösterelim
+                    msg = f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔"
+                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
+                        msg += f" (Eser: {soru['eser_adi']})"
+                    
+                    st.error(msg)
                     st.session_state.xp = max(0, st.session_state.xp - 20)
                     
                     # Sanatlarda yanlış yapılsa bile açıklama hazırlanır (Özür dileyince görünecek)
