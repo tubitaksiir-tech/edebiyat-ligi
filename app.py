@@ -49,7 +49,6 @@ def skorlari_yukle():
 def skoru_kaydet(kullanici, puan):
     try:
         veriler = skorlari_yukle()
-        # Eğer kullanıcının eski puanı varsa ve yeni puan daha düşükse kaydetme (En yüksek skor kalsın)
         eski_puan = veriler.get(kullanici, 0)
         if puan > eski_puan:
             veriler[kullanici] = puan
@@ -254,7 +253,7 @@ def get_game_db(kategori):
             "Karacaoğlan": {"Şiir": ["Koşma", "Semai", "Varsağı"]},
             "Pir Sultan Abdal": {"Şiir": ["Nefesler", "Şathiyeler"]},
             "Eşrefoğlu Rumi": {"Tasavvuf": ["Müzekkin Nüfus"]},
-            "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
+            "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha", "Gencine-i Raz"]},
             "Zati": {"Mesnevi": ["Şem ü Pervane"]},
             "Naili": {"Şiir": ["Sebk-i Hindi Tarzı Gazeller"]},
             "Neşati": {"Mesnevi": ["Hilye-i Enbiya"]}
@@ -323,291 +322,39 @@ def get_sanatlar_db():
 def get_reading_db():
     return {
         "Orhan Veli Kanık": {
-            "bio": "Garip (I. Yeni) akımının kurucusudur. Şiirden ölçüyü, kafiyeyi ve edebi sanatları atarak 'Sokağı şiire taşıyan adam' olmuştur. Sıradan insanı (Süleyman Efendi) konu edinir. İroni ve mizahı silah olarak kullanır.",
+            "bio": "Garip akımının kurucusudur. 'Sokağı şiire taşıyan adam'dır.",
             "eserler": {
-                "İstanbul'u Dinliyorum": """
-                <b>📝 Analiz:</b> Şairin İstanbul'a olan tutkusunu, sesler ve imgeler üzerinden anlattığı serbest nazım şaheseridir. Garip akımının kurallarını biraz esnettiği, lirizmin baskın olduğu bir şiirdir.<br><br>
-                <b>🎓 Sınav Notu:</b> ÖSYM bu şiiri sever! Genellikle 'İmgelerin gerçekçi kullanımı' veya 'İstanbul sevgisi' sorularında paragraf içinde verilir.
-                """,
-                "Kitabe-i Seng-i Mezar": """
-                <b>📝 Analiz:</b> Sıradan bir vatandaş olan 'Süleyman Efendi'nin nasırını şiire sokarak Divan edebiyatındaki 'Yüce Sevgili' anlayışını yerle bir etmiştir.<br><br>
-                <b>🎓 Sınav Notu:</b> 2010 ve 2017 LYS'de Garip akımının özellikleri sorulurken bu şiir örnek gösterildi. 'Nasır' kelimesi anahtar kelimedir.
-                """
+                "İstanbul'u Dinliyorum": "Şairin İstanbul'a olan aşkını sesler ve imgelerle anlattığı şiir.",
+                "Kitabe-i Seng-i Mezar": "Sıradan bir insan olan Süleyman Efendi'yi anlatan şiir."
             }
         },
         "Ahmet Hamdi Tanpınar": {
-            "bio": "Şiirde sembolist, romanda realisttir. 'Rüya', 'Zaman' ve 'Bilinçaltı' kavramları onun kilit taşlarıdır. Bergson felsefesinden etkilenmiştir. 'Ne içindeyim zamanın, ne de büsbütün dışında' dizesi hayat felsefesidir.",
+            "bio": "Rüya, Zaman ve Bilinçaltı kavramlarını işler. Şiirde sembolisttir.",
             "eserler": {
-                "Huzur": """
-                <b>📝 Analiz:</b> Mümtaz ve Nuran aşkı çerçevesinde Doğu-Batı çatışması, eski musiki ve İstanbul kültürü işlenir. II. Dünya Savaşı'nın yaklaşan ayak sesleri huzursuzluk yaratır.<br><br>
-                <b>🎓 Sınav Notu:</b> AYT Edebiyat'ın vazgeçilmezidir! Karakterler (Mümtaz, Nuran, Suat) mutlaka bilinmeli. 'Bilinç akışı' tekniğinin uygulandığı ilk başarılı örneklerdendir.
-                """,
-                "Beş Şehir": """
-                <b>📝 Analiz:</b> Ankara, Erzurum, Konya, Bursa ve İstanbul'u anlattığı deneme türünün zirvesidir. Şehirlerin ruhunu ve tarihini şiirsel bir dille anlatır.<br><br>
-                <b>🎓 Sınav Notu:</b> Deneme türü sorulduğunda akla gelmesi gereken ilk eserdir.
-                """
+                "Huzur": "Mümtaz ve Nuran aşkı üzerinden Doğu-Batı çatışması. AYT favorisidir.",
+                "Beş Şehir": "Ankara, Erzurum, Konya, Bursa ve İstanbul üzerine denemeler."
             }
         },
-        "Cahit Sıtkı Tarancı": {
-            "bio": "'Ölüm Şairi' olarak bilinir ama aslında yaşama sevincini kaybetmekten korktuğu için ölümü yazar. Sembolizm akımından etkilenmiştir. Biçim mükemmelliğine önem verir.",
-            "eserler": {
-                "Otuz Beş Yaş": """
-                <b>📝 Analiz:</b> İnsanın ömrünün geçiciliğini ve ölüm korkusunu Dante'ye atıf yaparak (Yolun yarısı) anlatır.<br><br>
-                <b>🎓 Sınav Notu:</b> Şiirde ahenk ve redif/kafiye sorularında teknik analiz için sıkça kullanılır. 'Dante gibi ortasındayız ömrün' dizesi çok meşhurdur.
-                """
-            }
-        },
-        "Yakup Kadri Karaosmanoğlu": {
-            "bio": "Fecri Ati'den gelip Milli Edebiyat'ın en güçlü romancısı olmuştur. 'Nehir Roman' (birbirinin devamı olan romanlar) tekniğiyle Tanzimat'tan 1950'lere kadar Türk toplumunun değişimini anlatır.",
-            "eserler": {
-                "Yaban": """
-                <b>📝 Analiz:</b> Kurtuluş Savaşı'nda bir Anadolu köyüne giden Ahmet Celal'in (aydın), köylülerle yaşadığı doku uyuşmazlığını anlatır. Köylü onu 'Yaban' olarak görür.<br><br>
-                <b>🎓 Sınav Notu:</b> AYT'de en çok sorulan romanlardan biridir. Tezli Roman özelliği taşır. Aydın-Halk çatışması sorulursa cevap %90 Yaban'dır.
-                """,
-                "Kiralık Konak": """
-                <b>📝 Analiz:</b> Naim Efendi (Gelenek), Servet Bey (Yozlaşmış Batılı), Seniha (Köklerinden kopuk gençlik) üzerinden kuşak çatışmasını anlatır.
-                """
-            }
-        },
-        "Oğuz Atay": {
-            "bio": "Türk edebiyatında Postmodernizmin öncüsüdür. İroni, parodi, bilinç akışı gibi teknikleri ilk ve en iyi kullananlardandır. 'Tutunamayanlar' ile aydın bunalımını işlemiştir.",
-            "eserler": {
-                "Tutunamayanlar": """
-                <b>📝 Analiz:</b> Turgut Özben'in, intihar eden arkadaşı Selim Işık'ın izini sürmesini anlatır. Klasik roman kurgusunu yıkan, ansiklopedik bilgiler ve oyunlarla dolu bir eserdir.<br><br>
-                <b>🎓 Sınav Notu:</b> 'Bilinç akışı', 'İç monolog' veya 'Postmodernizm' sorulursa cevap budur. Olric karakteri (hayali arkadaş) sorularda ipucudur.
-                """
-            }
-        },
-        "Namık Kemal": {
-            "bio": "Vatan Şairidir. Sanat toplum içindir anlayışını benimser. Tiyatroyu 'faydalı bir eğlence' olarak görür. Romantizm akımından etkilenmiştir.",
-            "eserler": {
-                "İntibah": """
-                <b>📝 Analiz:</b> İlk edebi romandır. Ali Bey'in Mahpeyker'e (kötü kadın) aşık olup Dilaşub'u (iyi cariye) harcamasını ve çöküşünü anlatır.<br><br>
-                <b>🎓 Sınav Notu:</b> 'İlkler' sorusunda mutlaka çıkar. Mahpeyker ve Dilaşub karakterleri anahtar kelimedir.
-                """,
-                "Vatan Yahut Silistre": """
-                <b>📝 Analiz:</b> Sahnelenen ilk tiyatrodur. Eser sahnelendikten sonra halk galeyana gelmiş, Namık Kemal sürgüne gönderilmiştir. İslam Bey ve Zekiye'nin vatan aşkı anlatılır.
-                """
-            }
-        },
-        "Fuzuli": {
-            "bio": "16. yy. Divan şairi. Aşkı, ızdırabı ve tasavvufu işler. 'İlimsiz şiir, temelsiz duvar gibidir' der. Azeri Türkçesi kullanır.",
-            "eserler": {
-                "Leyla ile Mecnun": """
-                <b>📝 Analiz:</b> Beşeri aşktan ilahi aşka geçişi anlatan, Türk edebiyatının en lirik mesnevisidir.<br><br>
-                <b>🎓 Sınav Notu:</b> Mesnevi türünün zirvesidir. Alegorik (sembolik) anlatım vardır.
-                """,
-                "Şikayetname": """
-                <b>📝 Analiz:</b> Kanuni'nin bağladığı maaşı alamayınca yazdığı, bürokrasiyi ve rüşveti eleştiren süslü nesir örneğidir. Mektup türündedir.
-                """
-            }
-        },
-        "Sait Faik Abasıyanık": {
-            "bio": "Çehov (Durum) hikayesinin edebiyatımızdaki en büyük ismidir. İstanbul, Burgazada, deniz, balıkçılar ve küçük insanlar ana temasıdır. 'Bir insanı sevmekle başlar her şey' sözüyle bilinir.",
-            "eserler": {
-                "Alemdağ'da Var Bir Yılan": """
-                <b>📝 Analiz:</b> Yazarın son dönem eseridir. Gerçeküstücülüğe (Sürrealizm) kaydığı, yalnızlığı ve yabancılaşmayı anlattığı hikayelerdir.<br><br>
-                <b>🎓 Sınav Notu:</b> Sait Faik'in çizgisini değiştirdiği eser olarak sorulur. 'Panco' karakteri önemlidir.
-                """
-            }
-        },
-        "Halit Ziya Uşaklıgil": {
-            "bio": "Servet-i Fünun romanının babasıdır. Batılı anlamda ilk modern romanları yazmıştır. Dili ağırdır, sonradan sadeleştirmiştir.",
-            "eserler": {
-                "Mai ve Siyah": """
-                <b>📝 Analiz:</b> 'Mai' Ahmet Cemil'in hayallerini, 'Siyah' ise gerçekleri temsil eder. Servet-i Fünun neslinin karamsarlığını anlatır.
-                """,
-                "Aşk-ı Memnu": """
-                <b>📝 Analiz:</b> Yasak aşk temasını işleyen, teknik açıdan kusursuz kabul edilen realist romandır.
-                """
-            }
-        },
-        "Mehmet Rauf": {
-            "bio": "Servet-i Fünun'un Halit Ziya'dan sonraki en önemli ismidir. Psikolojik tahlillerde çok başarılıdır.",
-            "eserler": {
-                "Eylül": """
-                <b>📝 Analiz:</b> Edebiyatımızın ilk psikolojik romanıdır. Olaydan çok kahramanların ruh halleri ön plandadır. Yasak aşk (Suat-Süreyya-Necip) işlenir.
-                """
-            }
-        },
-        "Reşat Nuri Güntekin": {
-            "bio": "Milli Edebiyat zevkini sürdüren yazarlardandır. Sade dili ve güçlü gözlem yeteneğiyle Anadolu'yu anlatır. 'Çalıkuşu' ile öğretmenliği sevdirmiştir.",
-            "eserler": {
-                "Çalıkuşu": """
-                <b>📝 Analiz:</b> Feride'nin şahsında idealist Türk öğretmenini ve Anadolu'nun o dönemki durumunu anlatır.
-                """,
-                "Yaprak Dökümü": """
-                <b>📝 Analiz:</b> Yanlış batılılaşmanın bir aileyi nasıl dağıttığını Ali Rıza Bey karakteri üzerinden anlatır.
-                """
-            }
-        },
-        "Halide Edip Adıvar": {
-            "bio": "Milli Mücadele'ye bizzat katılmış (Halide Onbaşı), kadın haklarını savunan, güçlü kadın karakterler yaratan bir yazardır.",
-            "eserler": {
-                "Sinekli Bakkal": """
-                <b>📝 Analiz:</b> Töre romanıdır. II. Abdülhamit dönemi İstanbul'unu, Rabia ve Peregrini aşkı ekseninde Doğu-Batı senteziyle anlatır.
-                """,
-                "Ateşten Gömlek": """
-                <b>📝 Analiz:</b> Kurtuluş Savaşı üzerine yazılan ilk romandır. Yazarın kendi gözlemlerine dayanır.
-                """
-            }
-        }
+        "Ferit Edgü": {"bio": "Küçürek öykü ustası. Hakkari'de öğretmenlik yaparken yaşadıklarını yazar.", "eserler": {"Hakkari'de Bir Mevsim": "Yabancılaşma ve yalnızlık."}},
+        "Ziya Osman Saba": {"bio": "Yedi Meşaleciler'in şairi. Ev ve küçük mutlulukları işler.", "eserler": {"Sebil ve Güvercinler": "Huzur ve ahiret özlemi."}},
+        "Arif Damar": {"bio": "Toplumcu gerçekçi şair.", "eserler": {"Günden Güne": "Toplumsal umut."}},
+        "Enis Behiç Koryürek": {"bio": "Beş Hececilerdendir. Deniz şiirleriyle tanınır.", "eserler": {"Gemiciler": "Türk denizciliği."}},
+        "Ahmet Muhip Dıranas": {"bio": "Saf şiir ve sembolizm.", "eserler": {"Fahriye Abla": "Efsaneleşmiş lirik şiir."}},
+        "Cahit Sıtkı Tarancı": {"bio": "Ölüm, yaşama sevinci ve yalnızlık. 'Otuz Beş Yaş' şairidir.", "eserler": {"Otuz Beş Yaş": "Ölüm korkusu."}},
+        "Behçet Necatigil": {"bio": "Evler Şairi. Modern insanın yalnızlığı.", "eserler": {"Kapalı Çarşı": "Şehir ve insan."}},
+        "Fazıl Hüsnü Dağlarca": {"bio": "'Türkçem benim ses bayrağım' der. Destan şairidir.", "eserler": {"Üç Şehitler Destanı": "Kurtuluş Savaşı."}},
+        "Peyami Safa": {"bio": "Psikolojik romanın güçlü kalemi. Doğu-Batı çatışması.", "eserler": {"Fatih-Harbiye": "Kültür çatışması.", "Dokuzuncu Hariciye Koğuşu": "Psikolojik roman."}},
+        "Tarık Buğra": {"bio": "Tarihi ve psikolojik derinlikli romanlar.", "eserler": {"Küçük Ağa": "Kuvayi Milliye bilinci."}},
+        "Halide Edip Adıvar": {"bio": "Milli Mücadele'nin kadın kahramanı.", "eserler": {"Sinekli Bakkal": "Töre romanı.", "Ateşten Gömlek": "Kurtuluş Savaşı."}},
+        "Reşat Nuri Güntekin": {"bio": "Anadolu romancısı. Realizm.", "eserler": {"Çalıkuşu": "İdealist öğretmen.", "Yaprak Dökümü": "Sosyal değişim."}},
+        "Mehmet Rauf": {"bio": "Servet-i Fünun yazarı. Psikolojik roman.", "eserler": {"Eylül": "İlk psikolojik roman."}},
+        "Yakup Kadri Karaosmanoğlu": {"bio": "Nehir romanlarıyla toplum tarihini yazar.", "eserler": {"Yaban": "Aydın-Köylü çatışması.", "Kiralık Konak": "Kuşak çatışması."}},
+        "Sait Faik Abasıyanık": {"bio": "Durum hikayecisi. İstanbul aşığı.", "eserler": {"Semaver": "Sıradan insanlar.", "Alemdağ'da Var Bir Yılan": "Sürrealizm."}},
+        "Oğuz Atay": {"bio": "Postmodernizmin öncüsü.", "eserler": {"Tutunamayanlar": "Aydın bunalımı."}},
+        "Namık Kemal": {"bio": "Vatan şairi. Tanzimat 1. Dönem.", "eserler": {"İntibah": "İlk edebi roman.", "Vatan Yahut Silistre": "İlk tiyatro."}}
     }
 
-# --- CSS TASARIMI (KESİN RESİM LİNKİ - YEŞİL KİTAPLAR) ---
-bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
-
-st.markdown(f"""
-    <style>
-    /* ARKA PLAN AYARLARI */
-    .stApp {{
-        background-image: url("{bg_image_url}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-    
-    html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
-        font-family: 'Segoe UI', sans-serif;
-    }}
-    
-    /* YAN MENÜ (İSTATİSTİKLER) */
-    [data-testid="stSidebar"] {{
-        background-color: {sidebar_color} !important;
-        border-right: 4px solid #3e7a39;
-    }}
-    [data-testid="stSidebar"] * {{
-        color: #ffffff !important;
-    }}
-    
-    /* GENEL KUTU TASARIMI (KOYU YEŞİL ZEMİN, BEYAZ YAZI) */
-    
-    /* Soru Kartı */
-    .question-card {{
-        background-color: {card_bg_color} !important;
-        padding: 25px;
-        border-radius: 20px;
-        border: 4px solid #3e7a39;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        text-align: center;
-        margin-bottom: 25px;
-    }}
-    .question-card div, .question-card span, .question-card p {{
-        color: {text_color_cream} !important;
-    }}
-    
-    /* Şık Kutuları (Radio) */
-    .stRadio {{
-        background-color: {card_bg_color} !important;
-        padding: 20px;
-        border-radius: 20px;
-        border: 3px solid #3e7a39;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }}
-    .stRadio label p {{
-        color: {text_color_cream} !important;
-        font-size: 18px !important;
-        font-weight: 700 !important;
-    }}
-    
-    /* Menü Kartları */
-    .menu-card {{ 
-        background-color: {card_bg_color}; 
-        padding: 20px; 
-        border-radius: 20px; 
-        text-align: center; 
-        border: 4px solid #3e7a39; 
-        cursor: pointer; 
-        margin-bottom: 15px; 
-        box-shadow: 0 6px 0px #1b3a1a; 
-    }}
-    .menu-title {{ 
-        font-size: 18px; 
-        font-weight: 900; 
-        color: {text_color_cream}; 
-        text-transform: uppercase; 
-    }}
-    
-    /* BUTONLAR */
-    .stButton button {{
-        background-color: #d84315 !important;
-        color: white !important;
-        border-radius: 15px !important;
-        font-weight: 900 !important;
-        border: 2px solid #fff !important;
-        box-shadow: 0 5px 0 #bf360c !important;
-        font-size: 18px !important;
-    }}
-    .stButton button:active {{
-        box-shadow: 0 0 0 #000 !important;
-        transform: translateY(5px);
-    }}
-    
-    /* YEŞİL GEÇ BUTONU */
-    .next-btn button {{ background-color: #2e7d32 !important; box-shadow: 0 5px 0 #1b5e20 !important; }}
-    
-    /* Sema Hoca Uyarı Kutusu */
-    .sema-hoca-fixed-wrapper {{
-         position: fixed;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         z-index: 99999; /* En üstte */
-         animation: shake 0.5s;
-         box-shadow: 0 0 100px rgba(0,0,0,0.9);
-         border-radius: 20px;
-         overflow: hidden;
-         border: 6px solid white;
-    }}
-    
-    .sema-hoca-alert-box-body {{
-        background-color: {red_warning_color};
-        color: white;
-        text-align: center;
-        padding: 30px;
-    }}
-    
-    .sema-hoca-alert-box-body button {{
-         background-color: white !important;
-         color: {red_warning_color} !important;
-         border: 2px solid {red_warning_color} !important;
-         font-weight: bold !important;
-         margin-top: 20px;
-         pointer-events: auto !important;
-         z-index: 100000;
-    }}
-
-    @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
-
-    /* Okuma Köşesi Kartları */
-    .bio-box {{ background-color: {card_bg_color}; color: {text_color_cream} !important; padding: 20px; border-radius: 15px; border-left: 8px solid #ffeb3b; margin-bottom: 20px; font-size: 16px; }}
-    .bio-box b, .bio-box div, .bio-box span {{ color: {text_color_cream} !important; }}
-
-    /* OKUMA KÖŞESİ ESER DETAY KUTULARI (EXPANDER İÇİ) */
-    .eser-icerik-kutusu {{
-        background-color: {card_bg_color}; 
-        color: {text_color_cream}; 
-        padding: 15px;
-        border-radius: 10px;
-        border: 2px solid #3e7a39; 
-        margin-top: 5px;
-    }}
-
-    /* İsim Tabelası */
-    .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
-    
-    /* Mobil Skor */
-    .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
-    .mobile-score span {{ color: {text_color_cream} !important; }}
-    
-    .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
-    .sanat-aciklama div, .sanat-aciklama b {{ color: {text_color_cream} !important; }}
-    
-    .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; box-shadow: 0 4px 0 #1b5e20; margin-top: 15px; }}
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- SORU ÜRETME ---
+# --- YENİ SORU ÜRETME ---
 def yeni_soru_uret():
     kategori = st.session_state.kategori
     st.session_state.sanat_aciklama = ""
@@ -621,7 +368,7 @@ def yeni_soru_uret():
         dogru_cevap = soru_data["sanat"]
         tum_sanatlar = list(set([x["sanat"] for x in db]))
         if dogru_cevap in tum_sanatlar: tum_sanatlar.remove(dogru_cevap)
-        yanlis_siklar = random.sample(tum_sanatlar, 3)
+        yanlis_siklar = random.sample(tum_sanatlar, min(3, len(tum_sanatlar)))
         siklar = yanlis_siklar + [dogru_cevap]
         random.shuffle(siklar)
         return {"tur": "EDEBİ SANAT", "eser": soru_data["beyit"], "dogru_cevap": dogru_cevap, "siklar": siklar, "aciklama": soru_data["aciklama"]}
@@ -632,7 +379,7 @@ def yeni_soru_uret():
         dogru_cevap = soru_data["yazar"]
         tum_yazarlar = list(set([x["yazar"] for x in db]))
         if dogru_cevap in tum_yazarlar: tum_yazarlar.remove(dogru_cevap)
-        yanlis_siklar = random.sample(tum_yazarlar, 3)
+        yanlis_siklar = random.sample(tum_yazarlar, min(3, len(tum_yazarlar)))
         siklar = yanlis_siklar + [dogru_cevap]
         random.shuffle(siklar)
         return {"tur": "ROMAN ÖZETİ", "eser": soru_data["ozet"], "dogru_cevap": dogru_cevap, "siklar": siklar, "eser_adi": soru_data["roman"]}
@@ -640,12 +387,13 @@ def yeni_soru_uret():
     else:
         db = get_game_db(kategori)
         yazarlar = list(db.keys())
+        if not yazarlar: return None 
         secilen_yazar = random.choice(yazarlar)
         turlar = list(db[secilen_yazar].keys())
         secilen_tur = random.choice(turlar)
         eserler = db[secilen_yazar][secilen_tur]
         secilen_eser = random.choice(eserler)
-        yanlis_yazarlar = random.sample([y for y in yazarlar if y != secilen_yazar], 3)
+        yanlis_yazarlar = random.sample([y for y in yazarlar if y != secilen_yazar], min(3, len(yazarlar)-1))
         siklar = yanlis_yazarlar + [secilen_yazar]
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
@@ -656,7 +404,7 @@ st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_
 # --- YAN MENÜ (LİDERLİK TABLOSU) ---
 with st.sidebar:
     st.header("👤 OYUNCU")
-    # İsim Girme Alanı
+    # İsim Girme Alanı (Sadece Menüdeyken değiştirilebilir olsun)
     if st.session_state.page == "MENU":
         st.session_state.kullanici_adi = st.text_input("Adın Nedir?", st.session_state.kullanici_adi)
     else:
@@ -672,7 +420,7 @@ with st.sidebar:
     if not sirali_skorlar:
         st.caption("Henüz kimse oynamadı.")
     else:
-        for i, (isim, puan) in enumerate(sirali_skorlar[:10]):
+        for i, (isim, puan) in enumerate(sirali_skorlar[:10]): # İlk 10 kişiyi göster
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
             st.markdown(f"**{madalya} {isim}**: {puan} XP")
 
@@ -680,7 +428,7 @@ with st.sidebar:
     if st.session_state.page != "MENU":
         st.metric("⭐ Level", f"{(st.session_state.soru_sayisi // 5) + 1}")
         st.metric("💎 Puan", f"{st.session_state.xp}")
-        if st.button("⬅️ ÇIKIŞ"):
+        if st.button("⬅️ ÇIKIŞ", key="btn_exit_sidebar"):
             st.session_state.page = "MENU"
             st.session_state.xp = 0
             st.rerun()
@@ -689,7 +437,6 @@ with st.sidebar:
 if st.session_state.page == "MENU":
     col_logo, col_title = st.columns([1, 2])
     with col_logo:
-        # Logo gösterimi (Varsa resmi kullan, yoksa info)
         if os.path.exists("background.jpg"):
             with open("background.jpg", "rb") as f:
                 img_data = base64.b64encode(f.read()).decode()
@@ -699,7 +446,6 @@ if st.session_state.page == "MENU":
             
     with col_title:
         st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-        # BAŞLIK DA ARTIK KOYU ZEMİN ÜSTÜNDE KREM YAZI
         st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
     
     # İsim girilmediyse uyarı ver
@@ -716,7 +462,7 @@ if st.session_state.page == "MENU":
 
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🇹🇷", disabled=disabled_state):
+        if st.button("BAŞLA 🇹🇷", key="start_cumh", disabled=disabled_state):
             st.session_state.kategori = "CUMHURİYET"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -726,7 +472,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c2:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎩", disabled=disabled_state):
+        if st.button("BAŞLA 🎩", key="start_tanz", disabled=disabled_state):
             st.session_state.kategori = "TANZİMAT"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -736,7 +482,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c3:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📜", disabled=disabled_state):
+        if st.button("BAŞLA 📜", key="start_divan", disabled=disabled_state):
             st.session_state.kategori = "DİVAN"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -746,7 +492,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c4:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📖", disabled=disabled_state):
+        if st.button("BAŞLA 📖", key="start_roman", disabled=disabled_state):
             st.session_state.kategori = "ROMAN_OZET"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -756,7 +502,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c5:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎨", disabled=disabled_state):
+        if st.button("BAŞLA 🎨", key="start_sanat", disabled=disabled_state):
             st.session_state.kategori = "SANATLAR"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -767,14 +513,14 @@ if st.session_state.page == "MENU":
 
     st.markdown("---")
     st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
-    if st.button("OKUMA KÖŞESİNE GİR ☕", use_container_width=True):
+    if st.button("OKUMA KÖŞESİNE GİR ☕", key="start_study", use_container_width=True):
         st.session_state.page = "STUDY"
         st.rerun()
 
 # --- STUDY SAYFASI ---
 elif st.session_state.page == "STUDY":
     st.markdown(f"<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:{card_bg_color}; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
-    if st.button("⬅️ ANA MENÜYE DÖN"):
+    if st.button("⬅️ ANA MENÜYE DÖN", key="back_to_menu_study"):
         st.session_state.page = "MENU"
         st.rerun()
     db_study = get_reading_db()
@@ -784,8 +530,7 @@ elif st.session_state.page == "STUDY":
     cols = st.columns(3)
     for i, yazar in enumerate(yazar_listesi):
         with cols[i % 3]:
-            # Beyaz kart görünümlü butonlar
-            if st.button(f"👤 {yazar}", use_container_width=True):
+            if st.button(f"👤 {yazar}", key=f"author_{i}", use_container_width=True):
                 st.session_state.calisma_yazar = yazar
     
     # DETAY EKRANI
@@ -798,58 +543,67 @@ elif st.session_state.page == "STUDY":
         for eser, ozet in bilgi['eserler'].items():
             with st.expander(f"📖 {eser}"):
                 st.markdown(f"<div class='eser-icerik-kutusu'>{ozet}</div>", unsafe_allow_html=True)
-        if st.button("LİSTEYİ KAPAT / TEMİZLE"):
+        if st.button("LİSTEYİ KAPAT / TEMİZLE", key="clear_study"):
             st.session_state.calisma_yazar = None
             st.rerun()
 
 # --- GAME SAYFASI ---
 elif st.session_state.page == "GAME":
     soru = st.session_state.mevcut_soru
-    level = (st.session_state.soru_sayisi // 5) + 1
     
-    # 1. SEMA HOCA UYARISI (En Üst Katman - DÜZELTİLDİ)
+    # --- SEMA HOCA UYARISI (KRİTİK DÜZELTME) ---
     if st.session_state.sema_hoca_kizdi:
-        # Dış katman (Fixed pozisyon - Tümünü saran çerçeve)
-        st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
-        
-        # Tek bir gövde (Hem yazılar hem buton bunun içinde olacak)
+        # Önce kırmızı kutuyu çiziyoruz (Buton yok, sadece yazı)
         st.markdown("""
-            <div class="sema-hoca-alert-box-body">
+            <div class="sema-hoca-box">
                 <div style="font-size: 60px;">😡</div>
                 <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
                 <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
+                <br><br>
+            </div>
         """, unsafe_allow_html=True)
         
-        # Özür Dilerim Butonu (Gövdenin içinde)
-        if st.button("Özür Dilerim 😔"):
-            # Skor Kaydı
-            skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-
-            if st.session_state.kategori == "SANATLAR":
-                st.session_state.sema_hoca_kizdi = False
-                st.rerun()
-            else:
-                st.session_state.soru_sayisi += 1
-                st.session_state.soru_bitti = False
-                st.session_state.cevap_verildi = False
-                st.session_state.sema_hoca_kizdi = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+        # Sonra butonu çiziyoruz. CSS ile bunu kutunun içine taşıyoruz (z-index ile)
+        # Buton için boşluk bırak
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("") 
+        
+        c_ortala = st.columns([1,2,1])
+        with c_ortala[1]:
+             if st.button("Özür Dilerim 😔", key="btn_sorry", type="primary", use_container_width=True):
+                # Yanlış yapınca da skor kaydedilir (mevcut puanla)
+                skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
                 
-        st.markdown('</div>', unsafe_allow_html=True) # Gövdeyi kapat
-        st.markdown('</div>', unsafe_allow_html=True) # Dış katmanı kapat
-    
-    with st.sidebar:
-        st.header("🏆 DURUM")
-        st.metric("⭐ Level", f"{level}")
-        st.metric("💎 Puan", f"{st.session_state.xp}")
-        st.markdown("---")
-        st.markdown(f"<div style='text-align:center;color:white;'>SKORU KAYDET:</div><a href='{GOOGLE_FORM_LINKI}' target='_blank' class='kaydet-btn'>📝 LİSTEYE EKLE</a>", unsafe_allow_html=True)
-        st.markdown("---")
-        if st.button("⬅️ ÇIKIŞ"):
+                if st.session_state.kategori == "SANATLAR":
+                    st.session_state.sema_hoca_kizdi = False
+                    st.rerun()
+                else:
+                    st.session_state.soru_sayisi += 1
+                    st.session_state.soru_bitti = False
+                    st.session_state.cevap_verildi = False
+                    st.session_state.sema_hoca_kizdi = False
+                    st.session_state.mevcut_soru = yeni_soru_uret()
+                    st.rerun()
+        
+        # Geri kalan kodun çalışmasını durdur (Sadece uyarı görünsün)
+        st.stop()
+
+    # NORMAL OYUN AKIŞI
+    if soru is None:
+        st.error("Veritabanı hatası. Lütfen menüye dön.")
+        if st.button("Menü", key="error_menu_btn"):
             st.session_state.page = "MENU"
-            st.session_state.xp = 0
             st.rerun()
+        st.stop()
+
+    level = (st.session_state.soru_sayisi // 5) + 1
+    
+    # Sidebar zaten yukarıda tanımlıydı, oyun sayfasında tekrar çağırmaya gerek yok veya
+    # sadece oyun içi bilgilendirme için kullanılabilir ama yukarıdaki yapı yeterli.
 
     st.markdown(f"<div class='mobile-score'><span style='color:{text_color_cream};'>⭐ Lv {level}</span><span style='color:#aed581;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
@@ -871,16 +625,13 @@ elif st.session_state.page == "GAME":
 
     col1, col2 = st.columns([3, 1])
     with col1:
-        # CEVAP VERİLDİYSE ŞIKLARI KİLİTLE
         cevap = st.radio("Seçim:", soru['siklar'], label_visibility="collapsed", disabled=st.session_state.soru_bitti)
     with col2:
         st.write("") 
         st.write("")
         
-        # --- BUTON MANTIĞI ---
         if not st.session_state.soru_bitti:
-            # Soru henüz cevaplanmadıysa YANITLA butonu
-            if st.button("YANITLA 🚀", type="primary", use_container_width=True):
+            if st.button("YANITLA 🚀", key="btn_answer", type="primary", use_container_width=True):
                 st.session_state.cevap_verildi = True
                 
                 if cevap == soru['dogru_cevap']:
@@ -889,23 +640,19 @@ elif st.session_state.page == "GAME":
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
                     
-                    # DOĞRU CEVAPTA SKORU KAYDET
+                    # HER DOĞRU CEVAPTA SKORU KAYDET
                     skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-
-                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME (ROMAN İSMİ BURAYA EKLENDİ)
+                    
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
                         st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
 
-                    # SANATLAR ise açıklamayı gösterip bekle
                     if st.session_state.kategori == "SANATLAR":
                         if "aciklama" in soru:
                             st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-                        st.session_state.soru_bitti = True # Butonu "Sıradaki" yap
+                        st.session_state.soru_bitti = True
                         st.rerun()
-                    
-                    # DİĞER MODLAR İSE -> DİREKT GEÇ
                     else:
-                        time.sleep(2.0) # Roman ismini okumak için biraz daha süre
+                        time.sleep(1.5)
                         st.session_state.soru_sayisi += 1
                         st.session_state.soru_bitti = False
                         st.session_state.cevap_verildi = False
@@ -914,32 +661,16 @@ elif st.session_state.page == "GAME":
 
                 else: # YANLIŞ CEVAP
                     st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True)
-                    st.session_state.sema_hoca_kizdi = True # Sema Hoca Kızdı!
-                    
-                    # Yanlış yapınca da doğru roman ismini gösterelim
-                    msg = f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔"
-                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
-                        msg += f" (Eser: {soru['eser_adi']})"
-                    
-                    st.error(msg)
+                    st.session_state.sema_hoca_kizdi = True # UYARIYI TETİKLE
+                    st.error(f"YANLIŞ! Doğru: {soru['dogru_cevap']}")
                     st.session_state.xp = max(0, st.session_state.xp - 20)
                     
-                    # YANLIŞTA DA SKORU GÜNCELLE
+                    # Yanlışta da skoru güncelle (belki düşmüştür)
                     skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-
-                    # Sanatlarda yanlış yapılsa bile açıklama hazırlanır (Özür dileyince görünecek)
-                    if st.session_state.kategori == "SANATLAR":
-                        st.session_state.soru_bitti = True
-                    
                     st.rerun()
         
-        # Soru Bitti (Cevaplandı) -> Sadece SANATLAR modunda buraya düşer
         elif st.session_state.soru_bitti and not st.session_state.sema_hoca_kizdi:
-            # Açıklamayı tekrar göster
-            if "aciklama" in soru:
-                st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-                
-            if st.button("SIRADAKİ SORUYA GEÇ ➡️", type="primary", use_container_width=True, key="next_btn"):
+            if st.button("GEÇ ➡️", key="btn_next", type="primary", use_container_width=True):
                 st.session_state.soru_sayisi += 1
                 st.session_state.soru_bitti = False
                 st.session_state.cevap_verildi = False
