@@ -47,7 +47,7 @@ def skorlari_yukle():
         return {}
 
 def skoru_kaydet(kullanici, puan):
-    if not kullanici: return
+    if not kullanici or kullanici == "Misafir": return
     try:
         veriler = skorlari_yukle()
         eski_puan = veriler.get(kullanici, 0)
@@ -134,7 +134,7 @@ st.markdown(f"""
 
     /* MINI LİDERLİK TABLOSU */
     .mini-leaderboard {{
-        background-color: rgba(27, 94, 32, 0.95); /* Daha opak */
+        background-color: rgba(27, 94, 32, 0.95);
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 20px;
@@ -204,15 +204,6 @@ st.markdown(f"""
          position: relative !important;
          z-index: 100000;
     }}
-    
-    /* TOAST MESAJI (Uyarı) */
-    div[data-testid="stToast"] {{
-        background-color: #1b5e20 !important;
-        color: white !important;
-        border: 2px solid #ffeb3b !important;
-        opacity: 1 !important;
-    }}
-
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
     </style>
     """, unsafe_allow_html=True)
@@ -621,22 +612,23 @@ if st.session_state.page == "MENU":
         if "temp_isim_input" in st.session_state and st.session_state.temp_isim_input:
              st.session_state.kullanici_adi = st.session_state.temp_isim_input
 
+        # İsim hala boşsa 'Misafir' yap, engelleme!
         if not st.session_state.kullanici_adi:
-            st.toast("Oyun başlamadan önce adını lütfeder misin? Puanlarını kime yazacağız? ✍️🌸", icon="⚠️")
+            st.session_state.kullanici_adi = "Misafir"
+        
+        # İsmi kaydet/yükle (Emin olmak için)
+        skorlar = skorlari_yukle()
+        if st.session_state.kullanici_adi in skorlar:
+                st.session_state.xp = skorlar[st.session_state.kullanici_adi]
         else:
-            # İsmi kaydet/yükle (Emin olmak için)
-            skorlar = skorlari_yukle()
-            if st.session_state.kullanici_adi in skorlar:
-                 st.session_state.xp = skorlar[st.session_state.kullanici_adi]
-            else:
-                 st.session_state.xp = 0
-            
-            st.session_state.kategori = kategori_adi
-            st.session_state.page = "GAME"
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+                st.session_state.xp = 0
+        
+        st.session_state.kategori = kategori_adi
+        st.session_state.page = "GAME"
+        st.session_state.soru_sayisi = 0
+        st.session_state.soru_bitti = False
+        st.session_state.mevcut_soru = yeni_soru_uret()
+        st.rerun()
 
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
