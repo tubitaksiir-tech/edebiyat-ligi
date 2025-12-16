@@ -27,7 +27,7 @@ defaults = {
     'sanat_aciklama': "",
     'calisma_yazar': None,
     'soru_bitti': False,
-    'kullanici_adi': "Misafir"
+    'kullanici_adi': ""
 }
 
 for key, value in defaults.items():
@@ -47,13 +47,15 @@ def skorlari_yukle():
         return {}
 
 def skoru_kaydet(kullanici, puan):
+    if not kullanici: return
     try:
         veriler = skorlari_yukle()
         eski_puan = veriler.get(kullanici, 0)
-        if puan > eski_puan:
-            veriler[kullanici] = puan
-            with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
-                json.dump(veriler, f, ensure_ascii=False, indent=4)
+        # Puan düşse bile son durumu kaydetmek istersen > işaretini kaldırabilirsin
+        # Ama genelde en yüksek skor tutulur. Biz güncel puanı tutalım:
+        veriler[kullanici] = puan 
+        with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
+            json.dump(veriler, f, ensure_ascii=False, indent=4)
     except:
         pass
 
@@ -111,18 +113,49 @@ st.markdown(f"""
     }}
     .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
     
-    /* SEMA HOCA KUTUSU */
+    /* --- SEMA HOCA UYARI KUTUSU & BUTON KONUMLANDIRMA --- */
+    
+    /* Kırmızı Kutu */
     .sema-hoca-box {{
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -60%);
-        background-color: {red_warning_color}; color: white; padding: 40px;
-        border-radius: 20px; border: 8px solid white; text-align: center;
-        box-shadow: 0 0 100px rgba(0,0,0,0.9); z-index: 99990; width: 80%; max-width: 400px;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: {red_warning_color};
+        color: white;
+        padding: 40px;
+        padding-bottom: 100px; /* Buton için yer aç */
+        border-radius: 20px;
+        border: 8px solid white;
+        text-align: center;
+        box-shadow: 0 0 100px rgba(0,0,0,0.9);
+        z-index: 99990;
+        width: 350px;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }}
     
-    /* Özür Dilerim Butonu */
+    /* Özür Dilerim Butonunu Zorla Konumlandır */
     div[data-testid="stButton"] button:contains("Özür Dilerim 😔") {{
+        position: fixed !important;
+        top: 58% !important; /* Kutunun alt kısmına denk gelecek şekilde */
+        left: 50% !important;
+        transform: translate(-50%, 0) !important;
+        width: 200px !important;
+        background-color: white !important;
+        color: {red_warning_color} !important;
+        border: 3px solid {red_warning_color} !important;
         z-index: 99999 !important;
     }}
+    
+    /* Başlık */
+    .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
+    
+    /* Mobil Skor */
+    .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
+    .mobile-score span {{ color: {text_color_cream} !important; }}
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -135,36 +168,36 @@ def get_audio_html(sound_type):
     return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
-# 5. DEVASA VERİTABANLARI (EKSİKSİZ)
+# VERİTABANLARI (DEVASA İÇERİK - EKSİKSİZ)
 # ======================================================
 @st.cache_data
 def get_game_db(kategori):
     if kategori == "CUMHURİYET":
         return {
-            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed", "Başını Vermeyen Şehit", "Perili Köşk", "Bahar ve Kelebekler", "Harem", "Yalnız Efe", "Ferman", "Diyet", "Topuz", "Kurumuş Ağaçlar"], "Roman": ["Efruz Bey"]},
-            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları", "Türkleşmek İslamlaşmak Muasırlaşmak", "Türk Medeniyeti Tarihi", "Malta Mektupları"]},
+            "Ömer Seyfettin": {"Hikaye": ["Kaşağı", "Ant", "Falaka", "Pembe İncili Kaftan", "Bomba", "Yüksek Ökçeler", "Gizli Mabed", "Başını Vermeyen Şehit", "Perili Köşk", "Bahar ve Kelebekler", "Harem", "Yalnız Efe", "Ferman", "Diyet", "Topuz"], "Roman": ["Efruz Bey"]},
+            "Ziya Gökalp": {"Şiir": ["Kızıl Elma", "Altın Işık", "Yeni Hayat"], "Fikir": ["Türkçülüğün Esasları", "Türkleşmek İslamlaşmak Muasırlaşmak", "Türk Medeniyeti Tarihi"]},
             "Yakup Kadri Karaosmanoğlu": {"Roman": ["Yaban", "Kiralık Konak", "Sodom ve Gomore", "Nur Baba", "Ankara", "Panorama", "Bir Sürgün", "Hep O Şarkı", "Hüküm Gecesi"], "Anı": ["Zoraki Diplomat", "Anamın Kitabı", "Gençlik ve Edebiyat Hatıraları", "Politikada 45 Yıl", "Vatan Yolunda"]},
-            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık", "Yolpalas Cinayeti", "Kalp Ağrısı", "Zeyno'nun Oğlu", "Yeni Turan", "Sonsuz Panayır", "Döner Ayna", "Akile Hanım Sokağı"], "Anı": ["Mor Salkımlı Ev", "Türk'ün Ateşle İmtihanı"]},
-            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi", "Dudaktan Kalbe", "Akşam Güneşi", "Kavak Yelleri", "Damga", "Bir Kadın Düşmanı", "Değirmen", "Gizli El", "Eski Hastalık", "Kan Davası"]},
-            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu", "Bir Tereddüdün Romanı", "Sözde Kızlar", "Mahşer", "Canan", "Biz İnsanlar", "Şimşek", "Attila"]},
+            "Halide Edip Adıvar": {"Roman": ["Sinekli Bakkal", "Ateşten Gömlek", "Vurun Kahpeye", "Handan", "Tatarcık", "Yolpalas Cinayeti", "Kalp Ağrısı", "Zeyno'nun Oğlu", "Yeni Turan", "Sonsuz Panayır", "Döner Ayna"], "Anı": ["Mor Salkımlı Ev", "Türk'ün Ateşle İmtihanı"]},
+            "Reşat Nuri Güntekin": {"Roman": ["Çalıkuşu", "Yaprak Dökümü", "Yeşil Gece", "Acımak", "Miskinler Tekkesi", "Dudaktan Kalbe", "Akşam Güneşi", "Kavak Yelleri", "Damga", "Bir Kadın Düşmanı", "Değirmen", "Gizli El", "Eski Hastalık"]},
+            "Peyami Safa": {"Roman": ["Dokuzuncu Hariciye Koğuşu", "Fatih-Harbiye", "Yalnızız", "Matmazel Noraliya'nın Koltuğu", "Bir Tereddüdün Romanı", "Sözde Kızlar", "Mahşer", "Canan", "Biz İnsanlar", "Şimşek"]},
             "Tarık Buğra": {"Roman": ["Küçük Ağa", "Osmancık", "İbişin Rüyası", "Firavun İmanı", "Yağmur Beklerken", "Dönemeçte", "Gençliğim Eyvah", "Yalnızlar", "Siyah Kehribar"]},
-            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan", "Şahmerdan", "Mahalle Kahvesi", "Havada Bulut", "Kumpanya", "Az Şekerli", "Tüneldeki Çocuk", "Havuz Başı"]},
+            "Sait Faik Abasıyanık": {"Hikaye": ["Semaver", "Sarnıç", "Lüzumsuz Adam", "Son Kuşlar", "Alemdağ'da Var Bir Yılan", "Şahmerdan", "Mahalle Kahvesi", "Havada Bulut", "Kumpanya", "Az Şekerli", "Tüneldeki Çocuk"]},
             "Sabahattin Ali": {"Roman": ["Kürk Mantolu Madonna", "Kuyucaklı Yusuf", "İçimizdeki Şeytan"], "Hikaye": ["Değirmen", "Kağnı", "Ses", "Yeni Dünya", "Sırça Köşk", "Kamyon"]},
             "Ahmet Hamdi Tanpınar": {"Roman": ["Huzur", "Saatleri Ayarlama Enstitüsü", "Sahnenin Dışındakiler", "Mahur Beste", "Aydaki Kadın"], "Deneme": ["Beş Şehir", "Yaşadığım Gibi"]},
-            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı", "Ben ve Ötesi", "Sonsuzluk Kervanı"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey", "Tohum", "Para", "Sabır Taşı", "Ahşap Konak", "Yunus Emre", "Abdülhamit Han"]},
-            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin", "835 Satır", "Jokond ile Si-Ya-U", "Benerci Kendini Niçin Öldürdü", "Taranta Babu'ya Mektuplar", "Sesini Kaybeden Şehir"]},
-            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi", "Yılanı Öldürseler", "Orta Direk", "Teneke", "Demirciler Çarşısı Cinayeti", "Binboğalar Efsanesi", "Çakırcalı Efe", "Ölmez Otu", "Yusufçuk Yusuf", "Fırat Suyu Kan Akıyor Baksana"]},
-            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları", "Sessiz Ev", "Kar", "Beyaz Kale", "Yeni Hayat", "Kafamda Bir Tuhaflık", "Kırmızı Saçlı Kadın", "Veba Geceleri"]},
+            "Necip Fazıl Kısakürek": {"Şiir": ["Çile", "Kaldırımlar", "Örümcek Ağı", "Ben ve Ötesi"], "Tiyatro": ["Bir Adam Yaratmak", "Reis Bey", "Tohum", "Para", "Sabır Taşı", "Ahşap Konak", "Yunus Emre"]},
+            "Nazım Hikmet": {"Şiir": ["Memleketimden İnsan Manzaraları", "Kuvayi Milliye Destanı", "Simavne Kadısı Oğlu Bedreddin", "835 Satır", "Jokond ile Si-Ya-U", "Benerci Kendini Niçin Öldürdü", "Taranta Babu'ya Mektuplar"]},
+            "Yaşar Kemal": {"Roman": ["İnce Memed", "Yer Demir Gök Bakır", "Ağrı Dağı Efsanesi", "Yılanı Öldürseler", "Orta Direk", "Teneke", "Demirciler Çarşısı Cinayeti", "Binboğalar Efsanesi", "Çakırcalı Efe", "Ölmez Otu", "Yusufçuk Yusuf"]},
+            "Orhan Pamuk": {"Roman": ["Kara Kitap", "Benim Adım Kırmızı", "Masumiyet Müzesi", "Cevdet Bey ve Oğulları", "Sessiz Ev", "Kar", "Beyaz Kale", "Yeni Hayat", "Kafamda Bir Tuhaflık", "Kırmızı Saçlı Kadın"]},
             "Oğuz Atay": {"Roman": ["Tutunamayanlar", "Tehlikeli Oyunlar", "Bir Bilim Adamının Romanı", "Eylembilim"], "Hikaye": ["Korkuyu Beklerken"], "Tiyatro": ["Oyunlarla Yaşayanlar"]},
-            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar", "Yağmur Kaçağı", "Elde Var Hüzün", "Bela Çiçeği", "Yasak Sevişmek"], "Roman": ["Kurtlar Sofrası", "Sokaktaki Adam", "Bıçağın Ucu", "Sırtlan Payı", "Dersaadet'te Sabah Ezanları", "O Karanlıkta Biz"]},
+            "Attila İlhan": {"Şiir": ["Ben Sana Mecburum", "Sisler Bulvarı", "Duvar", "Yağmur Kaçağı", "Elde Var Hüzün", "Bela Çiçeği", "Yasak Sevişmek"], "Roman": ["Kurtlar Sofrası", "Sokaktaki Adam", "Bıçağın Ucu", "Sırtlan Payı", "Dersaadet'te Sabah Ezanları"]},
             "Cemal Süreya": {"Şiir": ["Üvercinka", "Sevda Sözleri", "Göçebe", "Beni Öp Sonra Doğur Beni", "Uçurumda Açan", "Sıcak Nal", "Güz Bitiği"]},
             "Adalet Ağaoğlu": {"Roman": ["Ölmeye Yatmak", "Bir Düğün Gecesi", "Fikrimin İnce Gülü", "Yüksek Gerilim", "Ruh Üşümesi", "Hayır", "Yazsonu", "Üç Beş Kişi"]},
-            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği", "Cemile", "Baba Evi", "Avare Yıllar", "Gurbet Kuşları", "Devlet Kuşu", "Vukuat Var", "Gavurun Kızı", "Arkadaş Islıkları"]},
-            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları", "Rahmet Yolları Kesti", "Köyün Kamburu", "Yol Ayrımı", "Kurt Kanunu", "Bozkırdaki Çekirdek", "Sağırdere", "Körduman"]},
-            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı", "Yezidin Kızı", "Nilgün", "Çete", "Anahtar", "İstanbul'un İçyüzü", "Dişi Örümcek"]},
+            "Orhan Kemal": {"Roman": ["Bereketli Topraklar Üzerinde", "Murtaza", "Eskici ve Oğulları", "Hanımın Çiftliği", "Cemile", "Baba Evi", "Avare Yıllar", "Gurbet Kuşları", "Devlet Kuşu", "Vukuat Var", "Gavurun Kızı"]},
+            "Kemal Tahir": {"Roman": ["Devlet Ana", "Yorgun Savaşçı", "Esir Şehrin İnsanları", "Rahmet Yolları Kesti", "Köyün Kamburu", "Yol Ayrımı", "Kurt Kanunu", "Bozkırdaki Çekirdek", "Sağırdere"]},
+            "Refik Halit Karay": {"Hikaye": ["Memleket Hikayeleri", "Gurbet Hikayeleri"], "Roman": ["Sürgün", "Bugünün Saraylısı", "Yezidin Kızı", "Nilgün", "Çete", "Anahtar", "İstanbul'un İçyüzü"]},
             "Mehmet Akif Ersoy": {"Şiir": ["Safahat"]},
-            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul", "Eğil Dağlar", "Siyasi Hikayeler", "Çocukluğum Gençliğim"]},
-            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi", "Dinle Neyden", "Gönülden Gönüle", "Şarkın Sultanları"], "Tiyatro": ["Akın", "Canavar", "Yayla Kartalı", "Özyurt"]},
+            "Yahya Kemal Beyatlı": {"Şiir": ["Kendi Gök Kubbemiz", "Eski Şiirin Rüzgarıyla"], "Nesir": ["Aziz İstanbul", "Eğil Dağlar", "Siyasi Hikayeler"]},
+            "Faruk Nafiz Çamlıbel": {"Şiir": ["Han Duvarları", "Çoban Çeşmesi", "Dinle Neyden", "Gönülden Gönüle"], "Tiyatro": ["Akın", "Canavar", "Yayla Kartalı"]},
             "Memduh Şevket Esendal": {"Roman": ["Ayaşlı ve Kiracıları", "Vassaf Bey"], "Hikaye": ["Otlakçı", "Mendil Altında", "Temiz Sevgiler", "Ev Ona Yakıştı"]},
             "Orhan Veli Kanık": {"Şiir": ["Garip", "Vazgeçemediğim", "Destan Gibi", "Yenisi", "Karşı"]},
             "Cahit Sıtkı Tarancı": {"Şiir": ["Otuz Beş Yaş", "Düşten Güzel", "Ömrümde Sükut", "Ziya'ya Mektuplar"]},
@@ -173,10 +206,10 @@ def get_game_db(kategori):
             "Arif Damar": {"Şiir": ["Günden Güne", "İstanbul Bulutu", "Kedi Aklı", "Saat Sekizi Geç Vurdu"]},
             "Ferit Edgü": {"Roman": ["Hakkari'de Bir Mevsim (O)", "Kimse"], "Hikaye": ["Bir Gemide", "Çığlık", "Doğu Öyküleri", "Eylülün Gölgesinde Bir Yazdı"]},
             "Enis Behiç Koryürek": {"Şiir": ["Miras", "Güneşin Ölümü"], "Destan": ["Gemiciler"]},
-            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler", "Çevre", "Divançe", "Eski Toprak", "Yaz Dönemi", "Kareler Aklar"]},
+            "Behçet Necatigil": {"Şiir": ["Kapalı Çarşı", "Evler", "Çevre", "Divançe", "Eski Toprak", "Yaz Dönemi"]},
             "Hilmi Yavuz": {"Şiir": ["Bakış Kuşu", "Bedreddin Üzerine Şiirler", "Doğu Şiirleri", "Gizemli Şiirler", "Zaman Şiirleri"]},
             "Cahit Külebi": {"Şiir": ["Adamın Biri", "Rüzgar", "Atatürk Kurtuluş Savaşı'nda", "Yeşeren Otlar", "Süt", "Türk Mavisi"]},
-            "Fazıl Hüsnü Dağlarca": {"Şiir": ["Havaya Çizilen Dünya", "Çocuk ve Allah", "Üç Şehitler Destanı", "Çakırın Destanı", "Toprak Ana", "Çanakkale Destanı"]},
+            "Fazıl Hüsnü Dağlarca": {"Şiir": ["Havaya Çizilen Dünya", "Çocuk ve Allah", "Üç Şehitler Destanı", "Çakırın Destanı", "Toprak Ana"]},
             "Salah Birsel": {"Deneme": ["Kahveler Kitabı", "Ah Beyoğlu Vah Beyoğlu", "Boğaziçi Şıngır Mıngır", "Sergüzeşt-i Nono Bey"], "Şiir": ["Dünya İşleri"]},
             "Oktay Rifat": {"Şiir": ["Perçemli Sokak", "Karga ile Tilki", "Aşık Merdiveni", "Elleri Var Özgürlüğün", "Yaşayıp Ölmek"]},
             "Melih Cevdet Anday": {"Şiir": ["Rahatı Kaçan Ağaç", "Kolları Bağlı Odysseus", "Telgrafhane", "Teknenin Ölümü", "Göçebe Denizin Üstünde"]},
@@ -189,20 +222,10 @@ def get_game_db(kategori):
             "Falih Rıfkı Atay": {"Anı": ["Çankaya", "Zeytindağı", "Ateş ve Güneş"], "Gezi": ["Deniz Aşırı", "Taymis Kıyıları", "Tuna Kıyıları", "Bizim Akdeniz"]},
             "Nurullah Ataç": {"Deneme": ["Günlerin Getirdiği", "Karalama Defteri", "Sözden Söze", "Okuruma Mektuplar", "Prospero ile Caliban"]},
             "Ahmet Kutsi Tecer": {"Şiir": ["Orada Bir Köy Var Uzakta"], "Tiyatro": ["Koçyiğit Köroğlu", "Köşebaşı", "Satılık Ev", "Bir Pazar Günü"]},
-            "Fakir Baykurt": {"Roman": ["Yılanların Öcü", "Kaplumbağalar", "Tırpan", "Irazca'nın Dirliği", "Onuncu Köy", "Amerikan Sargısı"]},
+            "Fakir Baykurt": {"Roman": ["Yılanların Öcü", "Kaplumbağalar", "Tırpan", "Irazca'nın Dirliği", "Onuncu Köy"]},
             "Latife Tekin": {"Roman": ["Sevgili Arsız Ölüm", "Berci Kristin Çöp Masalları", "Gece Dersleri", "Buzdan Kılıçlar"]},
-            "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas", "Böğürtlen"], "Hikaye": ["Son Emel", "Aşıkane", "Kadın İsterse"]},
-            "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres", "Şık"]},
-            "Halikarnas Balıkçısı": {"Roman": ["Aganta Burina Burinata", "Uluç Reis", "Turgut Reis"], "Hikaye": ["Ege Kıyılarında", "Merhaba Akdeniz"]},
-            "Aziz Nesin": {"Roman": ["Yaşar Ne Yaşar Ne Yaşamaz", "Zübük"], "Hikaye": ["Toros Canavarı", "Fil Hamdi"]},
-            "Rıfat Ilgaz": {"Roman": ["Hababam Sınıfı", "Karartma Geceleri"], "Şiir": ["Yarenlik"]},
-            "Füruzan": {"Hikaye": ["Parasız Yatılı", "Kuşatma"], "Roman": ["47'liler"]},
-            "Bilge Karasu": {"Roman": ["Gece", "Kılavuz"], "Hikaye": ["Troya'da Ölüm Vardı"]},
-            "Vüs'at O. Bener": {"Roman": ["Buzul Çağının Virüsü"], "Hikaye": ["Dost", "Yaşamasız"]},
-            "Sevgi Soysal": {"Roman": ["Yenişehir'de Bir Öğle Vakti", "Şafak"], "Hikaye": ["Tante Rosa"]},
-            "Pınar Kür": {"Roman": ["Yarın Yarın", "Asılacak Kadın"]},
-            "İnci Aral": {"Roman": ["Ölü Erkek Kuşlar", "Yeni Yalan Zamanlar"], "Hikaye": ["Ağda Zamanı"]},
-            "Buket Uzuner": {"Roman": ["İki Yeşil Susamuru", "Kumral Ada Mavi Tuna"]}
+            "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas"], "Hikaye": ["Son Emel", "Aşıkane"]},
+            "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres"]}
         }
     
     elif kategori == "TANZİMAT":
@@ -253,10 +276,8 @@ def get_game_db(kategori):
             "Karacaoğlan": {"Şiir": ["Koşma", "Semai", "Varsağı"]},
             "Pir Sultan Abdal": {"Şiir": ["Nefesler", "Şathiyeler"]},
             "Eşrefoğlu Rumi": {"Tasavvuf": ["Müzekkin Nüfus"]},
-            "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha", "Gencine-i Raz"]},
-            "Zati": {"Mesnevi": ["Şem ü Pervane"]},
-            "Naili": {"Şiir": ["Sebk-i Hindi Tarzı Gazeller"]},
-            "Neşati": {"Mesnevi": ["Hilye-i Enbiya"]}
+            "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
+            "Zati": {"Mesnevi": ["Şem ü Pervane"]}
         }
 
 @st.cache_data
@@ -398,15 +419,41 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- HEADER ---
+# --- HEADER (YAPININ DÜZELTİLMİŞ HALİ) ---
+# Önce başlığı koyuyoruz (st.columns dışında)
 st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
+
+# Boşluk
+st.write("")
 
 # --- YAN MENÜ (LİDERLİK TABLOSU) ---
 with st.sidebar:
     st.header("👤 OYUNCU")
-    # İsim Girme Alanı (Sadece Menüdeyken değiştirilebilir olsun)
+    # İsim Girme Alanı
     if st.session_state.page == "MENU":
-        st.session_state.kullanici_adi = st.text_input("Adın Nedir?", st.session_state.kullanici_adi)
+        # Eski ismi hatırlamak için session state'i kullanıyoruz.
+        # Eğer henüz kullanıcı adı girilmemişse boş string göster.
+        # Kullanıcı ismini değiştirirse otomatik olarak skorları kontrol eder.
+        
+        # Kullanıcı adını girince, enter'a basınca veya başka yere tıklayınca
+        # session_state güncellenir.
+        
+        def update_name():
+             # İsim değiştiğinde skoru güncelle
+             pass # Zaten rerun ile hallediliyor
+
+        isim_input = st.text_input("Adın Nedir?", value=st.session_state.kullanici_adi, key="isim_girisi")
+        
+        if isim_input != st.session_state.kullanici_adi:
+             st.session_state.kullanici_adi = isim_input
+             # Eğer isim değişirse ve bu isimde kayıt varsa puanı yükle
+             skorlar = skorlari_yukle()
+             if isim_input in skorlar:
+                 st.session_state.xp = skorlar[isim_input]
+             else:
+                 st.session_state.xp = 0 # Yeni kullanıcı sıfırdan başlar
+             st.rerun()
+
     else:
         st.info(f"Oynayan: {st.session_state.kullanici_adi}")
     
@@ -420,7 +467,7 @@ with st.sidebar:
     if not sirali_skorlar:
         st.caption("Henüz kimse oynamadı.")
     else:
-        for i, (isim, puan) in enumerate(sirali_skorlar[:10]): # İlk 10 kişiyi göster
+        for i, (isim, puan) in enumerate(sirali_skorlar[:4]): # Sadece ilk 4 kişi
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
             st.markdown(f"**{madalya} {isim}**: {puan} XP")
 
@@ -435,7 +482,9 @@ with st.sidebar:
 
 # --- MENU SAYFASI ---
 if st.session_state.page == "MENU":
-    col_logo, col_title = st.columns([1, 2])
+    
+    # Logo ve Başlık Hizalaması
+    col_logo, col_title = st.columns([1, 3])
     with col_logo:
         if os.path.exists("background.jpg"):
             with open("background.jpg", "rb") as f:
@@ -445,24 +494,20 @@ if st.session_state.page == "MENU":
             st.info("Logo")
             
     with col_title:
-        st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
+        st.markdown('<div style="margin-top: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:15px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT LİGİ</h1>', unsafe_allow_html=True)
     
-    # İsim girilmediyse uyarı ver
-    if not st.session_state.kullanici_adi:
-        st.warning("👈 Lütfen sol menüden adını gir!")
-    else:
-        st.markdown(f"<div style='text-align:center; color:{text_color_cream};'>Hoş geldin, <b>{st.session_state.kullanici_adi}</b>! Hazır mısın?</div>", unsafe_allow_html=True)
-
     st.markdown("---")
     
     # 5 SÜTUNLU MENÜ YAPISI
     c1, c2, c3, c4, c5 = st.columns(5)
-    disabled_state = False if st.session_state.kullanici_adi else True # İsim yoksa butonlar çalışmaz
+    
+    # İsim girilmemişse butonlar çalışmaz (disabled=True)
+    is_disabled = True if not st.session_state.kullanici_adi else False
 
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🇹🇷", key="start_cumh", disabled=disabled_state):
+        if st.button("BAŞLA 🇹🇷", key="start_cumh", disabled=is_disabled):
             st.session_state.kategori = "CUMHURİYET"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -472,7 +517,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c2:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎩", key="start_tanz", disabled=disabled_state):
+        if st.button("BAŞLA 🎩", key="start_tanz", disabled=is_disabled):
             st.session_state.kategori = "TANZİMAT"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -482,7 +527,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c3:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📜", key="start_divan", disabled=disabled_state):
+        if st.button("BAŞLA 📜", key="start_divan", disabled=is_disabled):
             st.session_state.kategori = "DİVAN"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -492,7 +537,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c4:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📖", key="start_roman", disabled=disabled_state):
+        if st.button("BAŞLA 📖", key="start_roman", disabled=is_disabled):
             st.session_state.kategori = "ROMAN_OZET"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -502,7 +547,7 @@ if st.session_state.page == "MENU":
             st.rerun()
     with c5:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎨", key="start_sanat", disabled=disabled_state):
+        if st.button("BAŞLA 🎨", key="start_sanat", disabled=is_disabled):
             st.session_state.kategori = "SANATLAR"
             st.session_state.page = "GAME"
             st.session_state.xp = 0
@@ -602,9 +647,6 @@ elif st.session_state.page == "GAME":
 
     level = (st.session_state.soru_sayisi // 5) + 1
     
-    # Sidebar zaten yukarıda tanımlıydı, oyun sayfasında tekrar çağırmaya gerek yok veya
-    # sadece oyun içi bilgilendirme için kullanılabilir ama yukarıdaki yapı yeterli.
-
     st.markdown(f"<div class='mobile-score'><span style='color:{text_color_cream};'>⭐ Lv {level}</span><span style='color:#aed581;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
@@ -625,6 +667,7 @@ elif st.session_state.page == "GAME":
 
     col1, col2 = st.columns([3, 1])
     with col1:
+        # CEVAP VERİLDİYSE ŞIKLARI KİLİTLE
         cevap = st.radio("Seçim:", soru['siklar'], label_visibility="collapsed", disabled=st.session_state.soru_bitti)
     with col2:
         st.write("") 
