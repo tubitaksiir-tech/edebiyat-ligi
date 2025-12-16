@@ -34,7 +34,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. SKOR SİSTEMİ (JSON) ---
+# --- 3. SKOR SİSTEMİ (JSON - GÜÇLENDİRİLMİŞ) ---
 SKOR_DOSYASI = "skorlar.json"
 
 def skorlari_yukle():
@@ -47,14 +47,19 @@ def skorlari_yukle():
         return {}
 
 def skoru_kaydet(kullanici, puan):
-    if not kullanici: return
+    if not kullanici or kullanici == "Misafir": return
     try:
         veriler = skorlari_yukle()
+        # Her zaman en yüksek skoru tutma mantığı:
         eski_puan = veriler.get(kullanici, 0)
+        # Eğer yeni puan eskisinden büyük veya eşitse kaydet.
+        # (Kullanıcı isterse bunu kaldırıp her zaman son puanı da kaydedebiliriz)
         if puan >= eski_puan:
             veriler[kullanici] = puan
             with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
                 json.dump(veriler, f, ensure_ascii=False, indent=4)
+            # Session state'i de güncelle ki ekranda hemen görünsün
+            # st.session_state.xp = puan (Bu satırı kaldırdım, oyun akışını bozabilir)
     except:
         pass
 
@@ -63,6 +68,7 @@ sidebar_color = "#1b3a1a"
 card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
+input_bg_color = "#3e7a39" # İsim kutusu için yeşil tonu
 bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
 
 st.markdown(f"""
@@ -75,16 +81,21 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
-    /* GENEL YAZI RENGİ (Inputları bozmadan) */
-    .stMarkdown, .stText, h1, h2, h3, h4, h5, h6, p, span, div {{
+    /* GENEL YAZI */
+    html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
         color: {text_color_cream} !important;
     }}
     
-    /* Input Alanlarının İçini Okunur Yap */
+    /* İSİM GİRME KUTUSU ÖZELLEŞTİRME (YEŞİL YAPILDI) */
     .stTextInput input {{
-        color: #000000 !important;
-        background-color: #ffffff !important;
+        color: {text_color_cream} !important;
+        background-color: {input_bg_color} !important;
+        border: 2px solid #1b5e20 !important;
+    }}
+    /* Label rengi */
+    .stTextInput label {{
+        color: {text_color_cream} !important;
     }}
 
     /* YAN MENÜ */
@@ -94,7 +105,7 @@ st.markdown(f"""
     }}
     
     /* KUTULAR */
-    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu {{
+    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu, .duyuru-kutusu {{
         background-color: {card_bg_color} !important;
         border: 3px solid #3e7a39;
         border-radius: 20px;
@@ -128,7 +139,7 @@ st.markdown(f"""
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
     
-    /* --- SEMA HOCA UYARI KUTUSU DÜZELTMESİ --- */
+    /* --- SEMA HOCA UYARI KUTUSU --- */
     .sema-hoca-fixed-wrapper {{
          position: fixed;
          top: 50%; left: 50%;
@@ -422,7 +433,7 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- HEADER (BAŞLIK & LOGO) ---
+# --- HEADER (BAŞLIK & LOGO & DUYURU) ---
 if st.session_state.page == "MENU":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     st.write("") 
@@ -455,8 +466,20 @@ if st.session_state.page == "MENU":
         """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
+    # --- DUYURU ALANI (İSTEĞİN ÜZERİNE EKLENDİ) ---
+    # Eğer 'duyuru.jpg' diye bir resim yüklersen burası çalışır.
+    # Yoksa varsayılan bir duyuru kutusu gösterir.
+    st.markdown(f"<div class='duyuru-kutusu'>📢 <b>DUYURU PANOSU</b><br><br>", unsafe_allow_html=True)
+    if os.path.exists("duyuru.jpg"):
+        st.image("duyuru.jpg", use_column_width=True)
+    else:
+        st.info("👋 Hoş geldin! Yeni özellikler eklendi. İyi eğlenceler!")
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("---")
 
-# --- YAN MENÜ (DÜZENLENDİ) ---
+# --- YAN MENÜ (DÜZENLENDİ & İSİM KUTUSU YEŞİL) ---
 with st.sidebar:
     st.header("👤 PROFİL")
     
@@ -508,7 +531,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🇹🇷", key="start_cumh", disabled=is_disabled):
             st.session_state.kategori = "CUMHURİYET"
             st.session_state.page = "GAME"
-            st.session_state.xp = 0
+            st.session_state.xp = 0 if not st.session_state.kullanici_adi else st.session_state.xp
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
@@ -518,7 +541,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🎩", key="start_tanz", disabled=is_disabled):
             st.session_state.kategori = "TANZİMAT"
             st.session_state.page = "GAME"
-            st.session_state.xp = 0
+            # Puanı sıfırlama, devam etsin
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
@@ -528,7 +551,6 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 📜", key="start_divan", disabled=is_disabled):
             st.session_state.kategori = "DİVAN"
             st.session_state.page = "GAME"
-            st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
@@ -538,7 +560,6 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 📖", key="start_roman", disabled=is_disabled):
             st.session_state.kategori = "ROMAN_OZET"
             st.session_state.page = "GAME"
-            st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
@@ -548,7 +569,6 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🎨", key="start_sanat", disabled=is_disabled):
             st.session_state.kategori = "SANATLAR"
             st.session_state.page = "GAME"
-            st.session_state.xp = 0
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
@@ -562,7 +582,6 @@ if st.session_state.page == "MENU":
 
 # --- STUDY SAYFASI ---
 elif st.session_state.page == "STUDY":
-    # HEADER'ı buraya da ekleyelim
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     st.markdown(f"<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:{card_bg_color}; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
     
@@ -597,9 +616,8 @@ elif st.session_state.page == "GAME":
     
     soru = st.session_state.mevcut_soru
     
-    # --- SEMA HOCA UYARISI (FIXED + Z-INDEX) ---
+    # --- SEMA HOCA UYARISI ---
     if st.session_state.sema_hoca_kizdi:
-        # Önce kırmızı kutuyu çiziyoruz (Buton yok, sadece yazı)
         st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
         st.markdown("""
             <div class="sema-hoca-alert-box-body">
@@ -608,7 +626,6 @@ elif st.session_state.page == "GAME":
                 <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
         """, unsafe_allow_html=True)
         
-        # Sonra butonu çiziyoruz (Kutunun içinde)
         if st.button("Özür Dilerim 😔", key="btn_sorry"):
             skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
             if st.session_state.kategori == "SANATLAR":
@@ -622,8 +639,8 @@ elif st.session_state.page == "GAME":
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
         
-        st.markdown('</div>', unsafe_allow_html=True) # Gövdeyi kapat
-        st.markdown('</div>', unsafe_allow_html=True) # Dış katmanı kapat
+        st.markdown('</div>', unsafe_allow_html=True) 
+        st.markdown('</div>', unsafe_allow_html=True)
         st.stop()
 
     if soru is None:
