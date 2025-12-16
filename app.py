@@ -34,7 +34,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. SKOR SİSTEMİ (JSON) ---
+# --- 3. SKOR SİSTEMİ ---
 SKOR_DOSYASI = "skorlar.json"
 
 def skorlari_yukle():
@@ -111,14 +111,14 @@ st.markdown(f"""
     /* DUYURU KUTUSU (ÖZEL KOMPAKT) */
     .duyuru-wrapper {{
         background-color: {card_bg_color};
-        border: 2px solid #ffeb3b; /* Sarı çerçeve dikkat çeksin */
+        border: 2px solid #ffeb3b; 
         border-radius: 15px;
         padding: 10px 20px;
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 20px; /* Resim ile yazı arası boşluk */
+        gap: 20px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }}
     
@@ -163,6 +163,7 @@ st.markdown(f"""
         padding: 30px;
         padding-bottom: 40px;
     }}
+    /* Butonu kutunun içinde tut */
     .sema-hoca-alert-box-body button {{
          background-color: white !important;
          color: {red_warning_color} !important;
@@ -471,17 +472,17 @@ if st.session_state.page == "MENU":
     
     st.markdown("---")
     
-    # --- YENİ KOMPAKT DUYURU ALANI ---
-    # Resim verisi hazırlama
+    # --- YENİ KOMPAKT DUYURU ALANI (RESİM BÜYÜTÜLDÜ 100px) ---
     img_tag = ""
     if os.path.exists("odul.jpg"):
         with open("odul.jpg", "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode()
-        img_tag = f'<img src="data:image/jpg;base64,{img_b64}" style="height: 60px; border-radius: 10px; border: 2px solid #ffeb3b;">'
+        # YÜKSEKLİK 100px YAPILDI (BÜYÜTÜLDÜ)
+        img_tag = f'<img src="data:image/jpg;base64,{img_b64}" style="height: 100px; border-radius: 10px; border: 2px solid #ffeb3b;">'
     elif os.path.exists("odul.png"):
         with open("odul.png", "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode()
-        img_tag = f'<img src="data:image/png;base64,{img_b64}" style="height: 60px; border-radius: 10px; border: 2px solid #ffeb3b;">'
+        img_tag = f'<img src="data:image/png;base64,{img_b64}" style="height: 100px; border-radius: 10px; border: 2px solid #ffeb3b;">'
     else:
         # Resim yoksa boş kalsın veya bir emoji
         img_tag = '<div style="font-size: 40px;">🎁</div>'
@@ -545,54 +546,70 @@ with st.sidebar:
 if st.session_state.page == "MENU":
     
     c1, c2, c3, c4, c5 = st.columns(5)
-    is_disabled = True if not st.session_state.kullanici_adi else False
+    # KİLİT KALDIRILDI: is_disabled ARTIK KULLANILMIYOR
+    # İsim girmeden de basabilir, aşağıda kontrol edeceğiz
 
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🇹🇷", key="start_cumh", disabled=is_disabled):
-            st.session_state.kategori = "CUMHURİYET"
-            st.session_state.page = "GAME"
-            st.session_state.xp = 0 if not st.session_state.kullanici_adi else st.session_state.xp
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        if st.button("BAŞLA 🇹🇷", key="start_cumh"):
+            if not st.session_state.kullanici_adi:
+                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
+            else:
+                st.session_state.kategori = "CUMHURİYET"
+                st.session_state.page = "GAME"
+                # Puanı sıfırlama, devam etsin (Varsa eski puanı kullanır)
+                st.session_state.soru_sayisi = 0
+                st.session_state.soru_bitti = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
     with c2:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎩", key="start_tanz", disabled=is_disabled):
-            st.session_state.kategori = "TANZİMAT"
-            st.session_state.page = "GAME"
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        if st.button("BAŞLA 🎩", key="start_tanz"):
+            if not st.session_state.kullanici_adi:
+                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
+            else:
+                st.session_state.kategori = "TANZİMAT"
+                st.session_state.page = "GAME"
+                st.session_state.soru_sayisi = 0
+                st.session_state.soru_bitti = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
     with c3:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📜", key="start_divan", disabled=is_disabled):
-            st.session_state.kategori = "DİVAN"
-            st.session_state.page = "GAME"
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        if st.button("BAŞLA 📜", key="start_divan"):
+            if not st.session_state.kullanici_adi:
+                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
+            else:
+                st.session_state.kategori = "DİVAN"
+                st.session_state.page = "GAME"
+                st.session_state.soru_sayisi = 0
+                st.session_state.soru_bitti = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
     with c4:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📖", key="start_roman", disabled=is_disabled):
-            st.session_state.kategori = "ROMAN_OZET"
-            st.session_state.page = "GAME"
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        if st.button("BAŞLA 📖", key="start_roman"):
+            if not st.session_state.kullanici_adi:
+                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
+            else:
+                st.session_state.kategori = "ROMAN_OZET"
+                st.session_state.page = "GAME"
+                st.session_state.soru_sayisi = 0
+                st.session_state.soru_bitti = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
     with c5:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎨", key="start_sanat", disabled=is_disabled):
-            st.session_state.kategori = "SANATLAR"
-            st.session_state.page = "GAME"
-            st.session_state.soru_sayisi = 0
-            st.session_state.soru_bitti = False
-            st.session_state.mevcut_soru = yeni_soru_uret()
-            st.rerun()
+        if st.button("BAŞLA 🎨", key="start_sanat"):
+            if not st.session_state.kullanici_adi:
+                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
+            else:
+                st.session_state.kategori = "SANATLAR"
+                st.session_state.page = "GAME"
+                st.session_state.soru_sayisi = 0
+                st.session_state.soru_bitti = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
 
     st.markdown("---")
     st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
