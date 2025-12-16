@@ -63,7 +63,6 @@ sidebar_color = "#1b3a1a"
 card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
-input_bg_color = "#3e7a39"
 bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
 
 st.markdown(f"""
@@ -82,11 +81,17 @@ st.markdown(f"""
         color: {text_color_cream} !important;
     }}
     
-    /* İSİM KUTUSU (YEŞİL) */
-    .stTextInput input {{
-        color: {text_color_cream} !important;
-        background-color: {input_bg_color} !important;
-        border: 2px solid #1b5e20 !important;
+    /* İSİM KUTUSU GÖRÜNÜRLÜK AYARI (SOL MENÜ) */
+    [data-testid="stTextInput"] input {{
+        background-color: #3e7a39 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+        opacity: 1 !important;
+    }}
+    [data-testid="stSidebar"] label {{
+        color: #ffeb3b !important;
+        font-weight: bold !important;
+        font-size: 16px !important;
     }}
     
     /* YAN MENÜ */
@@ -108,18 +113,29 @@ st.markdown(f"""
     
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
     
-    /* DUYURU KUTUSU (ÖZEL KOMPAKT) */
+    /* DUYURU KUTUSU (Mobil Uyumlu) */
     .duyuru-wrapper {{
         background-color: {card_bg_color};
         border: 2px solid #ffeb3b; 
         border-radius: 15px;
-        padding: 10px 20px;
-        margin-bottom: 20px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 20px;
+        gap: 15px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        flex-wrap: wrap;
+    }}
+
+    /* --- UYARI MESAJLARI (Toast/Warning) OPAKLAŞTIRMA --- */
+    /* st.toast veya st.warning için genel stil */
+    [data-testid="stAlert"], [data-testid="stToast"] {{
+        background-color: #1b5e20 !important; /* Koyu yeşil opak arka plan */
+        color: #ffffff !important; /* Beyaz yazı rengi */
+        border: 2px solid #ffeb3b !important; /* Sarı çerçeve */
+        opacity: 1 !important; /* Tamamen opak */
+        border-radius: 10px;
     }}
     
     /* BUTONLAR */
@@ -163,7 +179,6 @@ st.markdown(f"""
         padding: 30px;
         padding-bottom: 40px;
     }}
-    /* Butonu kutunun içinde tut */
     .sema-hoca-alert-box-body button {{
          background-color: white !important;
          color: {red_warning_color} !important;
@@ -477,14 +492,12 @@ if st.session_state.page == "MENU":
     if os.path.exists("odul.jpg"):
         with open("odul.jpg", "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode()
-        # YÜKSEKLİK 100px YAPILDI (BÜYÜTÜLDÜ)
         img_tag = f'<img src="data:image/jpg;base64,{img_b64}" style="height: 100px; border-radius: 10px; border: 2px solid #ffeb3b;">'
     elif os.path.exists("odul.png"):
         with open("odul.png", "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode()
         img_tag = f'<img src="data:image/png;base64,{img_b64}" style="height: 100px; border-radius: 10px; border: 2px solid #ffeb3b;">'
     else:
-        # Resim yoksa boş kalsın veya bir emoji
         img_tag = '<div style="font-size: 40px;">🎁</div>'
 
     st.markdown(f"""
@@ -510,7 +523,6 @@ with st.sidebar:
         isim_input = st.text_input("Oyuncu Adı Gir:", value=st.session_state.kullanici_adi, key="isim_girisi")
         if isim_input != st.session_state.kullanici_adi:
              st.session_state.kullanici_adi = isim_input
-             # İsim değişince varsa eski puanı yükle
              skorlar = skorlari_yukle()
              if isim_input in skorlar:
                  st.session_state.xp = skorlar[isim_input]
@@ -546,70 +558,42 @@ with st.sidebar:
 if st.session_state.page == "MENU":
     
     c1, c2, c3, c4, c5 = st.columns(5)
-    # KİLİT KALDIRILDI: is_disabled ARTIK KULLANILMIYOR
-    # İsim girmeden de basabilir, aşağıda kontrol edeceğiz
+    
+    def check_name_and_start(kategori_adi):
+        if not st.session_state.kullanici_adi:
+            st.toast("Oyun başlamadan önce adını lütfeder misin? Puanlarını kime yazacağız? ✍️🌸", icon="⚠️")
+        else:
+            st.session_state.kategori = kategori_adi
+            st.session_state.page = "GAME"
+            st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
+            st.session_state.mevcut_soru = yeni_soru_uret()
+            st.rerun()
 
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🇹🇷", key="start_cumh"):
-            if not st.session_state.kullanici_adi:
-                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
-            else:
-                st.session_state.kategori = "CUMHURİYET"
-                st.session_state.page = "GAME"
-                # Puanı sıfırlama, devam etsin (Varsa eski puanı kullanır)
-                st.session_state.soru_sayisi = 0
-                st.session_state.soru_bitti = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+            check_name_and_start("CUMHURİYET")
+            
     with c2:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎩", key="start_tanz"):
-            if not st.session_state.kullanici_adi:
-                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
-            else:
-                st.session_state.kategori = "TANZİMAT"
-                st.session_state.page = "GAME"
-                st.session_state.soru_sayisi = 0
-                st.session_state.soru_bitti = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+            check_name_and_start("TANZİMAT")
+
     with c3:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📜", key="start_divan"):
-            if not st.session_state.kullanici_adi:
-                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
-            else:
-                st.session_state.kategori = "DİVAN"
-                st.session_state.page = "GAME"
-                st.session_state.soru_sayisi = 0
-                st.session_state.soru_bitti = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+            check_name_and_start("DİVAN")
+
     with c4:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📖", key="start_roman"):
-            if not st.session_state.kullanici_adi:
-                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
-            else:
-                st.session_state.kategori = "ROMAN_OZET"
-                st.session_state.page = "GAME"
-                st.session_state.soru_sayisi = 0
-                st.session_state.soru_bitti = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+            check_name_and_start("ROMAN_OZET")
+
     with c5:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨", key="start_sanat"):
-            if not st.session_state.kullanici_adi:
-                st.warning("⚠️ Lütfen sol menüden bir isim giriniz! 🌸")
-            else:
-                st.session_state.kategori = "SANATLAR"
-                st.session_state.page = "GAME"
-                st.session_state.soru_sayisi = 0
-                st.session_state.soru_bitti = False
-                st.session_state.mevcut_soru = yeni_soru_uret()
-                st.rerun()
+            check_name_and_start("SANATLAR")
 
     st.markdown("---")
     st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
