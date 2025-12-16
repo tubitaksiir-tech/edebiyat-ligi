@@ -527,16 +527,15 @@ if st.session_state.page == "MENU":
     </div>
     """, unsafe_allow_html=True)
     
-    # --- MINI LİDERLİK TABLOSU (ANA EKRAN) ---
+    # --- MINI LİDERLİK TABLOSU ---
     st.markdown("<div style='text-align:center; font-weight:bold; color:#ffeb3b; margin-bottom:5px;'>🏆 Liderlik Tablosu 🏆</div>", unsafe_allow_html=True)
     
     skorlar = skorlari_yukle()
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)[:3] # İlk 3
+    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)[:3] 
     
     if not sirali_skorlar:
         st.info("Henüz kimse oynamadı. İlk sen ol! 🚀")
     else:
-        # Yan yana kutucuklar
         lider_html = "<div class='mini-leaderboard'>"
         for i, (isim, puan) in enumerate(sirali_skorlar):
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉"
@@ -552,30 +551,20 @@ if st.session_state.page == "MENU":
         </div>
         """, unsafe_allow_html=True)
         
-        # KEY=kullanici_adi_input olarak ayarlandı, on_change yok, butonlar kontrol edecek
-        # VEYA direkt buraya yazınca sessiona atayalım.
-        
-        def set_name():
-            st.session_state.kullanici_adi = st.session_state.temp_isim_input
-        
-        st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="temp_isim_input", on_change=set_name)
+        # KEY=main_isim_input. Callback yok, butonlar kontrol edecek.
+        st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="main_isim_input")
 
     st.markdown("---")
 
 # --- YAN MENÜ (SOL) ---
 with st.sidebar:
     st.header("👤 PROFİL")
-    # İSİM GİRME ALANI (SADECE MENÜDE AÇIK)
+    # İSİM GİRME ALANI (YAN MENÜ)
     if st.session_state.page == "MENU":
-        isim_input = st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sidebar_isim")
-        if isim_input != st.session_state.kullanici_adi:
-             st.session_state.kullanici_adi = isim_input
-             skorlar = skorlari_yukle()
-             if isim_input in skorlar:
-                 st.session_state.xp = skorlar[isim_input]
-             else:
-                 st.session_state.xp = 0
-             st.rerun()
+        def update_sidebar_name():
+            st.session_state.kullanici_adi = st.session_state.sb_isim_input
+            
+        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
     else:
         st.info(f"Oynayan: {st.session_state.kullanici_adi}")
         
@@ -606,23 +595,24 @@ if st.session_state.page == "MENU":
     
     c1, c2, c3, c4, c5 = st.columns(5)
     
-    # BUTONLARA BASINCA ÇALIŞACAK FONKSİYON (AKILLI KONTROL)
+    # OYUN BAŞLATMA VE İSİM KONTROLÜ (ZORLA ALMA)
     def start_game(kategori_adi):
-        # Önce geçici inputta yazı var mı kontrol et (Enter'a basmadan tıklarsa diye)
-        if "temp_isim_input" in st.session_state and st.session_state.temp_isim_input:
-             st.session_state.kullanici_adi = st.session_state.temp_isim_input
-
-        # İsim hala boşsa 'Misafir' yap, engelleme!
+        # 1. Eğer ana ekrandaki kutuya yazı yazılmışsa onu al (Enter'a basılmasa bile)
+        if "main_isim_input" in st.session_state and st.session_state.main_isim_input:
+             st.session_state.kullanici_adi = st.session_state.main_isim_input
+        
+        # 2. Hala boşsa 'Misafir' yap
         if not st.session_state.kullanici_adi:
             st.session_state.kullanici_adi = "Misafir"
         
-        # İsmi kaydet/yükle (Emin olmak için)
+        # 3. İsmi kaydet/yükle (Eski skor varsa getir)
         skorlar = skorlari_yukle()
         if st.session_state.kullanici_adi in skorlar:
                 st.session_state.xp = skorlar[st.session_state.kullanici_adi]
         else:
                 st.session_state.xp = 0
         
+        # 4. Oyunu başlat
         st.session_state.kategori = kategori_adi
         st.session_state.page = "GAME"
         st.session_state.soru_sayisi = 0
