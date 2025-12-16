@@ -34,7 +34,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. SKOR SİSTEMİ (JSON - GÜÇLENDİRİLMİŞ) ---
+# --- 3. SKOR SİSTEMİ (JSON) ---
 SKOR_DOSYASI = "skorlar.json"
 
 def skorlari_yukle():
@@ -47,19 +47,14 @@ def skorlari_yukle():
         return {}
 
 def skoru_kaydet(kullanici, puan):
-    if not kullanici or kullanici == "Misafir": return
+    if not kullanici: return
     try:
         veriler = skorlari_yukle()
-        # Her zaman en yüksek skoru tutma mantığı:
         eski_puan = veriler.get(kullanici, 0)
-        # Eğer yeni puan eskisinden büyük veya eşitse kaydet.
-        # (Kullanıcı isterse bunu kaldırıp her zaman son puanı da kaydedebiliriz)
         if puan >= eski_puan:
             veriler[kullanici] = puan
             with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
                 json.dump(veriler, f, ensure_ascii=False, indent=4)
-            # Session state'i de güncelle ki ekranda hemen görünsün
-            # st.session_state.xp = puan (Bu satırı kaldırdım, oyun akışını bozabilir)
     except:
         pass
 
@@ -68,7 +63,7 @@ sidebar_color = "#1b3a1a"
 card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
-input_bg_color = "#3e7a39" # İsim kutusu için yeşil tonu
+input_bg_color = "#3e7a39"
 bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
 
 st.markdown(f"""
@@ -87,17 +82,13 @@ st.markdown(f"""
         color: {text_color_cream} !important;
     }}
     
-    /* İSİM GİRME KUTUSU ÖZELLEŞTİRME (YEŞİL YAPILDI) */
+    /* İSİM KUTUSU (YEŞİL) */
     .stTextInput input {{
         color: {text_color_cream} !important;
         background-color: {input_bg_color} !important;
         border: 2px solid #1b5e20 !important;
     }}
-    /* Label rengi */
-    .stTextInput label {{
-        color: {text_color_cream} !important;
-    }}
-
+    
     /* YAN MENÜ */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
@@ -105,7 +96,7 @@ st.markdown(f"""
     }}
     
     /* KUTULAR */
-    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu, .duyuru-kutusu {{
+    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu {{
         background-color: {card_bg_color} !important;
         border: 3px solid #3e7a39;
         border-radius: 20px;
@@ -116,6 +107,20 @@ st.markdown(f"""
     }}
     
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
+    
+    /* DUYURU KUTUSU (ÖZEL KOMPAKT) */
+    .duyuru-wrapper {{
+        background-color: {card_bg_color};
+        border: 2px solid #ffeb3b; /* Sarı çerçeve dikkat çeksin */
+        border-radius: 15px;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px; /* Resim ile yazı arası boşluk */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }}
     
     /* BUTONLAR */
     .stButton button {{
@@ -158,7 +163,6 @@ st.markdown(f"""
         padding: 30px;
         padding-bottom: 40px;
     }}
-    /* Butonu kutunun içinde tut */
     .sema-hoca-alert-box-body button {{
          background-color: white !important;
          color: {red_warning_color} !important;
@@ -467,15 +471,32 @@ if st.session_state.page == "MENU":
     
     st.markdown("---")
     
-    # --- DUYURU ALANI (İSTEĞİN ÜZERİNE EKLENDİ) ---
-    # Eğer 'duyuru.jpg' diye bir resim yüklersen burası çalışır.
-    # Yoksa varsayılan bir duyuru kutusu gösterir.
-    st.markdown(f"<div class='duyuru-kutusu'>📢 <b>DUYURU PANOSU</b><br><br>", unsafe_allow_html=True)
-    if os.path.exists("duyuru.jpg"):
-        st.image("duyuru.jpg", use_column_width=True)
+    # --- YENİ KOMPAKT DUYURU ALANI ---
+    # Resim verisi hazırlama
+    img_tag = ""
+    if os.path.exists("odul.jpg"):
+        with open("odul.jpg", "rb") as f:
+            img_b64 = base64.b64encode(f.read()).decode()
+        img_tag = f'<img src="data:image/jpg;base64,{img_b64}" style="height: 60px; border-radius: 10px; border: 2px solid #ffeb3b;">'
+    elif os.path.exists("odul.png"):
+        with open("odul.png", "rb") as f:
+            img_b64 = base64.b64encode(f.read()).decode()
+        img_tag = f'<img src="data:image/png;base64,{img_b64}" style="height: 60px; border-radius: 10px; border: 2px solid #ffeb3b;">'
     else:
-        st.info("👋 Hoş geldin! Yeni özellikler eklendi. İyi eğlenceler!")
-    st.markdown("</div>", unsafe_allow_html=True)
+        # Resim yoksa boş kalsın veya bir emoji
+        img_tag = '<div style="font-size: 40px;">🎁</div>'
+
+    st.markdown(f"""
+    <div class='duyuru-wrapper'>
+        <div style="flex: 1; color: #fffbe6; font-weight: bold; font-size: 16px; text-align: left;">
+            🏆 Haftanın Birincisine <br> 
+            <span style="color: #ffeb3b; font-size: 18px;">Limit AYT Edebiyat Cep Kitabı</span> Hediye! 
+        </div>
+        <div>
+            {img_tag}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
 
@@ -541,7 +562,6 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🎩", key="start_tanz", disabled=is_disabled):
             st.session_state.kategori = "TANZİMAT"
             st.session_state.page = "GAME"
-            # Puanı sıfırlama, devam etsin
             st.session_state.soru_sayisi = 0
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
