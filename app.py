@@ -132,9 +132,9 @@ st.markdown(f"""
         flex-wrap: wrap;
     }}
 
-    /* MINI LİDERLİK TABLOSU (ANA EKRAN) */
+    /* MINI LİDERLİK TABLOSU */
     .mini-leaderboard {{
-        background-color: rgba(27, 94, 32, 0.9);
+        background-color: rgba(27, 94, 32, 0.95); /* Daha opak */
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 20px;
@@ -204,6 +204,15 @@ st.markdown(f"""
          position: relative !important;
          z-index: 100000;
     }}
+    
+    /* TOAST MESAJI (Uyarı) */
+    div[data-testid="stToast"] {{
+        background-color: #1b5e20 !important;
+        color: white !important;
+        border: 2px solid #ffeb3b !important;
+        opacity: 1 !important;
+    }}
+
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
     </style>
     """, unsafe_allow_html=True)
@@ -552,16 +561,13 @@ if st.session_state.page == "MENU":
         </div>
         """, unsafe_allow_html=True)
         
-        isim_giris = st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...")
-        if isim_giris:
-            st.session_state.kullanici_adi = isim_giris
-            # Varsa eski puanı yükle
-            skorlar = skorlari_yukle()
-            if isim_giris in skorlar:
-                st.session_state.xp = skorlar[isim_giris]
-            else:
-                st.session_state.xp = 0
-            st.rerun()
+        # KEY=kullanici_adi_input olarak ayarlandı, on_change yok, butonlar kontrol edecek
+        # VEYA direkt buraya yazınca sessiona atayalım.
+        
+        def set_name():
+            st.session_state.kullanici_adi = st.session_state.temp_isim_input
+        
+        st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="temp_isim_input", on_change=set_name)
 
     st.markdown("---")
 
@@ -609,11 +615,22 @@ if st.session_state.page == "MENU":
     
     c1, c2, c3, c4, c5 = st.columns(5)
     
-    # BUTONLARA BASINCA ÇALIŞACAK FONKSİYON (İSİM KONTROLÜ)
+    # BUTONLARA BASINCA ÇALIŞACAK FONKSİYON (AKILLI KONTROL)
     def start_game(kategori_adi):
+        # Önce geçici inputta yazı var mı kontrol et (Enter'a basmadan tıklarsa diye)
+        if "temp_isim_input" in st.session_state and st.session_state.temp_isim_input:
+             st.session_state.kullanici_adi = st.session_state.temp_isim_input
+
         if not st.session_state.kullanici_adi:
             st.toast("Oyun başlamadan önce adını lütfeder misin? Puanlarını kime yazacağız? ✍️🌸", icon="⚠️")
         else:
+            # İsmi kaydet/yükle (Emin olmak için)
+            skorlar = skorlari_yukle()
+            if st.session_state.kullanici_adi in skorlar:
+                 st.session_state.xp = skorlar[st.session_state.kullanici_adi]
+            else:
+                 st.session_state.xp = 0
+            
             st.session_state.kategori = kategori_adi
             st.session_state.page = "GAME"
             st.session_state.soru_sayisi = 0
