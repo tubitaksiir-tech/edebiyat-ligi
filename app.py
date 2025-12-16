@@ -14,7 +14,7 @@ st.set_page_config(
 # GOOGLE FORM LİNKİ
 GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
 
-# --- 2. SESSION STATE BAŞLANGIÇ DEĞERLERİ (HATA ALMAMAK İÇİN) ---
+# --- 2. SESSION STATE BAŞLANGIÇ DEĞERLERİ ---
 if 'page' not in st.session_state:
     st.session_state.page = "MENU"
 if 'kategori' not in st.session_state:
@@ -51,7 +51,7 @@ def get_audio_html(sound_type):
     return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
-# 3. VERİTABANLARI
+# 3. VERİTABANLARI (TANZİMAT EKLENDİ + DEVASA İÇERİK)
 # ======================================================
 @st.cache_data
 def get_game_db(kategori):
@@ -110,6 +110,26 @@ def get_game_db(kategori):
             "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas"], "Hikaye": ["Son Emel", "Aşıkane"]},
             "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres"]}
         }
+    
+    elif kategori == "TANZİMAT":
+        return {
+            "Namık Kemal": {"Roman": ["İntibah", "Cezmi"], "Tiyatro": ["Vatan Yahut Silistre", "Gülnihal", "Akif Bey", "Zavallı Çocuk", "Kara Bela", "Celaleddin Harzemşah"], "Eleştiri": ["Tahrib-i Harabat", "Takip"], "Tarih": ["Osmanlı Tarihi", "Kanije"]},
+            "Şinasi": {"Tiyatro": ["Şair Evlenmesi"], "Şiir": ["Müntehabat-ı Eş'ar"], "Derleme": ["Durub-ı Emsal-i Osmaniye"], "Makale": ["Tercüman-ı Ahval Mukaddimesi"]},
+            "Ziya Paşa": {"Şiir": ["Eş'ar-ı Ziya"], "Antoloji": ["Harabat"], "Hiciv": ["Zafername"], "Anı": ["Defter-i Amal"], "Tercüme": ["Rüya", "Engizisyon Tarihi"]},
+            "Ahmet Mithat Efendi": {"Roman": ["Felatun Bey ile Rakım Efendi", "Hasan Mellah", "Hüseyin Fellah", "Paris'te Bir Türk", "Henüz On Yedi Yaşında", "Dürdane Hanım", "Müşahedat", "Esaret"], "Hikaye": ["Letaif-i Rivayat", "Kıssadan Hisse"]},
+            "Şemsettin Sami": {"Roman": ["Taaşşuk-ı Talat ve Fitnat"], "Sözlük": ["Kamus-ı Türki", "Kamus-ı Fransevi"], "Ansiklopedi": ["Kamus'ul Alam"], "Tiyatro": ["Besa yahut Ahde Vefa", "Gave", "Seydi Yahya"]},
+            "Ahmet Vefik Paşa": {"Tiyatro (Çeviri/Uyarlama)": ["Zor Nikah", "Zoraki Tabip", "Azarya", "Tabib-i Aşk", "Meraki"], "Sözlük": ["Lehçe-i Osmani"], "Tarih": ["Şecere-i Türk Çevirisi"]},
+            "Recaizade Mahmut Ekrem": {"Roman": ["Araba Sevdası"], "Şiir": ["Zemzeme", "Name-i Seher", "Yadigâr-ı Şebâb", "Pejmürde", "Nijad Ekrem"], "Tiyatro": ["Afife Anjelik", "Atala", "Vuslat", "Çok Bilen Çok Yanılır"], "Eleştiri": ["Takdir-i Elhan", "Talim-i Edebiyat"]},
+            "Abdülhak Hamit Tarhan": {"Şiir": ["Makber", "Sahra", "Ölü", "Hacle", "Bunlar O'dur", "Divaneliklerim yahut Belde"], "Tiyatro": ["Eşber", "Finten", "Macera-yı Aşk", "Sabr u Sebat", "İçli Kız", "Duhter-i Hindu", "Tarık", "İbn-i Musa"]},
+            "Samipaşazade Sezai": {"Roman": ["Sergüzeşt"], "Hikaye": ["Küçük Şeyler"], "Tiyatro": ["Şir"]},
+            "Nabizade Nazım": {"Roman": ["Karabibik (Uzun Hikaye)", "Zehra"], "Hikaye": ["Yadigarlarım", "Haspa", "Zavallı Kız", "Bir Hatıra", "Sevda", "Hala Güzel"]},
+            "Muallim Naci": {"Şiir": ["Ateşpare", "Şerare", "Füruzan", "Sünbüle"], "Anı": ["Ömer'in Çocukluğu"], "Sözlük": ["Lugat-i Naci"], "Eleştiri": ["Demdeme"]},
+            "Direktör Ali Bey": {"Tiyatro": ["Ayyar Hamza", "Kokona Yatıyor", "Misafir-i İstiskal"], "Mizah": ["Lehçetü'l Hakayık"], "Gezi": ["Seyahat Jurnali"]},
+            "Akif Paşa": {"Anı": ["Tabsıra"], "Şiir": ["Adem Kasidesi"]},
+            "Sadullah Paşa": {"Şiir": ["Ondokuzuncu Asır Manzumesi"]},
+            "Mizancı Murat": {"Roman": ["Turfanda mı Yoksa Turfa mı"]}
+        }
+
     else: # DİVAN
         return {
             "Fuzuli": {"Mesnevi": ["Leyla ile Mecnun", "Bengü Bade", "Sohbetü'l Esmar"], "Nesir": ["Şikayetname", "Hadikatü's Süeda", "Rind ü Zahid"]},
@@ -118,15 +138,15 @@ def get_game_db(kategori):
             "Nabi": {"Mesnevi": ["Hayriye", "Hayrabad", "Surname"], "Gezi": ["Tuhfetü'l Haremeyn"]},
             "Şeyh Galip": {"Mesnevi": ["Hüsnü Aşk"]},
             "Şeyhi": {"Fabl": ["Harname"], "Mesnevi": ["Hüsrev ü Şirin"]},
-            "Katip Çelebi": {"Bibliyografya": ["Keşfü'z Zunun"], "Coğrafya": ["Cihannüma"], "Tarih": ["Fezleke"]},
+            "Katip Çelebi": {"Bibliyografya": ["Keşfü'z Zunun"], "Coğrafya": ["Cihannüma"], "Tarih": ["Fezleke", "Takvimü't Tevarih"]},
             "Evliya Çelebi": {"Gezi": ["Seyahatname"]},
-            "Ali Şir Nevai": {"Sözlük": ["Muhakemetü'l Lügateyn"], "Tezkire": ["Mecalisü'n Nefais"], "Mesnevi": ["Lisanü't Tayr"]},
+            "Ali Şir Nevai": {"Sözlük": ["Muhakemetü'l Lügateyn"], "Tezkire": ["Mecalisü'n Nefais"], "Mesnevi": ["Lisanü't Tayr", "Ferhad ü Şirin"]},
             "Sinan Paşa": {"Süslü Nesir": ["Tazarruname", "Maarifname"]},
             "Mercimek Ahmet": {"Sade Nesir": ["Kabusname"]},
             "Süleyman Çelebi": {"Mesnevi": ["Vesiletü'n Necat (Mevlid)"]},
             "Ahmedi": {"Mesnevi": ["İskendername", "Cemşid ü Hurşid"]},
             "Babürşah": {"Anı": ["Babürname"]},
-            "Seydi Ali Reis": {"Gezi": ["Mir'atü'l Memalik"]},
+            "Seydi Ali Reis": {"Gezi": ["Mir'atü'l Memalik", "Kitabül Muhit"]},
             "Yirmisekiz Çelebi Mehmet": {"Sefaretname": ["Paris Sefaretnamesi"]},
             "Gülşehri": {"Mesnevi": ["Mantıku't Tayr", "Felekname"]},
             "Kaygusuz Abdal": {"Nesir": ["Budalaname", "Muglataname", "Gevhername"]},
@@ -137,10 +157,12 @@ def get_game_db(kategori):
             "Nergisi": {"Nesir": ["Nergisi Hamsesi"]},
             "Veysi": {"Nesir": ["Habname"]},
             "Karacaoğlan": {"Şiir": ["Koşma", "Semai", "Varsağı"]},
-            "Pir Sultan Abdal": {"Şiir": ["Nefesler"]},
+            "Pir Sultan Abdal": {"Şiir": ["Nefesler", "Şathiyeler"]},
             "Eşrefoğlu Rumi": {"Tasavvuf": ["Müzekkin Nüfus"]},
             "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
-            "Zati": {"Mesnevi": ["Şem ü Pervane"]}
+            "Zati": {"Mesnevi": ["Şem ü Pervane"]},
+            "Naili": {"Şiir": ["Sebk-i Hindi Tarzı Gazeller"]},
+            "Neşati": {"Mesnevi": ["Hilye-i Enbiya"]}
         }
 
 @st.cache_data
@@ -179,7 +201,11 @@ def get_ozet_db():
         {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Kuvayi Milliye karşıtlığından, Akşehir'de bilinçlenerek Milli Mücadele destekçisine dönüşmesi."},
         {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın (İflahsızın Yusuf, Köse Hasan, Pehlivan Ali) dramı."},
         {"yazar": "Nabizade Nazım", "roman": "Zehra", "ozet": "İlk psikolojik roman denemesidir. Kıskançlık teması işlenir. Zehra'nın Suphi'ye olan hastalıklı kıskançlığı anlatılır."},
-        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "İlk köy romanıdır. Antalya'nın Kaş ilçesinde geçer. Karabibik'in tarlasını sürmek için öküz alma çabası anlatılır."}
+        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "İlk köy romanıdır. Antalya'nın Kaş ilçesinde geçer. Karabibik'in tarlasını sürmek için öküz alma çabası anlatılır."},
+        {"yazar": "Şemsettin Sami", "roman": "Taaşşuk-ı Talat ve Fitnat", "ozet": "Talat ve Fitnat'ın aşkı, görücü usulü evliliğin sakıncaları anlatılır. Türk edebiyatının ilk yerli romanıdır."},
+        {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "II. Selim döneminde geçer. Cezmi'nin vatan sevgisi ve kahramanlıkları anlatılır. İlk tarihi romandır."},
+        {"yazar": "Ahmet Mithat Efendi", "roman": "Felatun Bey ile Rakım Efendi", "ozet": "Yanlış batılılaşmayı Felatun Bey (züppe) ve Rakım Efendi (ideal) karakterleri üzerinden karşılaştırmalı anlatır."},
+        {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey'in alafrangalık hevesi ve Periveş Hanım'a duyduğu komik aşkı anlatır. İlk realist romandır."}
     ]
 
 @st.cache_data
@@ -345,7 +371,6 @@ st.markdown(f"""
         color: white;
         text-align: center;
         padding: 30px;
-        /*pointer-events: auto;*/ /* Tıklamayı etkinleştir */
     }}
     
     .sema-hoca-alert-box-body button {{
@@ -354,8 +379,6 @@ st.markdown(f"""
          border: 2px solid {red_warning_color} !important;
          font-weight: bold !important;
          margin-top: 20px;
-         pointer-events: auto !important; /* Butona tıklamayı zorla */
-         z-index: 100000;
     }}
 
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
@@ -452,7 +475,7 @@ if st.session_state.page == "MENU":
         st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:10px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT<br>LİGİ</h1>', unsafe_allow_html=True)
     st.markdown("---")
     
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🇹🇷"):
@@ -464,6 +487,16 @@ if st.session_state.page == "MENU":
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
     with c2:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 🎩"):
+            st.session_state.kategori = "TANZİMAT"
+            st.session_state.page = "GAME"
+            st.session_state.xp = 0
+            st.session_state.soru_sayisi = 0
+            st.session_state.soru_bitti = False
+            st.session_state.mevcut_soru = yeni_soru_uret()
+            st.rerun()
+    with c3:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📜"):
             st.session_state.kategori = "DİVAN"
@@ -473,7 +506,7 @@ if st.session_state.page == "MENU":
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
-    with c3:
+    with c4:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📖"):
             st.session_state.kategori = "ROMAN_OZET"
@@ -483,8 +516,8 @@ if st.session_state.page == "MENU":
             st.session_state.soru_bitti = False
             st.session_state.mevcut_soru = yeni_soru_uret()
             st.rerun()
-    with c4:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">EDEBİ SANATLAR</div></div>', unsafe_allow_html=True)
+    with c5:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨"):
             st.session_state.kategori = "SANATLAR"
             st.session_state.page = "GAME"
@@ -618,7 +651,7 @@ elif st.session_state.page == "GAME":
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
                     
-                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME
+                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME (ROMAN İSMİ BURAYA EKLENDİ)
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
                         st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
 
@@ -631,7 +664,7 @@ elif st.session_state.page == "GAME":
                     
                     # DİĞER MODLAR İSE -> DİREKT GEÇ
                     else:
-                        time.sleep(2.0)
+                        time.sleep(2.0) # Roman ismini okumak için biraz daha süre
                         st.session_state.soru_sayisi += 1
                         st.session_state.soru_bitti = False
                         st.session_state.cevap_verildi = False
@@ -650,7 +683,7 @@ elif st.session_state.page == "GAME":
                     st.error(msg)
                     st.session_state.xp = max(0, st.session_state.xp - 20)
                     
-                    # Sanatlarda yanlış yapılsa bile açıklama hazırlanır
+                    # Sanatlarda yanlış yapılsa bile açıklama hazırlanır (Özür dileyince görünecek)
                     if st.session_state.kategori == "SANATLAR":
                         st.session_state.soru_bitti = True
                     
