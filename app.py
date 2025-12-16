@@ -47,15 +47,15 @@ def skorlari_yukle():
         return {}
 
 def skoru_kaydet(kullanici, puan):
-    if not kullanici: return
+    if not kullanici: return 
     try:
         veriler = skorlari_yukle()
         eski_puan = veriler.get(kullanici, 0)
-        # Puan düşse bile son durumu kaydetmek istersen > işaretini kaldırabilirsin
-        # Ama genelde en yüksek skor tutulur. Biz güncel puanı tutalım:
-        veriler[kullanici] = puan 
-        with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
-            json.dump(veriler, f, ensure_ascii=False, indent=4)
+        # Sadece puan yüksekse kaydet
+        if puan >= eski_puan:
+            veriler[kullanici] = puan
+            with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
+                json.dump(veriler, f, ensure_ascii=False, indent=4)
     except:
         pass
 
@@ -113,49 +113,45 @@ st.markdown(f"""
     }}
     .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
     
-    /* --- SEMA HOCA UYARI KUTUSU & BUTON KONUMLANDIRMA --- */
-    
-    /* Kırmızı Kutu */
-    .sema-hoca-box {{
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: {red_warning_color};
-        color: white;
-        padding: 40px;
-        padding-bottom: 100px; /* Buton için yer aç */
-        border-radius: 20px;
-        border: 8px solid white;
-        text-align: center;
-        box-shadow: 0 0 100px rgba(0,0,0,0.9);
-        z-index: 99990;
-        width: 350px;
-        height: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }}
-    
-    /* Özür Dilerim Butonunu Zorla Konumlandır */
-    div[data-testid="stButton"] button:contains("Özür Dilerim 😔") {{
-        position: fixed !important;
-        top: 58% !important; /* Kutunun alt kısmına denk gelecek şekilde */
-        left: 50% !important;
-        transform: translate(-50%, 0) !important;
-        width: 200px !important;
-        background-color: white !important;
-        color: {red_warning_color} !important;
-        border: 3px solid {red_warning_color} !important;
-        z-index: 99999 !important;
-    }}
-    
-    /* Başlık */
+    /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
     /* Mobil Skor */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
-    .mobile-score span {{ color: {text_color_cream} !important; }}
     
+    .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; }}
+    
+    .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- SEMA HOCA İÇİN ÖZEL CSS ENJEKSİYONU (ZORLA KONUMLANDIRMA) ---
+if st.session_state.sema_hoca_kizdi:
+    st.markdown(f"""
+    <style>
+    /* Arka plan karartma */
+    .sema-overlay {{
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); z-index: 99990;
+    }}
+    /* Kırmızı Kutu */
+    .sema-box {{
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background-color: {red_warning_color}; color: white; padding: 40px;
+        padding-bottom: 90px; /* Buton için yer */
+        border-radius: 20px; border: 8px solid white; text-align: center;
+        box-shadow: 0 0 100px rgba(0,0,0,1); z-index: 99991; width: 320px;
+    }}
+    /* Butonu Yakala ve Kutuya Taşı */
+    div[data-testid="stButton"] button {{
+        z-index: 99992 !important; 
+    }}
+    /* Sadece 'Özür Dilerim' butonunu hedefleyen hile */
+    /* Streamlit'te butona özel class veremediğimiz için fixed pozisyonla üstüne koyuyoruz */
+    .ozur-btn-wrapper {{
+        position: fixed; top: 55%; left: 50%; transform: translate(-50%, 0);
+        z-index: 99993; width: 200px;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -168,7 +164,7 @@ def get_audio_html(sound_type):
     return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
-# VERİTABANLARI (DEVASA İÇERİK - EKSİKSİZ)
+# 5. DEVASA VERİTABANLARI (TANZİMAT DAHİL - EKSİKSİZ)
 # ======================================================
 @st.cache_data
 def get_game_db(kategori):
@@ -419,29 +415,49 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- HEADER (YAPININ DÜZELTİLMİŞ HALİ) ---
-# Önce başlığı koyuyoruz (st.columns dışında)
-st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
+# --- HEADER (BAŞLIK & LOGO) ---
+# Logonun ve başlığın yan yana düzgün durması için
+# st.columns kullanarak grid yapısı oluşturuyoruz.
+if st.session_state.page == "MENU":
+    st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
+    st.write("") # Boşluk
 
-# Boşluk
-st.write("")
+    col_logo, col_title = st.columns([1, 4]) # Logo dar, başlık geniş alan
+    with col_logo:
+        if os.path.exists("background.jpg"):
+            with open("background.jpg", "rb") as f:
+                img_data = base64.b64encode(f.read()).decode()
+            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="100%" style="border-radius:15px; border:3px solid #3e7a39;">', unsafe_allow_html=True)
+        else:
+            # Yedek logo (Emoji)
+            st.markdown('<div style="font-size:60px; text-align:center;">📚</div>', unsafe_allow_html=True)
+            
+    with col_title:
+        # Başlığı dikeyde ortalamak için margin
+        st.markdown(f"""
+        <div style="
+            background-color: {card_bg_color}; 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: 3px solid #3e7a39; 
+            color: {text_color_cream}; 
+            font-weight: 900; 
+            font-size: 32px; 
+            text-align: center;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            margin-top: 10px;
+        ">
+            EDEBİYAT LİGİ
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
 
 # --- YAN MENÜ (LİDERLİK TABLOSU) ---
 with st.sidebar:
     st.header("👤 OYUNCU")
     # İsim Girme Alanı
     if st.session_state.page == "MENU":
-        # Eski ismi hatırlamak için session state'i kullanıyoruz.
-        # Eğer henüz kullanıcı adı girilmemişse boş string göster.
-        # Kullanıcı ismini değiştirirse otomatik olarak skorları kontrol eder.
-        
-        # Kullanıcı adını girince, enter'a basınca veya başka yere tıklayınca
-        # session_state güncellenir.
-        
-        def update_name():
-             # İsim değiştiğinde skoru güncelle
-             pass # Zaten rerun ile hallediliyor
-
         isim_input = st.text_input("Adın Nedir?", value=st.session_state.kullanici_adi, key="isim_girisi")
         
         if isim_input != st.session_state.kullanici_adi:
@@ -451,14 +467,13 @@ with st.sidebar:
              if isim_input in skorlar:
                  st.session_state.xp = skorlar[isim_input]
              else:
-                 st.session_state.xp = 0 # Yeni kullanıcı sıfırdan başlar
+                 st.session_state.xp = 0
              st.rerun()
-
     else:
         st.info(f"Oynayan: {st.session_state.kullanici_adi}")
     
     st.markdown("---")
-    st.header("🏆 LİDERLİK TABLOSU")
+    st.header("🏆 LİDERLİK (TOP 4)")
     
     # Skorları Yükle ve Sırala
     skorlar = skorlari_yukle()
@@ -480,29 +495,13 @@ with st.sidebar:
             st.session_state.xp = 0
             st.rerun()
 
-# --- MENU SAYFASI ---
+# --- MENÜ SAYFASI (DEVAMI) ---
 if st.session_state.page == "MENU":
-    
-    # Logo ve Başlık Hizalaması
-    col_logo, col_title = st.columns([1, 3])
-    with col_logo:
-        if os.path.exists("background.jpg"):
-            with open("background.jpg", "rb") as f:
-                img_data = base64.b64encode(f.read()).decode()
-            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="120" style="border-radius:10px; border:2px solid #3e7a39;">', unsafe_allow_html=True)
-        else:
-            st.info("Logo")
-            
-    with col_title:
-        st.markdown('<div style="margin-top: 15px;"></div>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="background-color:{card_bg_color}; padding:15px; border-radius:15px; border:3px solid #3e7a39; color:{text_color_cream} !important; font-weight:900; text-align:center;">EDEBİYAT LİGİ</h1>', unsafe_allow_html=True)
-    
-    st.markdown("---")
     
     # 5 SÜTUNLU MENÜ YAPISI
     c1, c2, c3, c4, c5 = st.columns(5)
     
-    # İsim girilmemişse butonlar çalışmaz (disabled=True)
+    # İsim girilmemişse butonlar çalışmaz
     is_disabled = True if not st.session_state.kullanici_adi else False
 
     with c1:
@@ -564,7 +563,10 @@ if st.session_state.page == "MENU":
 
 # --- STUDY SAYFASI ---
 elif st.session_state.page == "STUDY":
+    # Başlık (HEADER) burada da görünmeli
+    st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     st.markdown(f"<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:{card_bg_color}; padding:10px; border-radius:15px;'>🎅🏻 OKUMA KÖŞESİ 🎄</h1>", unsafe_allow_html=True)
+    
     if st.button("⬅️ ANA MENÜYE DÖN", key="back_to_menu_study"):
         st.session_state.page = "MENU"
         st.rerun()
@@ -594,47 +596,44 @@ elif st.session_state.page == "STUDY":
 
 # --- GAME SAYFASI ---
 elif st.session_state.page == "GAME":
+    # Başlık (HEADER) oyun sayfasında da görünmeli
+    st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
+    
     soru = st.session_state.mevcut_soru
     
-    # --- SEMA HOCA UYARISI (KRİTİK DÜZELTME) ---
+    # --- SEMA HOCA UYARISI (ZORLA KONUMLANDIRMA İLE ÇÖZÜM) ---
     if st.session_state.sema_hoca_kizdi:
-        # Önce kırmızı kutuyu çiziyoruz (Buton yok, sadece yazı)
+        # 1. Overlay (Arka Plan Karartma)
+        st.markdown('<div class="sema-overlay"></div>', unsafe_allow_html=True)
+        
+        # 2. Kırmızı Kutu (HTML)
         st.markdown("""
-            <div class="sema-hoca-box">
+            <div class="sema-box">
                 <div style="font-size: 60px;">😡</div>
                 <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
                 <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-                <br><br>
             </div>
         """, unsafe_allow_html=True)
         
-        # Sonra butonu çiziyoruz. CSS ile bunu kutunun içine taşıyoruz (z-index ile)
-        # Buton için boşluk bırak
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write("") 
+        # 3. Buton (Streamlit Butonu - CSS ile taşınacak)
+        st.markdown('<div class="ozur-btn-wrapper">', unsafe_allow_html=True)
+        if st.button("Özür Dilerim 😔", key="btn_sorry"):
+            # Skor Kaydı
+            skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
+
+            if st.session_state.kategori == "SANATLAR":
+                st.session_state.sema_hoca_kizdi = False
+                st.rerun()
+            else:
+                st.session_state.soru_sayisi += 1
+                st.session_state.soru_bitti = False
+                st.session_state.cevap_verildi = False
+                st.session_state.sema_hoca_kizdi = False
+                st.session_state.mevcut_soru = yeni_soru_uret()
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        c_ortala = st.columns([1,2,1])
-        with c_ortala[1]:
-             if st.button("Özür Dilerim 😔", key="btn_sorry", type="primary", use_container_width=True):
-                # Yanlış yapınca da skor kaydedilir (mevcut puanla)
-                skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-                
-                if st.session_state.kategori == "SANATLAR":
-                    st.session_state.sema_hoca_kizdi = False
-                    st.rerun()
-                else:
-                    st.session_state.soru_sayisi += 1
-                    st.session_state.soru_bitti = False
-                    st.session_state.cevap_verildi = False
-                    st.session_state.sema_hoca_kizdi = False
-                    st.session_state.mevcut_soru = yeni_soru_uret()
-                    st.rerun()
-        
-        # Geri kalan kodun çalışmasını durdur (Sadece uyarı görünsün)
+        # Kodun geri kalanını çalıştırma (Sadece uyarı görünsün)
         st.stop()
 
     # NORMAL OYUN AKIŞI
@@ -673,6 +672,7 @@ elif st.session_state.page == "GAME":
         st.write("") 
         st.write("")
         
+        # --- BUTON MANTIĞI ---
         if not st.session_state.soru_bitti:
             if st.button("YANITLA 🚀", key="btn_answer", type="primary", use_container_width=True):
                 st.session_state.cevap_verildi = True
@@ -683,19 +683,23 @@ elif st.session_state.page == "GAME":
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
                     
-                    # HER DOĞRU CEVAPTA SKORU KAYDET
+                    # DOĞRU CEVAPTA SKORU KAYDET
                     skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-                    
+
+                    # DOĞRU BİLİNCE EKSTRA BİLGİ GÖSTERME (ROMAN İSMİ BURAYA EKLENDİ)
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
                         st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
 
+                    # SANATLAR ise açıklamayı gösterip bekle
                     if st.session_state.kategori == "SANATLAR":
                         if "aciklama" in soru:
                             st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-                        st.session_state.soru_bitti = True
+                        st.session_state.soru_bitti = True # Butonu "Sıradaki" yap
                         st.rerun()
+                    
+                    # DİĞER MODLAR İSE -> DİREKT GEÇ
                     else:
-                        time.sleep(1.5)
+                        time.sleep(2.0) # Roman ismini okumak için biraz daha süre
                         st.session_state.soru_sayisi += 1
                         st.session_state.soru_bitti = False
                         st.session_state.cevap_verildi = False
@@ -704,16 +708,32 @@ elif st.session_state.page == "GAME":
 
                 else: # YANLIŞ CEVAP
                     st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True)
-                    st.session_state.sema_hoca_kizdi = True # UYARIYI TETİKLE
-                    st.error(f"YANLIŞ! Doğru: {soru['dogru_cevap']}")
+                    st.session_state.sema_hoca_kizdi = True # Sema Hoca Kızdı!
+                    
+                    # Yanlış yapınca da doğru roman ismini gösterelim
+                    msg = f"YANLIŞ! Doğru Cevap: {soru['dogru_cevap']} 💔"
+                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
+                        msg += f" (Eser: {soru['eser_adi']})"
+                    
+                    st.error(msg)
                     st.session_state.xp = max(0, st.session_state.xp - 20)
                     
-                    # Yanlışta da skoru güncelle (belki düşmüştür)
+                    # YANLIŞTA DA SKORU GÜNCELLE
                     skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
+
+                    # Sanatlarda yanlış yapılsa bile açıklama hazırlanır (Özür dileyince görünecek)
+                    if st.session_state.kategori == "SANATLAR":
+                        st.session_state.soru_bitti = True
+                    
                     st.rerun()
         
+        # Soru Bitti (Cevaplandı) -> Sadece SANATLAR modunda buraya düşer
         elif st.session_state.soru_bitti and not st.session_state.sema_hoca_kizdi:
-            if st.button("GEÇ ➡️", key="btn_next", type="primary", use_container_width=True):
+            # Açıklamayı tekrar göster
+            if "aciklama" in soru:
+                st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
+                
+            if st.button("SIRADAKİ SORUYA GEÇ ➡️", key="btn_next", type="primary", use_container_width=True):
                 st.session_state.soru_sayisi += 1
                 st.session_state.soru_bitti = False
                 st.session_state.cevap_verildi = False
