@@ -108,7 +108,7 @@ def mesajlari_temizle():
     with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
         json.dump([], f)
 
-# D) KİŞİYE ÖZEL MESAJ SİSTEMİ (GÜNCELLENDİ: POPUP)
+# D) KİŞİYE ÖZEL MESAJ SİSTEMİ (POP-UP + KAPATMA TUŞU)
 def kisiye_ozel_mesaj_gonder(alici, mesaj):
     if not os.path.exists(OZEL_MESAJ_DOSYASI):
         veriler = {}
@@ -132,25 +132,60 @@ def kisiye_ozel_mesaj_kontrol(kullanici):
         if kullanici in veriler:
             mesaj = veriler[kullanici]
             
-            # --- EKRANIN ORTASINDA KOCAMAN UYARI ---
+            # Arka planı karart ve mesajı göster
             st.markdown(f"""
-            <div class="ozel-mesaj-popup">
-                <div style="font-size: 50px;">💌</div>
-                <h2 style="color:white; margin:0;">SANA MESAJ VAR!</h2>
-                <hr style="border-color: #ffeb3b;">
-                <p style="font-size: 24px; font-weight: bold; color: #ffeb3b;">{mesaj}</p>
-                <small style="color: #ddd;">(Mesaj 5 saniye sonra kaybolacak)</small>
+            <div style="
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background-color: rgba(0,0,0,0.85); z-index: 999990;
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
+            ">
+                <div style="
+                    background-color: #c62828; color: white; padding: 40px;
+                    border-radius: 20px; border: 6px solid #ffeb3b;
+                    text-align: center; max-width: 90%; width: 450px;
+                    box-shadow: 0 0 50px rgba(255, 235, 59, 0.5);
+                    animation: fadeIn 0.5s;
+                ">
+                    <div style="font-size: 60px;">💌</div>
+                    <h2 style="color:white; margin:10px 0; font-weight:900;">SANA MESAJ VAR!</h2>
+                    <hr style="border-color: #ffeb3b;">
+                    <p style="font-size: 22px; font-weight: bold; color: #ffeb3b; margin: 20px 0;">{mesaj}</p>
+                    <p style="font-size: 14px; color: #eee; margin-bottom: 20px;">Devam etmek için aşağıdaki butona basınız.</p>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Mesajı okundu say ve sil
-            del veriler[kullanici]
-            with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
-                json.dump(veriler, f, ensure_ascii=False)
+            # Kapatma Butonu (Ortalanmış)
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                # Butonu yukarıdaki HTML katmanının üzerine çıkarmak için CSS
+                st.markdown("""
+                <style>
+                div[data-testid="stButton"] > button {
+                    position: relative;
+                    z-index: 999999;
+                    border: 3px solid white !important;
+                    background-color: #ffeb3b !important;
+                    color: #c62828 !important;
+                    font-size: 18px !important;
+                    font-weight: 900 !important;
+                    padding: 10px 20px !important;
+                }
+                div[data-testid="stButton"] > button:hover {
+                    background-color: white !important;
+                    color: #c62828 !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+                
+                if st.button("MESAJI OKUDUM VE KAPAT ❎", key="popup_kapat"):
+                    del veriler[kullanici]
+                    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
+                        json.dump(veriler, f, ensure_ascii=False)
+                    st.rerun()
             
-            # 5 Saniye Bekle ve Sayfayı Yenile (Mesaj gitsin)
-            time.sleep(5)
-            st.rerun()
+            # Mesaj okunmadan diğer kodların çalışmasını engelle (Modal etkisi)
+            st.stop()
             
     except:
         pass
@@ -256,6 +291,7 @@ st.markdown(f"""
         color: white !important;
         border: 2px solid #ffeb3b !important;
         font-weight: bold !important;
+        font-size: 16px !important;
     }}
 
     .stButton button {{
@@ -286,24 +322,6 @@ st.markdown(f"""
     .sema-hoca-alert-box-body {{ background-color: {red_warning_color}; color: white; text-align: center; padding: 30px; padding-bottom: 40px; }}
     .sema-hoca-alert-box-body button {{ background-color: white !important; color: {red_warning_color} !important; border: 2px solid {red_warning_color} !important; font-weight: bold !important; margin-top: 20px; position: relative !important; z-index: 100000; }}
     
-    /* ÖZEL MESAJ POP-UP STİLİ (YENİ) */
-    .ozel-mesaj-popup {{
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #c62828; /* Kırmızı Dikkat Çekici */
-        color: white;
-        padding: 40px;
-        border-radius: 20px;
-        border: 6px solid #ffeb3b;
-        box-shadow: 0 0 100px rgba(0,0,0,0.9);
-        z-index: 999999;
-        text-align: center;
-        width: 80%;
-        max-width: 500px;
-        animation: fadeIn 0.5s;
-    }}
-
     .random-info-box {{
         background-color: #1a237e !important; border: 4px solid #ffeb3b;
         color: white !important; padding: 20px; border-radius: 15px; text-align: center;
@@ -936,7 +954,7 @@ with st.sidebar:
     # --- GİZLİ ADMIN GİRİŞİ ---
     with st.expander("🔐 Admin Girişi"):
         admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
-        if admin_sifre == "alperen123":
+        if admin_sifre == "alperenadmin123":
             tab1, tab2, tab3 = st.tabs(["📥 Gelen", "📢 Genel Duyuru", "💌 Özel Mesaj"])
             
             with tab1:
