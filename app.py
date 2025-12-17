@@ -27,7 +27,8 @@ defaults = {
     'sanat_aciklama': "",
     'calisma_yazar': None,
     'soru_bitti': False,
-    'kullanici_adi': ""
+    'kullanici_adi': "",
+    'rastgele_bilgi': None  # Rastgele kavram için
 }
 
 for key, value in defaults.items():
@@ -68,7 +69,6 @@ bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-bookn
 
 st.markdown(f"""
     <style>
-    /* ARKA PLAN */
     .stApp {{
         background-image: url("{bg_image_url}");
         background-size: cover;
@@ -76,13 +76,12 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
-    /* GENEL YAZI */
     html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
         color: {text_color_cream} !important;
     }}
     
-    /* İSİM KUTUSU (YEŞİL & OPAK) */
+    /* İSİM KUTUSU */
     .stTextInput input {{
         background-color: {input_bg_color} !important;
         color: #ffffff !important;
@@ -91,21 +90,18 @@ st.markdown(f"""
         text-align: center;
         font-weight: bold;
     }}
-    /* Label rengi */
     .stTextInput label {{
         color: {text_color_cream} !important;
         font-weight: bold;
         font-size: 18px !important;
     }}
 
-    /* YAN MENÜ */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
         border-right: 4px solid #3e7a39;
     }}
     
-    /* KUTULAR */
-    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu {{
+    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu, .kavram-box {{
         background-color: {card_bg_color} !important;
         border: 3px solid #3e7a39;
         border-radius: 20px;
@@ -117,7 +113,6 @@ st.markdown(f"""
     
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
     
-    /* DUYURU KUTUSU */
     .duyuru-wrapper {{
         background-color: {card_bg_color};
         border: 2px solid #ffeb3b; 
@@ -132,7 +127,6 @@ st.markdown(f"""
         flex-wrap: wrap;
     }}
 
-    /* MINI LİDERLİK TABLOSU */
     .mini-leaderboard {{
         background-color: rgba(27, 94, 32, 0.95);
         border-radius: 10px;
@@ -146,13 +140,8 @@ st.markdown(f"""
         font-size: 14px;
         flex-wrap: wrap;
     }}
-    .leader-item {{
-        margin: 5px;
-        font-weight: bold;
-        color: #fffbe6;
-    }}
+    .leader-item {{ margin: 5px; font-weight: bold; color: #fffbe6; }}
     
-    /* BUTONLAR */
     .stButton button {{
         background-color: #d84315 !important;
         color: white !important;
@@ -164,47 +153,37 @@ st.markdown(f"""
     }}
     .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
     
-    /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
-    /* Mobil Skor */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
     
     .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
     
-    /* --- SEMA HOCA UYARI KUTUSU --- */
     .sema-hoca-fixed-wrapper {{
-         position: fixed;
-         top: 50%; left: 50%;
-         transform: translate(-50%, -50%);
-         z-index: 99999;
-         animation: shake 0.5s;
+         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+         z-index: 99999; animation: shake 0.5s;
          box-shadow: 0 0 100px rgba(0,0,0,0.9);
-         border-radius: 20px;
-         overflow: hidden;
-         border: 6px solid white;
+         border-radius: 20px; overflow: hidden; border: 6px solid white;
     }}
-    .sema-hoca-alert-box-body {{
-        background-color: {red_warning_color};
+    .sema-hoca-alert-box-body {{ background-color: {red_warning_color}; color: white; text-align: center; padding: 30px; padding-bottom: 40px; }}
+    .sema-hoca-alert-box-body button {{ background-color: white !important; color: {red_warning_color} !important; border: 2px solid {red_warning_color} !important; font-weight: bold !important; margin-top: 20px; position: relative !important; z-index: 100000; }}
+    
+    /* Rastgele Kavram Kutusu */
+    .random-info-box {{
+        background-color: #1a237e; /* Lacivert */
+        border: 4px solid #ffeb3b;
         color: white;
+        padding: 20px;
+        border-radius: 15px;
         text-align: center;
-        padding: 30px;
-        padding-bottom: 40px;
+        margin-bottom: 20px;
+        animation: fadeIn 0.5s;
     }}
-    /* Butonu kutunun içinde tut */
-    .sema-hoca-alert-box-body button {{
-         background-color: white !important;
-         color: {red_warning_color} !important;
-         border: 2px solid {red_warning_color} !important;
-         font-weight: bold !important;
-         margin-top: 20px;
-         pointer-events: auto !important;
-         position: relative !important;
-         z-index: 100000;
-    }}
+    
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -277,6 +256,21 @@ def get_game_db(kategori):
             "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres"]}
         }
     
+    elif kategori == "SERVET-İ FÜNUN":
+        return {
+            "Tevfik Fikret": {"Şiir": ["Rübab-ı Şikeste", "Haluk'un Defteri", "Rübabın Cevabı", "Şermin", "Tarih-i Kadim", "Doksan Beşe Doğru"], "Manzum Hikaye": ["Balıkçılar", "Nesrin", "Ramaksan", "Hasta Çocuk"]},
+            "Cenap Şahabettin": {"Şiir": ["Tamat", "Elhan-ı Şita"], "Gezi": ["Hac Yolunda", "Avrupa Mektupları", "Suriye Mektupları", "Afaq-ı Irak"], "Tiyatro": ["Yalan", "Körebe", "Küçükbeyler"], "Özdeyiş": ["Tiryaki Sözleri"]},
+            "Halit Ziya Uşaklıgil": {"Roman": ["Mai ve Siyah", "Aşk-ı Memnu", "Kırık Hayatlar", "Nemide", "Bir Ölünün Defteri", "Ferdi ve Şürekası", "Sefile", "Nesl-i Ahir"], "Hikaye": ["İzmir Hikayeleri", "Bir Şi'r-i Hayal", "Bir Yazın Tarihi", "Solgun Demet", "Aşka Dair", "Onu Beklerken"], "Anı": ["Kırk Yıl", "Saray ve Ötesi", "Bir Acı Hikaye"]},
+            "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas", "Böğürtlen", "Son Yıldız", "Kan Damlası", "Define"], "Hikaye": ["Son Emel", "Aşıkane", "İhtizar", "Kadın İsterse", "Pervaneler gibi"], "Mensur Şiir": ["Siyah İnciler"]},
+            "Hüseyin Cahit Yalçın": {"Roman": ["Nadide", "Hayal İçinde"], "Hikaye": ["Hayat-ı Muhayyel", "Niçin Aldatırlarmış", "Hayat-ı Hakikiye Sahneleri"], "Eleştiri": ["Kavgalarım"]},
+            "Süleyman Nazif": {"Şiir": ["Gizli Figanlar", "Firak-ı Irak", "Batarya ile Ateş", "Malta Geceleri"], "Nesir": ["Çal Çoban Çal", "Tarihin Yılan Hikayesi"]},
+            "Ahmet Hikmet Müftüoğlu": {"Hikaye": ["Haristan ve Gülistan", "Çağlayanlar"], "Roman": ["Gönül Hanım"]},
+            "Hüseyin Suat Yalçın": {"Tiyatro": ["Kirli Çamaşırlar", "Çürük Temel", "Kayseri Gülleri", "Şehbal yahut İstibdadın Son Perdesi"], "Mizah": ["Gave-i Zalim (Takma adıyla)"]},
+            "Ali Ekrem Bolayır": {"Şiir": ["Zilal-i İlham", "Vicdan Alevleri", "Ordunun Defteri", "Şiir Demeti"]},
+            "Faik Ali Ozansoy": {"Şiir": ["Fani Teselliler", "Temasil", "Elhan-ı Vatan"]},
+            "Celal Sahir Erozan": {"Şiir": ["Beyaz Gölgeler", "Buhran", "Siyah Kitap"]}
+        }
+
     elif kategori == "TANZİMAT":
         return {
             "Namık Kemal": {"Roman": ["İntibah", "Cezmi"], "Tiyatro": ["Vatan Yahut Silistre", "Gülnihal", "Akif Bey", "Zavallı Çocuk", "Kara Bela", "Celaleddin Harzemşah"], "Eleştiri": ["Tahrib-i Harabat", "Takip"], "Tarih": ["Osmanlı Tarihi", "Kanije"]},
@@ -328,6 +322,160 @@ def get_game_db(kategori):
             "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
             "Zati": {"Mesnevi": ["Şem ü Pervane"]}
         }
+
+@st.cache_data
+def get_kavramlar_db():
+    return [
+        {"kavram": "Tezil", "aciklama": "Ciddi bir şiire (genellikle bir nazireye) alaycı ve mizahi bir dille yazılan karşılık şiiri."},
+        {"kavram": "Nazire", "aciklama": "Bir şairin şiirine başka bir şair tarafından aynı ölçü, kafiye ve redifle yazılan benzer şiir."},
+        {"kavram": "Tegazzül", "aciklama": "Kasidenin içinde, aynı ölçü ve kafiyede araya sıkıştırılan gazel bölümü."},
+        {"kavram": "Fahriye", "aciklama": "Şairin kendi şairliğini, yeteneğini ve sanatını övdüğü bölüm."},
+        {"kavram": "Surname", "aciklama": "Şehzadelerin sünnet düğünlerini veya hanım sultanların evlilik törenlerini, şenlikleri anlatan eserler."},
+        {"kavram": "Kaside", "aciklama": "Genellikle din ve devlet büyüklerini övmek amacıyla yazılan, belli kuralları olan uzun şiir (33-99 beyit)."},
+        {"kavram": "Gazel", "aciklama": "Aşk, şarap, güzellik gibi lirik konuları işleyen, 5-15 beyitlik en yaygın nazım şekli."},
+        {"kavram": "Tahmis", "aciklama": "Bir gazelin her beytinin üzerine üçer dize eklenerek beşli hale getirilmesi."},
+        {"kavram": "Muhammes", "aciklama": "Beşer dizelik bentlerden oluşan nazım şekli."},
+        {"kavram": "Taşdir", "aciklama": "Bir gazelin beyitleri arasına üçer dize eklenerek beşlenmesi."},
+        {"kavram": "Kamer (Mah)", "aciklama": "Ay. (Sevgilinin yüzünün parlaklığı ve yuvarlaklığı için kullanılır)."},
+        {"kavram": "Bade (Mey)", "aciklama": "Şarap. (Tasavvufta ilahi aşkı veya marifeti temsil eder)."},
+        {"kavram": "Selvi (Serv-i hıraman)", "aciklama": "Sevgilinin uzun, düzgün ve salınan boyu."},
+        {"kavram": "Saki", "aciklama": "İçki sunan güzel. (Tasavvufta mürşit, yol gösterici)."},
+        {"kavram": "Meyhane", "aciklama": "İçki içilen yer. (Tasavvufta tekke, dergah veya aşığın kalbi)."},
+        {"kavram": "Rind", "aciklama": "Dünya malına değer vermeyen, şekilcilikten uzak, gönül adamı."},
+        {"kavram": "Zahid (Sofu)", "aciklama": "Dinin sadece dış görünüşüne önem veren, kaba, anlayışsız ve aşktan anlamayan kişi."},
+        {"kavram": "Rakip (Ağyar)", "aciklama": "Sevgiliye ulaşmaya çalışan diğer kişiler, engelleyenler, düşmanlar."},
+        {"kavram": "Hamse", "aciklama": "Bir şairin yazdığı beş mesnevinin oluşturduğu külliyat."},
+        {"kavram": "Tevhid", "aciklama": "Allah’ın varlığını ve birliğini anlatan şiirler."},
+        {"kavram": "Münacaat", "aciklama": "Allah’a yalvarış, yakarış ve dua konulu şiirler."},
+        {"kavram": "Naat", "aciklama": "Hz. Muhammed’i övmek için yazılan şiirler."},
+        {"kavram": "Hicviye", "aciklama": "Bir kişiyi, kurumu veya toplumu eleştirmek, yermek için yazılan şiirler."},
+        {"kavram": "Mersiye", "aciklama": "Ölen bir kişinin ardından duyulan üzüntüyü anlatan şiirler."},
+        {"kavram": "Mesnevi", "aciklama": "Her beyti kendi içinde kafiyeli (aa, bb, cc...), hikaye anlatmaya yarayan uzun nazım şekli."},
+        {"kavram": "Rubai", "aciklama": "Tek dörtlükten oluşan, aaba kafiye düzenindeki felsefi şiir."},
+        {"kavram": "Tuyuğ", "aciklama": "Türklerin bulduğu, maniye benzeyen tek dörtlükten oluşan nazım şekli."},
+        {"kavram": "Murabba", "aciklama": "Dörder dizelik bentlerden oluşan nazım şekli."},
+        {"kavram": "Şarkı", "aciklama": "Bestelenmek amacıyla yazılan, nakaratları olan, Murabba’nın bir türü."},
+        {"kavram": "Terkib-i Bent", "aciklama": "Bentlerle kurulan, her bendin sonunda kafiyesi değişen 'vasıta beyti' bulunan uzun şiir."},
+        {"kavram": "Terci-i Bent", "aciklama": "Vasıta beytinin her bendin sonunda aynen tekrar edildiği, genellikle felsefi ve dini konuları işleyen şiir."},
+        {"kavram": "Müstezat", "aciklama": "Gazelin her dizesine 'ziyade' denilen kısa bir dize eklenerek oluşturulan şiir."},
+        {"kavram": "Kıta", "aciklama": "Genellikle iki beyitten oluşan, matla beyti olmayan nazım parçası."},
+        {"kavram": "Lügaz", "aciklama": "Manzum bilmece. (Genellikle nesneler sorulur)."},
+        {"kavram": "Muamma", "aciklama": "Cevabı genelde bir insan ismi veya Allah'ın ismi olan zor manzum bilmece."},
+        {"kavram": "Şehrengiz", "aciklama": "Bir şehrin güzelliklerini ve o şehrin güzellerini anlatan eser."},
+        {"kavram": "Sakiname", "aciklama": "İçkiyi, içki meclislerini ve adabını anlatan eser."},
+        {"kavram": "Gazavatname", "aciklama": "Din uğruna yapılan savaşları ve kahramanlıkları anlatan eser."},
+        {"kavram": "Siyer", "aciklama": "Hz. Muhammed’in hayatını anlatan eser."},
+        {"kavram": "Hilye", "aciklama": "Hz. Muhammed’in veya dört halifenin fiziksel ve ruhsal özelliklerini anlatan eser."},
+        {"kavram": "Pendname", "aciklama": "Öğüt veren, ahlaki didaktik eserler."},
+        {"kavram": "Kıyafetname", "aciklama": "İnsanların dış görünüşlerinden karakter tahlili yapan eserler."},
+        {"kavram": "Siyasetname", "aciklama": "Devlet yönetimi hakkında bilgi veren eserler."},
+        {"kavram": "Bahariye", "aciklama": "Kasidelerin nesib bölümünde bahar mevsiminin tasvir edildiği kısım."},
+        {"kavram": "Şitaiye", "aciklama": "Kış mevsiminin tasvir edildiği şiirler."},
+        {"kavram": "Iydiye (Bayramiye)", "aciklama": "Bayram günlerini anlatan veya bayramda sunulan şiirler."},
+        {"kavram": "Rahşiye", "aciklama": "Atları övmek ve tasvir etmek için yazılan şiirler."},
+        {"kavram": "Matla", "aciklama": "Gazel veya kasidenin ilk beyti (aa)."},
+        {"kavram": "Makta", "aciklama": "Gazel veya kasidenin son beyti (Şairin mahlası bulunur)."},
+        {"kavram": "Beytü'l-Gazel", "aciklama": "Gazelin en güzel beyti."},
+        {"kavram": "Taç Beyit", "aciklama": "Kasidede şairin mahlasının geçtiği beyit."},
+        {"kavram": "Şah Beyit", "aciklama": "Şiirin en güzel, en dokunaklı beyti."},
+        {"kavram": "Yek-ahenk", "aciklama": "Baştan sona aynı konuyu işleyen gazel."},
+        {"kavram": "Yek-avaz", "aciklama": "Her beyti aynı söyleyiş güzelliğinde olan gazel."},
+        {"kavram": "Musammat Gazel", "aciklama": "Dize ortasında iç kafiyesi olan, bölündüğünde dörtlük olabilen gazel."},
+        {"kavram": "Nesib (Teşbib)", "aciklama": "Kasidenin girişindeki tasvir bölümü."},
+        {"kavram": "Girizgah", "aciklama": "Kasidede tasvir bölümünden övgü bölümüne geçişi sağlayan beyit."},
+        {"kavram": "Methiye", "aciklama": "Kasidenin asıl bölümü, sunulan kişinin övüldüğü kısım."},
+        {"kavram": "Dua", "aciklama": "Kasidenin sonunda övülen kişi için iyi dileklerde bulunulan bölüm."},
+        {"kavram": "Mahlas", "aciklama": "Şairin şiirlerinde kullandığı takma ad."},
+        {"kavram": "Cönk", "aciklama": "Halk şiirlerinin toplandığı sığır dili şeklindeki defter."},
+        {"kavram": "Divan", "aciklama": "Şairin şiirlerini belli bir düzene göre topladığı kitap."},
+        {"kavram": "Mısra-ı Berceste", "aciklama": "Bir şiirin dillerde dolaşan, atasözü gibi olmuş en meşhur dizesi."},
+        {"kavram": "Sebk-i Hindi", "aciklama": "Hint üslubu. Anlam derinliği, kapalı anlatım ve hayal zenginliği olan akım."},
+        {"kavram": "Türki-i Basit", "aciklama": "Basit Türkçe akımı. Yabancı kelimelerden arınmış, sade Türkçe ile şiir yazma anlayışı."},
+        {"kavram": "Encümen-i Şuara", "aciklama": "Tanzimat öncesi toplanan şairler topluluğu."},
+        {"kavram": "Gonca", "aciklama": "Sevgilinin açılmamış, küçük ağzı."},
+        {"kavram": "Lal", "aciklama": "Yakut taşı. (Sevgilinin kırmızı dudağı)."},
+        {"kavram": "İnci (Dürr/Gevher)", "aciklama": "Sevgilinin dişleri veya şairin sözleri."},
+        {"kavram": "Nergis", "aciklama": "Sevgilinin baygın, süzgün veya sarhoş bakan gözü."},
+        {"kavram": "Badem (Çeşm-i Badem)", "aciklama": "Sevgilinin göz şekli."},
+        {"kavram": "Keman (Yay)", "aciklama": "Sevgilinin kavisli kaşları."},
+        {"kavram": "Tir (Ok/Har)", "aciklama": "Sevgilinin kirpikleri (Aşığın kalbine saplanır)."},
+        {"kavram": "Gamze", "aciklama": "Sevgilinin yan bakışı, süzgün bakışı (Yaralayıcıdır)."},
+        {"kavram": "Yılan (Mar)", "aciklama": "Sevgilinin saçı (Kıvrımlı, uzun ve siyah olması)."},
+        {"kavram": "Akrep (Kajdum)", "aciklama": "Sevgilinin saçının ucu veya zülfü."},
+        {"kavram": "Zincir", "aciklama": "Sevgilinin saçı (Aşık delidir ve bu zincire bağlanır)."},
+        {"kavram": "Hat (Sebze)", "aciklama": "Genç sevgilinin yüzündeki ayva tüyleri."},
+        {"kavram": "Ben (Hâl / Felfel)", "aciklama": "Sevgilinin yüzündeki siyah nokta (Genelde tuzağa konan yeme benzetilir)."},
+        {"kavram": "Misk / Amber", "aciklama": "Güzel koku. (Sevgilinin saçının veya meclisin kokusu)."},
+        {"kavram": "Gül", "aciklama": "Sevgili (Güzelliği, kırmızılığı ve nazlı oluşuyla)."},
+        {"kavram": "Bülbül", "aciklama": "Aşık (Güle olan aşkı ve feryat edişiyle)."},
+        {"kavram": "Pervane (Kelebek)", "aciklama": "Aşık (Mumun ışığına dönüp sonunda kendini yakmasıyla)."},
+        {"kavram": "Şem (Mum)", "aciklama": "Sevgili (Parlaklığı, etrafını aydınlatması ama kendine yaklaşanı yakmasıyla)."},
+        {"kavram": "Hüma", "aciklama": "Başına konduğu kişiye iktidar ve mutluluk getiren efsanevi kuş."},
+        {"kavram": "Anka (Simurg)", "aciklama": "Kaf Dağı'nda yaşayan, küllerinden doğan efsanevi kuş."},
+        {"kavram": "Hüdhüd", "aciklama": "Haberci kuş (Süleyman Peygamber ve Belkıs kıssasında geçer)."},
+        {"kavram": "Saba", "aciklama": "Sevgilinin kokusunu aşığa getiren hafif sabah rüzgarı."},
+        {"kavram": "Mihr (Afitab / Şems)", "aciklama": "Güneş (Sevgilinin yüzü veya sultan)."},
+        {"kavram": "Çark (Felek)", "aciklama": "Gökyüzü, kader (Aşığa hep zulmeder, talihi ters döndürür)."},
+        {"kavram": "Kan (Hun)", "aciklama": "Aşığın gözyaşı veya şarap."},
+        {"kavram": "Eşk (Sirişk)", "aciklama": "Gözyaşı."},
+        {"kavram": "Ah", "aciklama": "Aşığın iç çekişi (Göklere yükselen duman veya ateş)."},
+        {"kavram": "Yakup", "aciklama": "Hüzün sembolü (Yusuf'a hasretinden kör olan baba)."},
+        {"kavram": "Yusuf", "aciklama": "Güzellik sembolü."},
+        {"kavram": "Züleyha", "aciklama": "Aşık kadın sembolü."},
+        {"kavram": "Mecnun", "aciklama": "Aşkı uğruna aklını yitirmiş aşık."},
+        {"kavram": "Leyla", "aciklama": "Uğruna çöllere düşülen sevgili (Gece, karanlık saçlı)."},
+        {"kavram": "Ferhat", "aciklama": "Aşkı için dağları delen aşık."},
+        {"kavram": "Hüsrev", "aciklama": "Kudretli hükümdar (Ferhat'ın rakibi)."},
+        {"kavram": "Teşbih", "aciklama": "Benzetme sanatı."},
+        {"kavram": "İstiare (Eğretileme)", "aciklama": "Bir sözü benzetme amacıyla başka bir söz yerine kullanma."},
+        {"kavram": "Mecaz-ı Mürsel", "aciklama": "Benzetme amacı gütmeden bir sözü başka söz yerine kullanma."},
+        {"kavram": "Teşhis", "aciklama": "Kişileştirme (İnsan dışı varlıklara insan özelliği verme)."},
+        {"kavram": "İntak", "aciklama": "Konuşturma (İnsan dışı varlıkları konuşturma)."},
+        {"kavram": "Tenasüp", "aciklama": "Anlamca birbiriyle ilgili kelimeleri bir arada kullanma sanatı."},
+        {"kavram": "Telmih", "aciklama": "Herkesçe bilinen bir olaya, kişiye veya kıssaya gönderme yapma."},
+        {"kavram": "Hüsn-i Talil", "aciklama": "Güzel nedene bağlama (Gerçek nedenin dışında hayali ve güzel bir neden uydurma)."},
+        {"kavram": "Tecahül-i Arif", "aciklama": "Bilip de bilmemezlikten gelme sanatı."},
+        {"kavram": "Kinaye", "aciklama": "Bir sözü hem gerçek hem mecaz anlama gelecek şekilde kullanma."},
+        {"kavram": "Tevriye", "aciklama": "İki anlamı olan bir sözcüğün yakın anlamını söyleyip uzak anlamını kastetme."},
+        {"kavram": "Tariz", "aciklama": "İğneleme, sitem (Söylenilenin tam tersini kastetme)."},
+        {"kavram": "Mübalağa", "aciklama": "Abartma sanatı."},
+        {"kavram": "Tezat", "aciklama": "Zıt anlamlı kelimeleri veya kavramları bir arada kullanma."},
+        {"kavram": "Cinas", "aciklama": "Yazılışları aynı, anlamları farklı kelimeleri bir arada kullanma."},
+        {"kavram": "Aliterasyon", "aciklama": "Ünsüz harf tekrarıyla ahenk sağlama."},
+        {"kavram": "Asonans", "aciklama": "Ünlü harf tekrarıyla ahenk sağlama."},
+        {"kavram": "Seci", "aciklama": "Düz yazıda (nesirde) yapılan kafiye."},
+        {"kavram": "İrsal-i Mesel", "aciklama": "Şiirde atasözü veya vecize kullanma."},
+        {"kavram": "Leff ü Neşr", "aciklama": "İlk dizede söylenenlerle ilgili kelimeleri ikinci dizede sıralama."},
+        {"kavram": "Nida", "aciklama": "Seslenme sanatı (Ey, Hey!)."},
+        {"kavram": "İstifham", "aciklama": "Soru sorma sanatı (Cevap beklemeden)."},
+        {"kavram": "Aruz", "aciklama": "Hecelerin uzunluk ve kısalığına dayanan nazım ölçüsü."},
+        {"kavram": "Vezin", "aciklama": "Ölçü."},
+        {"kavram": "Kafiye (Uyak)", "aciklama": "Dize sonlarındaki ses benzerliği."},
+        {"kavram": "Redif", "aciklama": "Kafiyeden sonra gelen, aynı görev ve anlamdaki ek veya kelime tekrarı."},
+        {"kavram": "Zihaf", "aciklama": "Aruzda uzun heceyi kısa okuma kusuru."},
+        {"kavram": "İmale", "aciklama": "Aruzda kısa heceyi uzun okuma (kusur sayılır ama bazen gereklidir)."},
+        {"kavram": "Vasl (Ulama)", "aciklama": "Ünsüzle biten kelimeyi ünlüyle başlayan kelimeye bağlama."},
+        {"kavram": "Med", "aciklama": "Bir buçuk ses değeri (Uzun heceyi daha da uzatma)."},
+        {"kavram": "Takti", "aciklama": "Aruz veznini bulmak için şiiri duraklarına göre ayırma."},
+        {"kavram": "Menkıbe", "aciklama": "Din büyüklerinin kerametlerini anlatan hikaye."},
+        {"kavram": "Velayetname", "aciklama": "Velilerin hayatını anlatan eser."},
+        {"kavram": "Fütüvvetname", "aciklama": "Ahilik teşkilatının kurallarını anlatan eser."},
+        {"kavram": "Habname", "aciklama": "Rüya şeklinde anlatılan olaylar veya eleştiriler."},
+        {"kavram": "Serazad", "aciklama": "Serbest, özgür (Kayıtsız sevgili veya nazım şekli)."},
+        {"kavram": "Müfred (Fert)", "aciklama": "Tek beyitten oluşan, bağımsız şiir."},
+        {"kavram": "Azade", "aciklama": "Tek mısralık bağımsız şiir."},
+        {"kavram": "Lugaz", "aciklama": "Özellikleri anlatılarak sorulan şey (Bilmece)."},
+        {"kavram": "Tardiye", "aciklama": "Muhammesin özel bir kalıbıyla yazılan şekli."},
+        {"kavram": "Müseddes", "aciklama": "Altılı bentlerden oluşan nazım şekli."},
+        {"kavram": "Müsebba", "aciklama": "Yedili bentlerden oluşan nazım şekli."},
+        {"kavram": "Müsemmen", "aciklama": "Sekizli bentlerden oluşan nazım şekli."},
+        {"kavram": "Muaşşer", "aciklama": "Onlu bentlerden oluşan nazım şekli."},
+        {"kavram": "Mevlid", "aciklama": "Hz. Muhammed’in doğumunu anlatan eser."},
+        {"kavram": "Miraciye", "aciklama": "Hz. Muhammed’in miraca yükselişini anlatan eser."},
+        {"kavram": "Hicretname", "aciklama": "Hicreti anlatan eser."},
+        {"kavram": "Kırk Hadis", "aciklama": "Kırk hadisin tercüme ve şerh edildiği manzum eserler."},
+        {"kavram": "Vücudname", "aciklama": "İnsanın yaratılış evrelerini anlatan tasavvufi eser."}
+    ]
 
 @st.cache_data
 def get_ozet_db():
@@ -454,6 +602,17 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"tur": "ROMAN ÖZETİ", "eser": soru_data["ozet"], "dogru_cevap": dogru_cevap, "siklar": siklar, "eser_adi": soru_data["roman"]}
     
+    elif kategori == "KAVRAMLAR":
+        db = get_kavramlar_db()
+        soru_data = random.choice(db)
+        dogru_cevap = soru_data["kavram"]
+        tum_kavramlar = list(set([x["kavram"] for x in db]))
+        if dogru_cevap in tum_kavramlar: tum_kavramlar.remove(dogru_cevap)
+        yanlis_siklar = random.sample(tum_kavramlar, min(3, len(tum_kavramlar)))
+        siklar = yanlis_siklar + [dogru_cevap]
+        random.shuffle(siklar)
+        return {"tur": "DİVAN KAVRAMI", "eser": soru_data["aciklama"], "dogru_cevap": dogru_cevap, "siklar": siklar}
+    
     else:
         db = get_game_db(kategori)
         yazarlar = list(db.keys())
@@ -554,6 +713,24 @@ if st.session_state.page == "MENU":
         # KEY=main_isim_input. Callback yok, butonlar kontrol edecek.
         st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="main_isim_input")
 
+    # --- RASTGELE KAVRAM BUTONU ---
+    if st.button("🎲 BANA RASTGELE BİR BİLGİ VER!", use_container_width=True):
+        kavram_db = get_kavramlar_db()
+        secilen = random.choice(kavram_db)
+        st.session_state.rastgele_bilgi = secilen
+    
+    if st.session_state.rastgele_bilgi:
+        bilgi = st.session_state.rastgele_bilgi
+        st.markdown(f"""
+        <div class="random-info-box">
+            <h3 style="color:#ffeb3b; margin:0;">✨ {bilgi['kavram']} ✨</h3>
+            <p style="font-size:18px; margin-top:10px;">{bilgi['aciklama']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Kapat"):
+            st.session_state.rastgele_bilgi = None
+            st.rerun()
+
     st.markdown("---")
 
 # --- YAN MENÜ (SOL) ---
@@ -593,7 +770,9 @@ with st.sidebar:
 # --- MENÜ SAYFASI (DEVAMI - BUTONLAR) ---
 if st.session_state.page == "MENU":
     
-    c1, c2, c3, c4, c5 = st.columns(5)
+    # 3x2 Grid
+    c_upper = st.columns(3)
+    c_lower = st.columns(3)
     
     # OYUN BAŞLATMA VE İSİM KONTROLÜ (ZORLA ALMA)
     def start_game(kategori_adi):
@@ -620,30 +799,50 @@ if st.session_state.page == "MENU":
         st.session_state.mevcut_soru = yeni_soru_uret()
         st.rerun()
 
-    with c1:
+    # ÜST SIRA
+    with c_upper[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🇹🇷", key="start_cumh"):
             start_game("CUMHURİYET")
             
-    with c2:
+    with c_upper[1]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎩", key="start_tanz"):
             start_game("TANZİMAT")
 
-    with c3:
+    with c_upper[2]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📜", key="start_divan"):
             start_game("DİVAN")
 
-    with c4:
+    # ALT SIRA (Servet-i Fünun Eklendi)
+    with c_lower[0]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">💎</div><div class="menu-title">SERVET</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 💎", key="start_servet"):
+            start_game("SERVET-İ FÜNUN")
+
+    with c_lower[1]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 📖", key="start_roman"):
             start_game("ROMAN_OZET")
-
-    with c5:
+            
+    with c_lower[2]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨", key="start_sanat"):
             start_game("SANATLAR")
+            
+    # EN ALT SIRA (KAVRAM & HARİTA)
+    c_bottom = st.columns(2)
+    with c_bottom[0]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM YARIŞI</div></div>', unsafe_allow_html=True)
+        if st.button("YARIŞ 🧠", key="start_kavram"):
+            start_game("KAVRAMLAR")
+            
+    with c_bottom[1]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🗺️</div><div class="menu-title">KAVRAM SÖZLÜĞÜ</div></div>', unsafe_allow_html=True)
+        if st.button("İNCELE 🗺️", key="goto_map"):
+            st.session_state.page = "KAVRAM_HARITASI"
+            st.rerun()
 
     st.markdown("---")
     st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
@@ -680,6 +879,33 @@ elif st.session_state.page == "STUDY":
         if st.button("LİSTEYİ KAPAT / TEMİZLE", key="clear_study"):
             st.session_state.calisma_yazar = None
             st.rerun()
+
+# --- KAVRAM HARİTASI SAYFASI ---
+elif st.session_state.page == "KAVRAM_HARITASI":
+    st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color:#ffeb3b; font-weight:900; text-align:center; background-color:{card_bg_color}; padding:10px; border-radius:15px;'>🗺️ KAVRAM SÖZLÜĞÜ</h1>", unsafe_allow_html=True)
+    
+    if st.button("⬅️ ANA MENÜYE DÖN", key="back_to_menu_map"):
+        st.session_state.page = "MENU"
+        st.rerun()
+    
+    # Arama Kutusu
+    arama = st.text_input("Kavram Ara:", placeholder="Örn: Gazel, Teşbih...")
+    
+    kavramlar = get_kavramlar_db()
+    # Alfabetik Sırala
+    kavramlar = sorted(kavramlar, key=lambda x: x['kavram'])
+    
+    found = False
+    for k in kavramlar:
+        if arama.lower() in k['kavram'].lower() or arama.lower() in k['aciklama'].lower():
+            found = True
+            with st.expander(f"📌 {k['kavram']}"):
+                st.markdown(f"<div class='kavram-box'>{k['aciklama']}</div>", unsafe_allow_html=True)
+    
+    if not found and arama:
+        st.warning("Aradığınız kavram bulunamadı.")
+
 
 # --- GAME SAYFASI ---
 elif st.session_state.page == "GAME":
@@ -734,6 +960,10 @@ elif st.session_state.page == "GAME":
         title_text = "BU ROMANIN YAZARI KİM?"
         content_text = soru["eser"]
         sub_text = "Özeti dikkatli oku!"
+    elif st.session_state.kategori == "KAVRAMLAR":
+        title_text = "BU KAVRAM NEDİR?"
+        content_text = soru["eser"]
+        sub_text = "Tanımı verilen terimi bul!"
     else:
         title_text = f"TÜR: {soru['tur']}"
         content_text = f"✨ {soru['eser']} ✨"
