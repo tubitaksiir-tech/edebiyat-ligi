@@ -848,7 +848,7 @@ with st.sidebar:
     # --- GİZLİ ADMIN GİRİŞİ ---
     with st.expander("🔐 Admin Girişi"):
         admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
-        if admin_sifre == "alperen123":
+        if admin_sifre == "alperenadmin123":
             tab1, tab2 = st.tabs(["📥 Gelen Kutusu", "📢 Duyuru Yap"])
             
             with tab1:
