@@ -35,7 +35,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. SKOR SİSTEMİ ---
+# --- 3. GELİŞMİŞ SKOR SİSTEMİ (PUAN + ZAMAN DAMGASI) ---
 SKOR_DOSYASI = "skorlar.json"
 
 def skorlari_yukle():
@@ -43,7 +43,15 @@ def skorlari_yukle():
         return {}
     try:
         with open(SKOR_DOSYASI, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            # Eski veri tipini (sadece int puan) yeni tipe (dict) çevirme koruması
+            new_data = {}
+            for k, v in data.items():
+                if isinstance(v, int):
+                    new_data[k] = {"puan": v, "zaman": 0}
+                else:
+                    new_data[k] = v
+            return new_data
     except:
         return {}
 
@@ -51,11 +59,22 @@ def skoru_kaydet(kullanici, puan):
     if not kullanici or kullanici == "Misafir": return
     try:
         veriler = skorlari_yukle()
-        eski_puan = veriler.get(kullanici, 0)
-        if puan >= eski_puan:
-            veriler[kullanici] = puan
-            with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
-                json.dump(veriler, f, ensure_ascii=False, indent=4)
+        
+        # Mevcut veriyi al
+        eski_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
+        eski_puan = eski_veri["puan"]
+        
+        # Puan yüksekse güncelle, değilse eski puan kalsın ama ZAMANI güncelle
+        yeni_puan = max(puan, eski_puan)
+        
+        # Her işlemde zamanı güncelle (Online durumu için)
+        veriler[kullanici] = {
+            "puan": yeni_puan,
+            "zaman": time.time() # Şu anki zaman damgası
+        }
+        
+        with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
+            json.dump(veriler, f, ensure_ascii=False, indent=4)
     except:
         pass
 
@@ -231,7 +250,6 @@ st.markdown(f"""
     }}
     
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
-    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -738,15 +756,20 @@ if st.session_state.page == "MENU":
     st.markdown("<div style='text-align:center; font-weight:bold; color:#ffeb3b; margin-bottom:5px;'>🏆 Liderlik Tablosu (Top 5) 🏆</div>", unsafe_allow_html=True)
     
     skorlar = skorlari_yukle()
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)[:5] 
+    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)[:5] 
     
     if not sirali_skorlar:
         st.info("Henüz kimse oynamadı. İlk sen ol! 🚀")
     else:
         lider_html = "<div class='mini-leaderboard'>"
-        for i, (isim, puan) in enumerate(sirali_skorlar):
+        for i, (isim, veri) in enumerate(sirali_skorlar):
+            puan = veri['puan']
+            # Aktiflik kontrolü (300 saniye = 5 dakika)
+            aktif_mi = (time.time() - veri['zaman']) < 300 
+            durum_ikonu = "🟢" if aktif_mi else ""
+            
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-            lider_html += f"<div class='leader-item'>{madalya} {isim}<br><span style='color:#ffeb3b;'>{puan} XP</span></div>"
+            lider_html += f"<div class='leader-item'>{madalya} {isim} {durum_ikonu}<br><span style='color:#ffeb3b;'>{puan} XP</span></div>"
         lider_html += "</div>"
         st.markdown(lider_html, unsafe_allow_html=True)
 
@@ -798,14 +821,20 @@ with st.sidebar:
     st.header("🏆 LİDERLİK (TOP 7)")
     
     skorlar = skorlari_yukle()
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)
+    # Puan'a göre sırala (x[1]['puan'])
+    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
     
     if not sirali_skorlar:
         st.caption("Henüz veri yok.")
     else:
-        for i, (isim, puan) in enumerate(sirali_skorlar[:7]):
+        for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
+            puan = veri['puan']
+            # Aktiflik kontrolü
+            aktif_mi = (time.time() - veri['zaman']) < 300 
+            durum_ikonu = "🟢" if aktif_mi else ""
+
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-            st.markdown(f"**{madalya} {isim}**: {puan} XP")
+            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP")
 
     st.markdown("---")
     if st.session_state.page != "MENU":
@@ -836,7 +865,7 @@ if st.session_state.page == "MENU":
         # 3. İsmi kaydet/yükle (Eski skor varsa getir)
         skorlar = skorlari_yukle()
         if st.session_state.kullanici_adi in skorlar:
-                st.session_state.xp = skorlar[st.session_state.kullanici_adi]
+                st.session_state.xp = skorlar[st.session_state.kullanici_adi]['puan']
         else:
                 st.session_state.xp = 0
         
