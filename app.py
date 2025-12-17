@@ -17,6 +17,7 @@ st.set_page_config(
 SKOR_DOSYASI = "skorlar.json"
 ADMIN_DUYURU_DOSYASI = "admin_duyuru.json"
 GELEN_KUTUSU_DOSYASI = "gelen_mesajlar.json"
+OZEL_MESAJ_DOSYASI = "ozel_mesajlar.json"
 
 # --- 2. GÜVENLİ BAŞLANGIÇ ---
 defaults = {
@@ -71,7 +72,7 @@ def skoru_kaydet(kullanici, puan):
     except:
         pass
 
-# B) ADMIN DUYURU SİSTEMİ
+# B) GENEL DUYURU SİSTEMİ
 def admin_duyuru_oku():
     if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
     try:
@@ -84,7 +85,7 @@ def admin_duyuru_yaz(mesaj):
     with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f:
         json.dump(veri, f, ensure_ascii=False)
 
-# C) KULLANICI MESAJ SİSTEMİ (GELEN KUTUSU)
+# C) KULLANICIDAN GELEN MESAJLAR
 def mesajlari_yukle():
     if not os.path.exists(GELEN_KUTUSU_DOSYASI): return []
     try:
@@ -106,6 +107,38 @@ def mesaj_gonder(gonderen, mesaj):
 def mesajlari_temizle():
     with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
         json.dump([], f)
+
+# D) KİŞİYE ÖZEL MESAJ SİSTEMİ
+def kisiye_ozel_mesaj_gonder(alici, mesaj):
+    if not os.path.exists(OZEL_MESAJ_DOSYASI):
+        veriler = {}
+    else:
+        try:
+            with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
+                veriler = json.load(f)
+        except:
+            veriler = {}
+    
+    veriler[alici] = mesaj # Yeni mesaj eskisini ezer (Queue mantığı değil, anlık not)
+    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(veriler, f, ensure_ascii=False)
+
+def kisiye_ozel_mesaj_kontrol(kullanici):
+    if not kullanici or not os.path.exists(OZEL_MESAJ_DOSYASI): return
+    try:
+        with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
+            veriler = json.load(f)
+        
+        if kullanici in veriler:
+            mesaj = veriler[kullanici]
+            st.toast(f"💌 Yönetici Mesajı: {mesaj}", icon="💬")
+            
+            # Mesajı okundu say ve sil
+            del veriler[kullanici]
+            with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
+                json.dump(veriler, f, ensure_ascii=False)
+    except:
+        pass
 
 # --- 4. RENK PALETİ VE CSS ---
 sidebar_color = "#1b3a1a"
@@ -208,6 +241,7 @@ st.markdown(f"""
         color: white !important;
         border: 2px solid #ffeb3b !important;
         font-weight: bold !important;
+        font-size: 16px !important;
     }}
 
     .stButton button {{
@@ -245,16 +279,28 @@ st.markdown(f"""
         box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
     }}
     
+    /* Expander Başlık */
+    .streamlit-expanderHeader {{
+        color: #ffeb3b !important;
+        font-weight: bold;
+    }}
+    
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- SCRIPT BAŞINDA DUYURU KONTROLÜ ---
+# --- SCRIPT BAŞINDA DUYURU VE ÖZEL MESAJ KONTROLÜ ---
+# 1. Genel Duyuru
 duyuru = admin_duyuru_oku()
 if duyuru and duyuru["zaman"] > st.session_state.son_duyuru_zamani:
     st.toast(duyuru["mesaj"], icon="📢")
     st.session_state.son_duyuru_zamani = duyuru["zaman"]
+
+# 2. Kişiye Özel Mesaj (Eğer isim varsa kontrol et)
+if st.session_state.kullanici_adi:
+    kisiye_ozel_mesaj_kontrol(st.session_state.kullanici_adi)
+
 
 # --- SES ---
 def get_audio_html(sound_type):
@@ -728,6 +774,21 @@ if st.session_state.page == "MENU":
         </div>
         """, unsafe_allow_html=True)
     
+    # --- YÖNETİCİYE HIZLI MESAJ (YENİ EKLEME) ---
+    with st.expander("📨 Yöneticiye Hızlı Mesaj (Tıkla)", expanded=False):
+        with st.form("hizli_mesaj_formu"):
+            # Expander içinde input ve buton
+            hizli_mesaj = st.text_input("Mesajınız:", placeholder="Hocam bir sorun var...", label_visibility="collapsed")
+            col_h1, col_h2 = st.columns([4, 1])
+            with col_h2:
+                gonder_btn_hizli = st.form_submit_button("Gönder")
+            
+            if gonder_btn_hizli and hizli_mesaj:
+                # Kullanıcı adını al, yoksa "Misafir"
+                gonderen = st.session_state.kullanici_adi if st.session_state.kullanici_adi else "Misafir"
+                mesaj_gonder(gonderen, hizli_mesaj)
+                st.success("Mesajınız iletildi! 🚀")
+
     st.markdown("---")
     
     # --- KOMPAKT DUYURU ALANI ---
@@ -767,6 +828,7 @@ if st.session_state.page == "MENU":
         lider_html = "<div class='mini-leaderboard'>"
         for i, (isim, veri) in enumerate(sirali_skorlar):
             puan = veri['puan']
+            # Aktiflik kontrolü (300 saniye = 5 dakika)
             aktif_mi = (time.time() - veri['zaman']) < 300 
             durum_ikonu = "🟢" if aktif_mi else ""
             
@@ -783,6 +845,7 @@ if st.session_state.page == "MENU":
         </div>
         """, unsafe_allow_html=True)
         
+        # KEY=main_isim_input. Callback yok, butonlar kontrol edecek.
         st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="main_isim_input")
 
     # --- RASTGELE KAVRAM BUTONU ---
@@ -821,6 +884,7 @@ with st.sidebar:
     st.header("🏆 LİDERLİK (TOP 7)")
     
     skorlar = skorlari_yukle()
+    # Puan'a göre sırala (x[1]['puan'])
     sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
     
     if not sirali_skorlar:
@@ -828,6 +892,7 @@ with st.sidebar:
     else:
         for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
             puan = veri['puan']
+            # Aktiflik kontrolü
             aktif_mi = (time.time() - veri['zaman']) < 300 
             durum_ikonu = "🟢" if aktif_mi else ""
 
@@ -836,20 +901,11 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # --- KULLANICI MESAJ KUTUSU ---
-    with st.expander("📩 Yöneticiye Mesaj Gönder"):
-        with st.form("kullanici_mesaj_formu"):
-            kullanici_mesaj = st.text_area("Mesajınız:", placeholder="Hocam merhaba...")
-            gonder_btn = st.form_submit_button("Gönder")
-            if gonder_btn and kullanici_mesaj:
-                 mesaj_gonder(st.session_state.kullanici_adi, kullanici_mesaj)
-                 st.success("Mesajınız iletildi! ✅")
-
     # --- GİZLİ ADMIN GİRİŞİ ---
     with st.expander("🔐 Admin Girişi"):
         admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
-        if admin_sifre == "alperenadmin123":
-            tab1, tab2 = st.tabs(["📥 Gelen Kutusu", "📢 Duyuru Yap"])
+        if admin_sifre == "alperen123":
+            tab1, tab2, tab3 = st.tabs(["📥 Gelen", "📢 Genel Duyuru", "💌 Özel Mesaj"])
             
             with tab1:
                 st.markdown("### Gelen Mesajlar")
@@ -857,7 +913,7 @@ with st.sidebar:
                 if not mesajlar:
                     st.info("Henüz mesaj yok.")
                 else:
-                    for m in reversed(mesajlar): # En yeniyi üstte göster
+                    for m in reversed(mesajlar):
                         st.markdown(f"""
                         <div style="background-color:#000; padding:10px; border-radius:5px; margin-bottom:5px; border:1px solid #ffeb3b;">
                             <small style="color:#aaa;">{m['tarih']} - <b>{m['gonderen']}</b></small><br>
@@ -871,10 +927,21 @@ with st.sidebar:
 
             with tab2:
                 st.markdown("### Herkese Bildirim Gönder")
-                duyuru_metni = st.text_input("Duyuru:")
+                duyuru_metni = st.text_input("Duyuru Metni:")
                 if st.button("Yayınla"):
                     admin_duyuru_yaz(duyuru_metni)
                     st.success("Duyuru yayınlandı!")
+
+            with tab3:
+                st.markdown("### Kişiye Özel Mesaj")
+                # Kullanıcı listesini al
+                kullanici_listesi = list(skorlari_yukle().keys())
+                secilen_kisi = st.selectbox("Kime:", options=["Seçiniz..."] + kullanici_listesi)
+                ozel_mesaj_metni = st.text_input("Mesajın:")
+                
+                if st.button("Gönder") and secilen_kisi != "Seçiniz...":
+                    kisiye_ozel_mesaj_gonder(secilen_kisi, ozel_mesaj_metni)
+                    st.success(f"{secilen_kisi} adlı kullanıcıya mesaj gönderildi!")
 
     st.markdown("---")
 
@@ -895,18 +962,22 @@ if st.session_state.page == "MENU":
     
     # OYUN BAŞLATMA VE İSİM KONTROLÜ (ZORLA ALMA)
     def start_game(kategori_adi):
+        # 1. Eğer ana ekrandaki kutuya yazı yazılmışsa onu al (Enter'a basılmasa bile)
         if "main_isim_input" in st.session_state and st.session_state.main_isim_input:
              st.session_state.kullanici_adi = st.session_state.main_isim_input
         
+        # 2. Hala boşsa 'Misafir' yap
         if not st.session_state.kullanici_adi:
             st.session_state.kullanici_adi = "Misafir"
         
+        # 3. İsmi kaydet/yükle (Eski skor varsa getir)
         skorlar = skorlari_yukle()
         if st.session_state.kullanici_adi in skorlar:
                 st.session_state.xp = skorlar[st.session_state.kullanici_adi]['puan']
         else:
                 st.session_state.xp = 0
         
+        # 4. Oyunu başlat
         st.session_state.kategori = kategori_adi
         st.session_state.page = "GAME"
         st.session_state.soru_sayisi = 0
@@ -930,7 +1001,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 📜", key="start_divan"):
             start_game("DİVAN")
 
-    # ALT SIRA
+    # ALT SIRA (Servet-i Fünun Eklendi)
     with c_lower[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">💎</div><div class="menu-title">SERVET</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 💎", key="start_servet"):
@@ -946,7 +1017,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🎨", key="start_sanat"):
             start_game("SANATLAR")
             
-    # EN ALT SIRA
+    # EN ALT SIRA (KAVRAM & HARİTA)
     c_bottom = st.columns(2)
     with c_bottom[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM YARIŞI</div></div>', unsafe_allow_html=True)
