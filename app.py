@@ -734,18 +734,18 @@ if st.session_state.page == "MENU":
     </div>
     """, unsafe_allow_html=True)
     
-    # --- MINI LİDERLİK TABLOSU ---
-    st.markdown("<div style='text-align:center; font-weight:bold; color:#ffeb3b; margin-bottom:5px;'>🏆 Liderlik Tablosu 🏆</div>", unsafe_allow_html=True)
+    # --- MINI LİDERLİK TABLOSU (ORTA ALAN - TOP 5) ---
+    st.markdown("<div style='text-align:center; font-weight:bold; color:#ffeb3b; margin-bottom:5px;'>🏆 Liderlik Tablosu (Top 5) 🏆</div>", unsafe_allow_html=True)
     
     skorlar = skorlari_yukle()
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)[:3] 
+    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)[:5] 
     
     if not sirali_skorlar:
         st.info("Henüz kimse oynamadı. İlk sen ol! 🚀")
     else:
         lider_html = "<div class='mini-leaderboard'>"
         for i, (isim, puan) in enumerate(sirali_skorlar):
-            madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉"
+            madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
             lider_html += f"<div class='leader-item'>{madalya} {isim}<br><span style='color:#ffeb3b;'>{puan} XP</span></div>"
         lider_html += "</div>"
         st.markdown(lider_html, unsafe_allow_html=True)
@@ -794,7 +794,8 @@ with st.sidebar:
         st.info(f"Oynayan: {st.session_state.kullanici_adi}")
         
     st.markdown("---")
-    st.header("🏆 LİDERLİK (TOP 4)")
+    # --- SOL MENÜ LİDERLİK TABLOSU (TOP 7) ---
+    st.header("🏆 LİDERLİK (TOP 7)")
     
     skorlar = skorlari_yukle()
     sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1], reverse=True)
@@ -802,7 +803,7 @@ with st.sidebar:
     if not sirali_skorlar:
         st.caption("Henüz veri yok.")
     else:
-        for i, (isim, puan) in enumerate(sirali_skorlar[:4]):
+        for i, (isim, puan) in enumerate(sirali_skorlar[:7]):
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
             st.markdown(f"**{madalya} {isim}**: {puan} XP")
 
