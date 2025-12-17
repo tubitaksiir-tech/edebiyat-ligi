@@ -75,13 +75,13 @@ def skoru_kaydet(kullanici, puan):
     except:
         pass
 
-# ADMIN PUAN GÜNCELLEME (MANUEL)
-def admin_puan_guncelle(kullanici, yeni_puan):
+# YENİ: ADMIN MANUEL PUAN GÜNCELLEME
+def admin_puan_degistir(kullanici, yeni_puan):
     try:
         veriler = skorlari_yukle()
         if kullanici in veriler:
-            # Sadece puanı değiştir, zamanı koru
-            eski_zaman = veriler[kullanici].get("zaman", 0)
+            # Zamanı koru, sadece puanı değiştir
+            eski_zaman = veriler[kullanici]["zaman"]
             veriler[kullanici] = {"puan": int(yeni_puan), "zaman": eski_zaman}
             
             with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
@@ -968,11 +968,11 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # --- GİZLİ ADMIN GİRİŞİ ---
+    # --- GİZLİ ADMIN GİRİŞİ (ŞİFRE GÜNCELLENDİ) ---
     with st.expander("🔐 Admin Girişi"):
         admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
         if admin_sifre == "alperenadmin123":
-            tab1, tab2, tab3 = st.tabs(["📥 Gelen", "📢 Genel Duyuru", "💌 Özel Mesaj"])
+            tab1, tab2, tab3, tab4 = st.tabs(["📥 Gelen", "📢 Duyuru", "💌 Özel Mesaj", "⚙️ Skorlar"])
             
             with tab1:
                 st.markdown("### Gelen Mesajlar")
@@ -1000,8 +1000,7 @@ with st.sidebar:
                     st.success("Duyuru yayınlandı!")
 
             with tab3:
-                st.markdown("### Kişiye Özel Mesaj")
-                # Kullanıcı listesini al
+                st.markdown("### Kişiye Özel Mesaj (Popup)")
                 kullanici_listesi = list(skorlari_yukle().keys())
                 secilen_kisi = st.selectbox("Kime:", options=["Seçiniz..."] + kullanici_listesi)
                 ozel_mesaj_metni = st.text_input("Mesajın:")
@@ -1009,6 +1008,27 @@ with st.sidebar:
                 if st.button("Gönder") and secilen_kisi != "Seçiniz...":
                     kisiye_ozel_mesaj_gonder(secilen_kisi, ozel_mesaj_metni)
                     st.success(f"{secilen_kisi} adlı kullanıcıya mesaj gönderildi!")
+
+            with tab4:
+                st.markdown("### ⚙️ Skor Yönetimi")
+                kullanicilar = list(skorlari_yukle().keys())
+                user_to_edit = st.selectbox("Kullanıcı Seç", ["Seçiniz..."] + kullanicilar)
+                
+                if user_to_edit != "Seçiniz...":
+                    current_data = skorlari_yukle()[user_to_edit]
+                    current_score = current_data['puan']
+                    st.write(f"Mevcut Puan: **{current_score}**")
+                    
+                    new_score_val = st.number_input("Yeni Puan Girin:", value=current_score, step=10)
+                    
+                    if st.button("Puanı Güncelle"):
+                        if admin_puan_degistir(user_to_edit, new_score_val):
+                            st.success(f"{user_to_edit} puanı {new_score_val} olarak güncellendi!")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("Güncelleme hatası.")
+
 
     st.markdown("---")
 
