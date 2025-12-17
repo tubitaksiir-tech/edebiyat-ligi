@@ -65,12 +65,31 @@ def skoru_kaydet(kullanici, puan):
         veriler = skorlari_yukle()
         mevcut_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
         eski_puan = mevcut_veri["puan"]
+        
+        # Normal oyun akışında max puanı koru
         yeni_puan = max(puan, eski_puan)
+        
         veriler[kullanici] = {"puan": yeni_puan, "zaman": time.time()}
         with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
             json.dump(veriler, f, ensure_ascii=False, indent=4)
     except:
         pass
+
+# ADMIN PUAN GÜNCELLEME (MANUEL)
+def admin_puan_guncelle(kullanici, yeni_puan):
+    try:
+        veriler = skorlari_yukle()
+        if kullanici in veriler:
+            # Sadece puanı değiştir, zamanı koru
+            eski_zaman = veriler[kullanici].get("zaman", 0)
+            veriler[kullanici] = {"puan": int(yeni_puan), "zaman": eski_zaman}
+            
+            with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
+                json.dump(veriler, f, ensure_ascii=False, indent=4)
+            return True
+    except:
+        return False
+    return False
 
 # B) GENEL DUYURU SİSTEMİ
 def admin_duyuru_oku():
@@ -155,10 +174,9 @@ def kisiye_ozel_mesaj_kontrol(kullanici):
             </div>
             """, unsafe_allow_html=True)
             
-            # Kapatma Butonu (Ortalanmış)
+            # Kapatma Butonu
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
-                # Butonu yukarıdaki HTML katmanının üzerine çıkarmak için CSS
                 st.markdown("""
                 <style>
                 div[data-testid="stButton"] > button {
@@ -184,7 +202,6 @@ def kisiye_ozel_mesaj_kontrol(kullanici):
                         json.dump(veriler, f, ensure_ascii=False)
                     st.rerun()
             
-            # Mesaj okunmadan diğer kodların çalışmasını engelle (Modal etkisi)
             st.stop()
             
     except:
