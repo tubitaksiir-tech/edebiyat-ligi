@@ -28,7 +28,7 @@ defaults = {
     'calisma_yazar': None,
     'soru_bitti': False,
     'kullanici_adi': "",
-    'rastgele_bilgi': None  # Rastgele kavram için
+    'rastgele_bilgi': None
 }
 
 for key, value in defaults.items():
@@ -69,6 +69,7 @@ bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-bookn
 
 st.markdown(f"""
     <style>
+    /* ARKA PLAN */
     .stApp {{
         background-image: url("{bg_image_url}");
         background-size: cover;
@@ -76,12 +77,13 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
+    /* GENEL YAZI */
     html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
         color: {text_color_cream} !important;
     }}
     
-    /* İSİM KUTUSU */
+    /* İSİM KUTUSU (YEŞİL & OPAK) */
     .stTextInput input {{
         background-color: {input_bg_color} !important;
         color: #ffffff !important;
@@ -90,18 +92,21 @@ st.markdown(f"""
         text-align: center;
         font-weight: bold;
     }}
+    /* Label rengi */
     .stTextInput label {{
         color: {text_color_cream} !important;
         font-weight: bold;
         font-size: 18px !important;
     }}
 
+    /* YAN MENÜ */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
         border-right: 4px solid #3e7a39;
     }}
     
-    .question-card, .stRadio, .menu-card, .bio-box, .eser-icerik-kutusu, .kavram-box {{
+    /* KUTULAR GENEL */
+    .question-card, .stRadio, .menu-card, .bio-box, .duyuru-wrapper {{
         background-color: {card_bg_color} !important;
         border: 3px solid #3e7a39;
         border-radius: 20px;
@@ -111,12 +116,24 @@ st.markdown(f"""
         text-align: center;
     }}
     
+    /* ÖZEL İÇERİK KUTULARI (OKUMA ODASI VE KAVRAMLAR İÇİN) - OPAK YEŞİL */
+    .eser-icerik-kutusu, .kavram-box {{
+        background-color: #1b5e20 !important; /* Daha koyu mat yeşil */
+        color: #ffffff !important;
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid #ffeb3b !important; /* Sarı çerçeve ile belirginleştir */
+        margin-top: 5px;
+        opacity: 1 !important; /* Kesinlikle şeffaf değil */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+        text-align: left;
+    }}
+
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
     
+    /* DUYURU KUTUSU */
     .duyuru-wrapper {{
-        background-color: {card_bg_color};
         border: 2px solid #ffeb3b; 
-        border-radius: 15px;
         padding: 10px 15px;
         margin-bottom: 15px;
         display: flex;
@@ -127,6 +144,7 @@ st.markdown(f"""
         flex-wrap: wrap;
     }}
 
+    /* MINI LİDERLİK TABLOSU */
     .mini-leaderboard {{
         background-color: rgba(27, 94, 32, 0.95);
         border-radius: 10px;
@@ -140,8 +158,13 @@ st.markdown(f"""
         font-size: 14px;
         flex-wrap: wrap;
     }}
-    .leader-item {{ margin: 5px; font-weight: bold; color: #fffbe6; }}
+    .leader-item {{
+        margin: 5px;
+        font-weight: bold;
+        color: #fffbe6;
+    }}
     
+    /* BUTONLAR */
     .stButton button {{
         background-color: #d84315 !important;
         color: white !important;
@@ -153,33 +176,58 @@ st.markdown(f"""
     }}
     .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
     
+    /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
+    /* Mobil Skor */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
     
     .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
     
+    /* --- SEMA HOCA UYARI KUTUSU --- */
     .sema-hoca-fixed-wrapper {{
-         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-         z-index: 99999; animation: shake 0.5s;
+         position: fixed;
+         top: 50%; left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 99999;
+         animation: shake 0.5s;
          box-shadow: 0 0 100px rgba(0,0,0,0.9);
-         border-radius: 20px; overflow: hidden; border: 6px solid white;
+         border-radius: 20px;
+         overflow: hidden;
+         border: 6px solid white;
     }}
-    .sema-hoca-alert-box-body {{ background-color: {red_warning_color}; color: white; text-align: center; padding: 30px; padding-bottom: 40px; }}
-    .sema-hoca-alert-box-body button {{ background-color: white !important; color: {red_warning_color} !important; border: 2px solid {red_warning_color} !important; font-weight: bold !important; margin-top: 20px; position: relative !important; z-index: 100000; }}
+    .sema-hoca-alert-box-body {{
+        background-color: {red_warning_color};
+        color: white;
+        text-align: center;
+        padding: 30px;
+        padding-bottom: 40px;
+    }}
+    /* Butonu kutunun içinde tut */
+    .sema-hoca-alert-box-body button {{
+         background-color: white !important;
+         color: {red_warning_color} !important;
+         border: 2px solid {red_warning_color} !important;
+         font-weight: bold !important;
+         margin-top: 20px;
+         pointer-events: auto !important;
+         position: relative !important;
+         z-index: 100000;
+    }}
     
     /* Rastgele Kavram Kutusu */
     .random-info-box {{
-        background-color: #1a237e; /* Lacivert */
+        background-color: #1a237e !important; /* Lacivert arka plan */
         border: 4px solid #ffeb3b;
-        color: white;
+        color: white !important;
         padding: 20px;
         border-radius: 15px;
         text-align: center;
         margin-bottom: 20px;
         animation: fadeIn 0.5s;
+        box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
     }}
     
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
@@ -322,6 +370,65 @@ def get_game_db(kategori):
             "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
             "Zati": {"Mesnevi": ["Şem ü Pervane"]}
         }
+
+@st.cache_data
+def get_ozet_db():
+    return [
+        {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır. **Özellik:** Türk edebiyatının ilk edebi romanıdır."},
+        {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "II. Selim döneminde İran'la yapılan savaşları ve Cezmi'nin kahramanlıklarını anlatır. **Özellik:** Türk edebiyatının ilk tarihi romanıdır."},
+        {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey, alafrangalık özentisi, mirasyedi bir gençtir. Periveş adlı kadını soylu sanır. **Özellik:** Yanlış batılılaşmayı işleyen ilk realist romandır."},
+        {"yazar": "Samipaşazade Sezai", "roman": "Sergüzeşt", "ozet": "Kafkasya'dan kaçırılıp İstanbul'a getirilen esir kız Dilber'in acıklı hikayesi. Dilber, Celal Bey'e aşık olur ama Nil Nehri'ne atlayarak intihar eder. **Özellik:** Esaret konusunu işleyen, romantizmden realizme geçiş eseridir."},
+        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Mai ve Siyah", "ozet": "Ahmet Cemil'in şair olma hayalleri (Mai) ile hayatın acı gerçekleri (Siyah) arasındaki çatışma anlatılır. **Özellik:** Batılı anlamda (teknik olarak kusursuz) ilk romandır."},
+        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Aşk-ı Memnu", "ozet": "Bihter, Adnan Bey ile evlenir ancak Behlül ile yasak aşk yaşar. Firdevs Hanım, Nihal ve Beşir diğer karakterlerdir. **Özellik:** Türk edebiyatının en başarılı realist romanıdır."},
+        {"yazar": "Mehmet Rauf", "roman": "Eylül", "ozet": "Suat, Süreyya ve Necip arasındaki yasak aşkı anlatan, olaydan çok psikolojik tahlillere dayanan eserdir. **Özellik:** İlk psikolojik romandır."},
+        {"yazar": "Hüseyin Rahmi Gürpınar", "roman": "Şıpsevdi", "ozet": "Meftun Bey, alafranga züppe bir tiptir. Zengin Kasım Efendi'nin kızı Edibe ile parası için evlenmek ister. **Özellik:** Yanlış batılılaşmayı mizahi bir dille eleştirir."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Yaban", "ozet": "Ahmet Celal, bir Anadolu köyüne yerleşir. Köylü onu düşman ve 'Yaban' olarak görür. **Özellik:** Aydın-Halk çatışmasını işleyen ilk tezli romandır."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Kiralık Konak", "ozet": "Naim Efendi (Gelenek), Servet Bey (Yozlaşma) ve Seniha (Köklerinden kopuş) üzerinden üç nesil arasındaki çatışmayı anlatır. **Özellik:** Kuşak çatışmasını en iyi işleyen romandır."},
+        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Sodom ve Gomore", "ozet": "Mütareke dönemi İstanbul'unda işgalcilerle işbirliği yapan yozlaşmış çevreleri anlatır. Leyla ve Necdet baş karakterlerdir."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Çalıkuşu", "ozet": "Feride, Kamran'a küsüp Anadolu'da öğretmenlik yapar. **Özellik:** İdealist öğretmen tipini Anadolu'ya sevdiren romandır."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Yeşil Gece", "ozet": "Öğretmen Şahin Efendi'nin softalarla ve yobazlıkla mücadelesini anlatır. **Özellik:** İrtica ile mücadeleyi anlatan tezli bir romandır."},
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Yaprak Dökümü", "ozet": "Ali Rıza Bey ve ailesinin yanlış batılılaşma ve ahlaki çöküş nedeniyle dağılmasını anlatır. Toplumsal değişimi işler."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Sinekli Bakkal", "ozet": "Rabia ve Peregrini aşkı üzerinden II. Abdülhamit dönemi İstanbul'unu ve Doğu-Batı sentezini anlatır. **Özellik:** Töre romanı özelliği taşır."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Vurun Kahpeye", "ozet": "Aliye Öğretmen'in Anadolu'da yobaz Hacı Fettah ve işbirlikçiler tarafından linç edilmesini anlatır. **Özellik:** Kurtuluş Savaşı'nı işleyen önemli romanlardandır."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Ateşten Gömlek", "ozet": "Ayşe, Peyami ve İhsan'ın Anadolu'ya geçip Milli Mücadele'ye katılmasını anlatır. **Özellik:** Kurtuluş Savaşı üzerine yazılan ilk romandır."},
+        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı. **Özellik:** Otobiyografik özellikler taşıyan psikolojik romandır."},
+        {"yazar": "Peyami Safa", "roman": "Fatih-Harbiye", "ozet": "Neriman'ın Fatih (Doğu) ile Harbiye (Batı) arasında kalışını, Şinasi ve Macit üzerinden anlatır. Doğu-Batı çatışması işlenir."},
+        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Saatleri Ayarlama Enstitüsü", "ozet": "Hayri İrdal ve Halit Ayarcı üzerinden Türk toplumunun modernleşme ironisi anlatılır. **Özellik:** Doğu-Batı ikilemini ironik dille anlatan postmodern bir eserdir."},
+        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Huzur", "ozet": "Mümtaz ve Nuran aşkı, İstanbul sevgisi ve II. Dünya Savaşı huzursuzluğu işlenir. **Özellik:** Bilinç akışı tekniğinin kullanıldığı, şiirsel üsluplu romandır."},
+        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. Küçük burjuva aydınının dramını anlatır. **Özellik:** Türk edebiyatının ilk postmodern romanıdır."},
+        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i İstanbul sokaklarında arar. **Özellik:** Şeyh Galip'in Hüsn ü Aşk'ına göndermeler içeren postmodern bir romandır."},
+        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'nın zulmüne başkaldıran Memed'in dağa çıkıp eşkıya olmasını ve köylü haklarını savunmasını anlatır. **Özellik:** Eşkıyalık ve başkaldırı temasını işleyen destansı romandır."},
+        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı hüzünlü aşk ve sonrasında içine kapanışı anlatılır. Yalnızlık ve yabancılaşma temalıdır."},
+        {"yazar": "Sabahattin Ali", "roman": "Kuyucaklı Yusuf", "ozet": "Yusuf'un ailesinin öldürülmesi, Kaymakam tarafından evlat edinilmesi ve Muazzez'e olan aşkı anlatılır. **Özellik:** Kasaba gerçekçiliğini işleyen ilk önemli romandır."},
+        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı ve psikolojik çöküşü. Gecikmeli Ankara treniyle gelen kadını bekler. **Özellik:** Yabancılaşma konusunu işleyen modernist bir eserdir."},
+        {"yazar": "Adalet Ağaoğlu", "roman": "Ölmeye Yatmak", "ozet": "Aysel'in bir otel odasında intiharı düşünürken geçmişiyle hesaplaşması. Cumhuriyet dönemi aydınının sorgulamasını içerir."},
+        {"yazar": "Ferit Edgü", "roman": "Hakkari'de Bir Mevsim", "ozet": "Bir öğretmenin Hakkari'nin Pirkanis köyündeki yalnızlığı ve köylülerle iletişimi (O adlı roman). **Özellik:** Küçürek öykü tekniğine yakın, varoluşçu bir romandır."},
+        {"yazar": "Kemal Tahir", "roman": "Devlet Ana", "ozet": "Osmanlı'nın kuruluşunu, Ertuğrul Gazi ve Osman Bey üzerinden anlatan tarihi romandır. **Özellik:** Batılılaşmaya karşı yerli bir roman dili oluşturma çabasıdır."},
+        {"yazar": "Kemal Tahir", "roman": "Yorgun Savaşçı", "ozet": "Milli Mücadele dönemini Cehennem Yüzbaşı Cemil üzerinden anlatan tarihi roman. İttihatçıların mücadelesi işlenir."},
+        {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Kuvayi Milliye karşıtlığından, Akşehir'de bilinçlenerek Milli Mücadele destekçisine dönüşmesi. **Özellik:** Milli Mücadele'ye insan psikolojisi üzerinden bakan romandır."},
+        {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın (İflahsızın Yusuf, Köse Hasan, Pehlivan Ali) dramı. **Özellik:** İşçi sınıfının sorunlarını anlatan toplumcu gerçekçi bir eserdir."},
+        {"yazar": "Nabizade Nazım", "roman": "Zehra", "ozet": "Zehra'nın kocası Suphi'ye olan hastalıklı kıskançlığı ve ailenin çöküşü anlatılır. **Özellik:** İlk psikolojik roman denemesidir."},
+        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "Antalya'nın Kaş ilçesinde geçer. Karabibik'in tarlasını sürmek için öküz alma çabası anlatılır. **Özellik:** İlk köy romanıdır."},
+        {"yazar": "Şemsettin Sami", "roman": "Taaşşuk-ı Talat ve Fitnat", "ozet": "Talat ve Fitnat'ın aşkı, görücü usulü evliliğin sakıncaları anlatılır. **Özellik:** İlk yerli romandır."},
+        {"yazar": "Yusuf Atılgan", "roman": "Aylak Adam", "ozet": "C. adlı karakterin İstanbul sokaklarında 'B'yi (aradığı kadını) araması ve topluma yabancılaşması. **Özellik:** Modernist Türk romanının en önemli örneklerindendir."},
+        {"yazar": "Latife Tekin", "roman": "Sevgili Arsız Ölüm", "ozet": "Köyden kente göç eden bir ailenin batıl inançlarla dolu fantastik hikayesi. **Özellik:** Büyülü gerçekçilik akımının Türk edebiyatındaki önemli örneğidir."}
+    ]
+
+@st.cache_data
+def get_sanatlar_db():
+    return [
+        {"sanat": "Teşbih (Benzetme)", "beyit": "Cennet gibi güzel vatanım...", "aciklama": "Burada vatan (benzeyen), cennete (benzetilen) benzetilmiştir. 'Gibi' edatı kullanılmıştır."},
+        {"sanat": "İstiare (Eğretileme)", "beyit": "Şakaklarıma kar mı yağdı ne var?", "aciklama": "Burada beyaz saç (benzeyen) söylenmemiş, sadece 'kar' (benzetilen) söylenerek İstiare yapılmıştır."},
+        {"sanat": "Tezat (Zıtlık)", "beyit": "Ağlarım hatıra geldikçe gülüştüklerimiz.", "aciklama": "'Ağlamak' ve 'Gülüşmek' zıt anlamlı kelimeler bir arada kullanılmıştır."},
+        {"sanat": "Hüsnü Talil (Güzel Neden)", "beyit": "Güzel şeyler düşünelim diye / Yemyeşil oluvermiş ağaçlar", "aciklama": "Ağaçların yeşermesi doğal bir olaydır ama şair bunu 'biz güzel düşünelim diye' diyerek güzel bir nedene bağlamıştır."},
+        {"sanat": "Telmih (Hatırlatma)", "beyit": "Gökyüzünde İsa ile, Tur dağında Musa ile...", "aciklama": "Hz. İsa ve Hz. Musa peygamberlere ait olaylar hatırlatılmıştır."},
+        {"sanat": "Tecahülü Arif (Bilmezlik)", "beyit": "Göz gördü gönül sevdi seni ey yüzü mahım / Kurbanın olam var mı benim bunda günahım?", "aciklama": "Şair aşık olduğunu bildiği halde, 'günahım var mı' diye sorarak bilmezlikten geliyor."},
+        {"sanat": "Mübalağa (Abartma)", "beyit": "Bir ah çeksem dağı taşı eritir / Gözüm yaşı değirmeni yürütür", "aciklama": "Gözyaşıyla değirmen yürütmek imkansız bir abartıdır."},
+        {"sanat": "İntak (Konuşturma)", "beyit": "Ben ki toz kanatlı bir kelebeğim / Minicik gövdeme yüklü Kafdağı", "aciklama": "Kelebek insan gibi konuşturulmuştur."},
+        {"sanat": "Tevriye (İki Anlamlılık)", "beyit": "Bu kadar letafet çünkü sende var / Beyaz gerdanında bir de ben gerek", "aciklama": "'Ben' kelimesi hem vücuttaki siyah nokta hem de 1. tekil şahıs (kendisi) olarak iki anlama gelecek şekilde kullanılmıştır."},
+        {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "'Balık baştan kokar' atasözü şiirde kullanılmıştır."},
+        {"sanat": "Teşhis (Kişileştirme)", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler (eli kolu bağlı olmak, ağlamak) verilmiştir."}
+    ]
 
 @st.cache_data
 def get_kavramlar_db():
@@ -475,65 +582,6 @@ def get_kavramlar_db():
         {"kavram": "Hicretname", "aciklama": "Hicreti anlatan eser."},
         {"kavram": "Kırk Hadis", "aciklama": "Kırk hadisin tercüme ve şerh edildiği manzum eserler."},
         {"kavram": "Vücudname", "aciklama": "İnsanın yaratılış evrelerini anlatan tasavvufi eser."}
-    ]
-
-@st.cache_data
-def get_ozet_db():
-    return [
-        {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır. **Özellik:** Türk edebiyatının ilk edebi romanıdır."},
-        {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "II. Selim döneminde İran'la yapılan savaşları ve Cezmi'nin kahramanlıklarını anlatır. **Özellik:** Türk edebiyatının ilk tarihi romanıdır."},
-        {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey, alafrangalık özentisi, mirasyedi bir gençtir. Periveş adlı kadını soylu sanır. **Özellik:** Yanlış batılılaşmayı işleyen ilk realist romandır."},
-        {"yazar": "Samipaşazade Sezai", "roman": "Sergüzeşt", "ozet": "Kafkasya'dan kaçırılıp İstanbul'a getirilen esir kız Dilber'in acıklı hikayesi. Dilber, Celal Bey'e aşık olur ama Nil Nehri'ne atlayarak intihar eder. **Özellik:** Esaret konusunu işleyen, romantizmden realizme geçiş eseridir."},
-        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Mai ve Siyah", "ozet": "Ahmet Cemil'in şair olma hayalleri (Mai) ile hayatın acı gerçekleri (Siyah) arasındaki çatışma anlatılır. **Özellik:** Batılı anlamda (teknik olarak kusursuz) ilk romandır."},
-        {"yazar": "Halit Ziya Uşaklıgil", "roman": "Aşk-ı Memnu", "ozet": "Bihter, Adnan Bey ile evlenir ancak Behlül ile yasak aşk yaşar. Firdevs Hanım, Nihal ve Beşir diğer karakterlerdir. **Özellik:** Türk edebiyatının en başarılı realist romanıdır."},
-        {"yazar": "Mehmet Rauf", "roman": "Eylül", "ozet": "Suat, Süreyya ve Necip arasındaki yasak aşkı anlatan, olaydan çok psikolojik tahlillere dayanan eserdir. **Özellik:** İlk psikolojik romandır."},
-        {"yazar": "Hüseyin Rahmi Gürpınar", "roman": "Şıpsevdi", "ozet": "Meftun Bey, alafranga züppe bir tiptir. Zengin Kasım Efendi'nin kızı Edibe ile parası için evlenmek ister. **Özellik:** Yanlış batılılaşmayı mizahi bir dille eleştirir."},
-        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Yaban", "ozet": "Ahmet Celal, bir Anadolu köyüne yerleşir. Köylü onu düşman ve 'Yaban' olarak görür. **Özellik:** Aydın-Halk çatışmasını işleyen ilk tezli romandır."},
-        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Kiralık Konak", "ozet": "Naim Efendi (Gelenek), Servet Bey (Yozlaşma) ve Seniha (Köklerinden kopuş) üzerinden üç nesil arasındaki çatışmayı anlatır. **Özellik:** Kuşak çatışmasını en iyi işleyen romandır."},
-        {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Sodom ve Gomore", "ozet": "Mütareke dönemi İstanbul'unda işgalcilerle işbirliği yapan yozlaşmış çevreleri anlatır. Leyla ve Necdet baş karakterlerdir."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Çalıkuşu", "ozet": "Feride, Kamran'a küsüp Anadolu'da öğretmenlik yapar. **Özellik:** İdealist öğretmen tipini Anadolu'ya sevdiren romandır."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Yeşil Gece", "ozet": "Öğretmen Şahin Efendi'nin softalarla ve yobazlıkla mücadelesini anlatır. **Özellik:** İrtica ile mücadeleyi anlatan tezli bir romandır."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Yaprak Dökümü", "ozet": "Ali Rıza Bey ve ailesinin yanlış batılılaşma ve ahlaki çöküş nedeniyle dağılmasını anlatır. Toplumsal değişimi işler."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Sinekli Bakkal", "ozet": "Rabia ve Peregrini aşkı üzerinden II. Abdülhamit dönemi İstanbul'unu ve Doğu-Batı sentezini anlatır. **Özellik:** Töre romanı özelliği taşır."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Vurun Kahpeye", "ozet": "Aliye Öğretmen'in Anadolu'da yobaz Hacı Fettah ve işbirlikçiler tarafından linç edilmesini anlatır. **Özellik:** Kurtuluş Savaşı'nı işleyen önemli romanlardandır."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Ateşten Gömlek", "ozet": "Ayşe, Peyami ve İhsan'ın Anadolu'ya geçip Milli Mücadele'ye katılmasını anlatır. **Özellik:** Kurtuluş Savaşı üzerine yazılan ilk romandır."},
-        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı. **Özellik:** Otobiyografik özellikler taşıyan psikolojik romandır."},
-        {"yazar": "Peyami Safa", "roman": "Fatih-Harbiye", "ozet": "Neriman'ın Fatih (Doğu) ile Harbiye (Batı) arasında kalışını, Şinasi ve Macit üzerinden anlatır. Doğu-Batı çatışması işlenir."},
-        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Saatleri Ayarlama Enstitüsü", "ozet": "Hayri İrdal ve Halit Ayarcı üzerinden Türk toplumunun modernleşme ironisi anlatılır. **Özellik:** Doğu-Batı ikilemini ironik dille anlatan postmodern bir eserdir."},
-        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Huzur", "ozet": "Mümtaz ve Nuran aşkı, İstanbul sevgisi ve II. Dünya Savaşı huzursuzluğu işlenir. **Özellik:** Bilinç akışı tekniğinin kullanıldığı, şiirsel üsluplu romandır."},
-        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. Küçük burjuva aydınının dramını anlatır. **Özellik:** Türk edebiyatının ilk postmodern romanıdır."},
-        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i İstanbul sokaklarında arar. **Özellik:** Şeyh Galip'in Hüsn ü Aşk'ına göndermeler içeren postmodern bir romandır."},
-        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'nın zulmüne başkaldıran Memed'in dağa çıkıp eşkıya olmasını ve köylü haklarını savunmasını anlatır. **Özellik:** Eşkıyalık ve başkaldırı temasını işleyen destansı romandır."},
-        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı hüzünlü aşk ve sonrasında içine kapanışı anlatılır. Yalnızlık ve yabancılaşma temalıdır."},
-        {"yazar": "Sabahattin Ali", "roman": "Kuyucaklı Yusuf", "ozet": "Yusuf'un ailesinin öldürülmesi, Kaymakam tarafından evlat edinilmesi ve Muazzez'e olan aşkı anlatılır. **Özellik:** Kasaba gerçekçiliğini işleyen ilk önemli romandır."},
-        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı ve psikolojik çöküşü. Gecikmeli Ankara treniyle gelen kadını bekler. **Özellik:** Yabancılaşma konusunu işleyen modernist bir eserdir."},
-        {"yazar": "Adalet Ağaoğlu", "roman": "Ölmeye Yatmak", "ozet": "Aysel'in bir otel odasında intiharı düşünürken geçmişiyle hesaplaşması. Cumhuriyet dönemi aydınının sorgulamasını içerir."},
-        {"yazar": "Ferit Edgü", "roman": "Hakkari'de Bir Mevsim", "ozet": "Bir öğretmenin Hakkari'nin Pirkanis köyündeki yalnızlığı ve köylülerle iletişimi (O adlı roman). **Özellik:** Küçürek öykü tekniğine yakın, varoluşçu bir romandır."},
-        {"yazar": "Kemal Tahir", "roman": "Devlet Ana", "ozet": "Osmanlı'nın kuruluşunu, Ertuğrul Gazi ve Osman Bey üzerinden anlatan tarihi romandır. **Özellik:** Batılılaşmaya karşı yerli bir roman dili oluşturma çabasıdır."},
-        {"yazar": "Kemal Tahir", "roman": "Yorgun Savaşçı", "ozet": "Milli Mücadele dönemini Cehennem Yüzbaşı Cemil üzerinden anlatan tarihi roman. İttihatçıların mücadelesi işlenir."},
-        {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Kuvayi Milliye karşıtlığından, Akşehir'de bilinçlenerek Milli Mücadele destekçisine dönüşmesi. **Özellik:** Milli Mücadele'ye insan psikolojisi üzerinden bakan romandır."},
-        {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın (İflahsızın Yusuf, Köse Hasan, Pehlivan Ali) dramı. **Özellik:** İşçi sınıfının sorunlarını anlatan toplumcu gerçekçi bir eserdir."},
-        {"yazar": "Nabizade Nazım", "roman": "Zehra", "ozet": "Zehra'nın kocası Suphi'ye olan hastalıklı kıskançlığı ve ailenin çöküşü anlatılır. **Özellik:** İlk psikolojik roman denemesidir."},
-        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "Antalya'nın Kaş ilçesinde geçer. Karabibik'in tarlasını sürmek için öküz alma çabası anlatılır. **Özellik:** İlk köy romanıdır."},
-        {"yazar": "Şemsettin Sami", "roman": "Taaşşuk-ı Talat ve Fitnat", "ozet": "Talat ve Fitnat'ın aşkı, görücü usulü evliliğin sakıncaları anlatılır. **Özellik:** İlk yerli romandır."},
-        {"yazar": "Yusuf Atılgan", "roman": "Aylak Adam", "ozet": "C. adlı karakterin İstanbul sokaklarında 'B'yi (aradığı kadını) araması ve topluma yabancılaşması. **Özellik:** Modernist Türk romanının en önemli örneklerindendir."},
-        {"yazar": "Latife Tekin", "roman": "Sevgili Arsız Ölüm", "ozet": "Köyden kente göç eden bir ailenin batıl inançlarla dolu fantastik hikayesi. **Özellik:** Büyülü gerçekçilik akımının Türk edebiyatındaki önemli örneğidir."}
-    ]
-
-@st.cache_data
-def get_sanatlar_db():
-    return [
-        {"sanat": "Teşbih (Benzetme)", "beyit": "Cennet gibi güzel vatanım...", "aciklama": "Burada vatan (benzeyen), cennete (benzetilen) benzetilmiştir. 'Gibi' edatı kullanılmıştır."},
-        {"sanat": "İstiare (Eğretileme)", "beyit": "Şakaklarıma kar mı yağdı ne var?", "aciklama": "Burada beyaz saç (benzeyen) söylenmemiş, sadece 'kar' (benzetilen) söylenerek İstiare yapılmıştır."},
-        {"sanat": "Tezat (Zıtlık)", "beyit": "Ağlarım hatıra geldikçe gülüştüklerimiz.", "aciklama": "'Ağlamak' ve 'Gülüşmek' zıt anlamlı kelimeler bir arada kullanılmıştır."},
-        {"sanat": "Hüsnü Talil (Güzel Neden)", "beyit": "Güzel şeyler düşünelim diye / Yemyeşil oluvermiş ağaçlar", "aciklama": "Ağaçların yeşermesi doğal bir olaydır ama şair bunu 'biz güzel düşünelim diye' diyerek güzel bir nedene bağlamıştır."},
-        {"sanat": "Telmih (Hatırlatma)", "beyit": "Gökyüzünde İsa ile, Tur dağında Musa ile...", "aciklama": "Hz. İsa ve Hz. Musa peygamberlere ait olaylar hatırlatılmıştır."},
-        {"sanat": "Tecahülü Arif (Bilmezlik)", "beyit": "Göz gördü gönül sevdi seni ey yüzü mahım / Kurbanın olam var mı benim bunda günahım?", "aciklama": "Şair aşık olduğunu bildiği halde, 'günahım var mı' diye sorarak bilmezlikten geliyor."},
-        {"sanat": "Mübalağa (Abartma)", "beyit": "Bir ah çeksem dağı taşı eritir / Gözüm yaşı değirmeni yürütür", "aciklama": "Gözyaşıyla değirmen yürütmek imkansız bir abartıdır."},
-        {"sanat": "İntak (Konuşturma)", "beyit": "Ben ki toz kanatlı bir kelebeğim / Minicik gövdeme yüklü Kafdağı", "aciklama": "Kelebek insan gibi konuşturulmuştur."},
-        {"sanat": "Tevriye (İki Anlamlılık)", "beyit": "Bu kadar letafet çünkü sende var / Beyaz gerdanında bir de ben gerek", "aciklama": "'Ben' kelimesi hem vücuttaki siyah nokta hem de 1. tekil şahıs (kendisi) olarak iki anlama gelecek şekilde kullanılmıştır."},
-        {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "'Balık baştan kokar' atasözü şiirde kullanılmıştır."},
-        {"sanat": "Teşhis (Kişileştirme)", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler (eli kolu bağlı olmak, ağlamak) verilmiştir."}
     ]
 
 @st.cache_data
