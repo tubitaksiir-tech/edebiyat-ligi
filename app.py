@@ -4,6 +4,7 @@ import time
 import os
 import base64
 import json
+from datetime import datetime
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(
@@ -12,8 +13,10 @@ st.set_page_config(
     layout="centered"
 )
 
-# GOOGLE FORM LİNKİ
-GOOGLE_FORM_LINKI = "https://docs.google.com/forms/d/e/1FAIpQLSd6x_NxAj58m8-5HAKpm6R6pmTvJ64zD-TETIPxF-wul5Muwg/viewform?usp=header"
+# DOSYA TANIMLARI
+SKOR_DOSYASI = "skorlar.json"
+ADMIN_DUYURU_DOSYASI = "admin_duyuru.json"
+GELEN_KUTUSU_DOSYASI = "gelen_mesajlar.json"
 
 # --- 2. GÜVENLİ BAŞLANGIÇ ---
 defaults = {
@@ -28,23 +31,23 @@ defaults = {
     'calisma_yazar': None,
     'soru_bitti': False,
     'kullanici_adi': "",
-    'rastgele_bilgi': None
+    'rastgele_bilgi': None,
+    'son_duyuru_zamani': 0.0
 }
 
 for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. SKOR SİSTEMİ (GELİŞMİŞ - ZAMAN DAMGALI) ---
-SKOR_DOSYASI = "skorlar.json"
+# --- 3. VERİ YÖNETİM SİSTEMLERİ ---
 
+# A) SKOR SİSTEMİ
 def skorlari_yukle():
     if not os.path.exists(SKOR_DOSYASI):
         return {}
     try:
         with open(SKOR_DOSYASI, "r", encoding="utf-8") as f:
             data = json.load(f)
-            # Eski veri yapısını (sadece puan) yeni yapıya (puan + zaman) çevir
             new_data = {}
             for k, v in data.items():
                 if isinstance(v, int):
@@ -59,24 +62,50 @@ def skoru_kaydet(kullanici, puan):
     if not kullanici or kullanici == "Misafir": return
     try:
         veriler = skorlari_yukle()
-        
-        # Mevcut veriyi al
         mevcut_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
         eski_puan = mevcut_veri["puan"]
-        
-        # Puan düşerse kaydetme, sadece yüksekse veya eşitse güncelle
-        # Ancak ZAMAN her zaman güncellenmeli (Online görünmesi için)
         yeni_puan = max(puan, eski_puan)
-        
-        veriler[kullanici] = {
-            "puan": yeni_puan,
-            "zaman": time.time() # Şu anki zaman
-        }
-        
+        veriler[kullanici] = {"puan": yeni_puan, "zaman": time.time()}
         with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
             json.dump(veriler, f, ensure_ascii=False, indent=4)
     except:
         pass
+
+# B) ADMIN DUYURU SİSTEMİ
+def admin_duyuru_oku():
+    if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
+    try:
+        with open(ADMIN_DUYURU_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except: return None
+
+def admin_duyuru_yaz(mesaj):
+    veri = {"mesaj": mesaj, "zaman": time.time()}
+    with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(veri, f, ensure_ascii=False)
+
+# C) KULLANICI MESAJ SİSTEMİ (GELEN KUTUSU)
+def mesajlari_yukle():
+    if not os.path.exists(GELEN_KUTUSU_DOSYASI): return []
+    try:
+        with open(GELEN_KUTUSU_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except: return []
+
+def mesaj_gonder(gonderen, mesaj):
+    mevcut_mesajlar = mesajlari_yukle()
+    yeni_mesaj = {
+        "gonderen": gonderen if gonderen else "Anonim",
+        "mesaj": mesaj,
+        "tarih": datetime.now().strftime("%d-%m %H:%M")
+    }
+    mevcut_mesajlar.append(yeni_mesaj)
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(mevcut_mesajlar, f, ensure_ascii=False, indent=4)
+
+def mesajlari_temizle():
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump([], f)
 
 # --- 4. RENK PALETİ VE CSS ---
 sidebar_color = "#1b3a1a"
@@ -88,7 +117,6 @@ bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-bookn
 
 st.markdown(f"""
     <style>
-    /* ARKA PLAN */
     .stApp {{
         background-image: url("{bg_image_url}");
         background-size: cover;
@@ -96,13 +124,12 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
-    /* GENEL YAZI */
     html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
         font-family: 'Segoe UI', sans-serif;
         color: {text_color_cream} !important;
     }}
     
-    /* İSİM KUTUSU (YEŞİL & OPAK) */
+    /* İSİM KUTUSU */
     .stTextInput input {{
         background-color: {input_bg_color} !important;
         color: #ffffff !important;
@@ -111,14 +138,12 @@ st.markdown(f"""
         text-align: center;
         font-weight: bold;
     }}
-    /* Label rengi */
     .stTextInput label {{
         color: {text_color_cream} !important;
         font-weight: bold;
-        font-size: 18px !important;
+        font-size: 16px !important;
     }}
 
-    /* YAN MENÜ */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_color} !important;
         border-right: 4px solid #3e7a39;
@@ -135,22 +160,21 @@ st.markdown(f"""
         text-align: center;
     }}
     
-    /* ÖZEL İÇERİK KUTULARI (OKUMA ODASI VE KAVRAMLAR İÇİN) - OPAK YEŞİL */
+    /* ÖZEL İÇERİK KUTULARI - OPAK YEŞİL */
     .eser-icerik-kutusu, .kavram-box {{
-        background-color: #1b5e20 !important; /* Daha koyu mat yeşil */
+        background-color: #1b5e20 !important;
         color: #ffffff !important;
         padding: 15px;
         border-radius: 10px;
-        border: 2px solid #ffeb3b !important; /* Sarı çerçeve ile belirginleştir */
+        border: 2px solid #ffeb3b !important;
         margin-top: 5px;
-        opacity: 1 !important; /* Kesinlikle şeffaf değil */
+        opacity: 1 !important;
         box-shadow: 0 4px 8px rgba(0,0,0,0.6);
         text-align: left;
     }}
 
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
     
-    /* DUYURU KUTUSU */
     .duyuru-wrapper {{
         border: 2px solid #ffeb3b; 
         padding: 10px 15px;
@@ -163,7 +187,6 @@ st.markdown(f"""
         flex-wrap: wrap;
     }}
 
-    /* MINI LİDERLİK TABLOSU */
     .mini-leaderboard {{
         background-color: rgba(27, 94, 32, 0.95);
         border-radius: 10px;
@@ -177,13 +200,16 @@ st.markdown(f"""
         font-size: 14px;
         flex-wrap: wrap;
     }}
-    .leader-item {{
-        margin: 5px;
-        font-weight: bold;
-        color: #fffbe6;
-    }}
+    .leader-item {{ margin: 5px; font-weight: bold; color: #fffbe6; }}
     
-    /* BUTONLAR */
+    /* TOAST (Bildirim) */
+    div[data-testid="stToast"] {{
+        background-color: #1b5e20 !important;
+        color: white !important;
+        border: 2px solid #ffeb3b !important;
+        font-weight: bold !important;
+    }}
+
     .stButton button {{
         background-color: #d84315 !important;
         color: white !important;
@@ -195,57 +221,27 @@ st.markdown(f"""
     }}
     .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
     
-    /* İsim Tabelası */
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
     
-    /* Mobil Skor */
     .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
     
     .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; }}
     
     .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
     
-    /* --- SEMA HOCA UYARI KUTUSU --- */
     .sema-hoca-fixed-wrapper {{
-         position: fixed;
-         top: 50%; left: 50%;
-         transform: translate(-50%, -50%);
-         z-index: 99999;
-         animation: shake 0.5s;
+         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+         z-index: 99999; animation: shake 0.5s;
          box-shadow: 0 0 100px rgba(0,0,0,0.9);
-         border-radius: 20px;
-         overflow: hidden;
-         border: 6px solid white;
+         border-radius: 20px; overflow: hidden; border: 6px solid white;
     }}
-    .sema-hoca-alert-box-body {{
-        background-color: {red_warning_color};
-        color: white;
-        text-align: center;
-        padding: 30px;
-        padding-bottom: 40px;
-    }}
-    /* Butonu kutunun içinde tut */
-    .sema-hoca-alert-box-body button {{
-         background-color: white !important;
-         color: {red_warning_color} !important;
-         border: 2px solid {red_warning_color} !important;
-         font-weight: bold !important;
-         margin-top: 20px;
-         pointer-events: auto !important;
-         position: relative !important;
-         z-index: 100000;
-    }}
+    .sema-hoca-alert-box-body {{ background-color: {red_warning_color}; color: white; text-align: center; padding: 30px; padding-bottom: 40px; }}
+    .sema-hoca-alert-box-body button {{ background-color: white !important; color: {red_warning_color} !important; border: 2px solid {red_warning_color} !important; font-weight: bold !important; margin-top: 20px; position: relative !important; z-index: 100000; }}
     
-    /* Rastgele Kavram Kutusu */
     .random-info-box {{
-        background-color: #1a237e !important; /* Lacivert arka plan */
-        border: 4px solid #ffeb3b;
-        color: white !important;
-        padding: 20px;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 20px;
-        animation: fadeIn 0.5s;
+        background-color: #1a237e !important; border: 4px solid #ffeb3b;
+        color: white !important; padding: 20px; border-radius: 15px; text-align: center;
+        margin-bottom: 20px; animation: fadeIn 0.5s;
         box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
     }}
     
@@ -253,6 +249,12 @@ st.markdown(f"""
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
+
+# --- SCRIPT BAŞINDA DUYURU KONTROLÜ ---
+duyuru = admin_duyuru_oku()
+if duyuru and duyuru["zaman"] > st.session_state.son_duyuru_zamani:
+    st.toast(duyuru["mesaj"], icon="📢")
+    st.session_state.son_duyuru_zamani = duyuru["zaman"]
 
 # --- SES ---
 def get_audio_html(sound_type):
@@ -765,7 +767,6 @@ if st.session_state.page == "MENU":
         lider_html = "<div class='mini-leaderboard'>"
         for i, (isim, veri) in enumerate(sirali_skorlar):
             puan = veri['puan']
-            # Aktiflik kontrolü (300 saniye = 5 dakika)
             aktif_mi = (time.time() - veri['zaman']) < 300 
             durum_ikonu = "🟢" if aktif_mi else ""
             
@@ -782,7 +783,6 @@ if st.session_state.page == "MENU":
         </div>
         """, unsafe_allow_html=True)
         
-        # KEY=main_isim_input. Callback yok, butonlar kontrol edecek.
         st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="main_isim_input")
 
     # --- RASTGELE KAVRAM BUTONU ---
@@ -808,7 +808,6 @@ if st.session_state.page == "MENU":
 # --- YAN MENÜ (SOL) ---
 with st.sidebar:
     st.header("👤 PROFİL")
-    # İSİM GİRME ALANI (YAN MENÜ)
     if st.session_state.page == "MENU":
         def update_sidebar_name():
             st.session_state.kullanici_adi = st.session_state.sb_isim_input
@@ -822,7 +821,6 @@ with st.sidebar:
     st.header("🏆 LİDERLİK (TOP 7)")
     
     skorlar = skorlari_yukle()
-    # Puan'a göre sırala (x[1]['puan'])
     sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
     
     if not sirali_skorlar:
@@ -830,7 +828,6 @@ with st.sidebar:
     else:
         for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
             puan = veri['puan']
-            # Aktiflik kontrolü
             aktif_mi = (time.time() - veri['zaman']) < 300 
             durum_ikonu = "🟢" if aktif_mi else ""
 
@@ -838,6 +835,49 @@ with st.sidebar:
             st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP", unsafe_allow_html=True)
 
     st.markdown("---")
+    
+    # --- KULLANICI MESAJ KUTUSU ---
+    with st.expander("📩 Yöneticiye Mesaj Gönder"):
+        with st.form("kullanici_mesaj_formu"):
+            kullanici_mesaj = st.text_area("Mesajınız:", placeholder="Hocam merhaba...")
+            gonder_btn = st.form_submit_button("Gönder")
+            if gonder_btn and kullanici_mesaj:
+                 mesaj_gonder(st.session_state.kullanici_adi, kullanici_mesaj)
+                 st.success("Mesajınız iletildi! ✅")
+
+    # --- GİZLİ ADMIN GİRİŞİ ---
+    with st.expander("🔐 Admin Girişi"):
+        admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
+        if admin_sifre == "alperen123":
+            tab1, tab2 = st.tabs(["📥 Gelen Kutusu", "📢 Duyuru Yap"])
+            
+            with tab1:
+                st.markdown("### Gelen Mesajlar")
+                mesajlar = mesajlari_yukle()
+                if not mesajlar:
+                    st.info("Henüz mesaj yok.")
+                else:
+                    for m in reversed(mesajlar): # En yeniyi üstte göster
+                        st.markdown(f"""
+                        <div style="background-color:#000; padding:10px; border-radius:5px; margin-bottom:5px; border:1px solid #ffeb3b;">
+                            <small style="color:#aaa;">{m['tarih']} - <b>{m['gonderen']}</b></small><br>
+                            {m['mesaj']}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    if st.button("Tüm Mesajları Sil"):
+                        mesajlari_temizle()
+                        st.rerun()
+
+            with tab2:
+                st.markdown("### Herkese Bildirim Gönder")
+                duyuru_metni = st.text_input("Duyuru:")
+                if st.button("Yayınla"):
+                    admin_duyuru_yaz(duyuru_metni)
+                    st.success("Duyuru yayınlandı!")
+
+    st.markdown("---")
+
     if st.session_state.page != "MENU":
         st.metric("⭐ Level", f"{(st.session_state.soru_sayisi // 5) + 1}")
         st.metric("💎 Puan", f"{st.session_state.xp}")
@@ -855,22 +895,18 @@ if st.session_state.page == "MENU":
     
     # OYUN BAŞLATMA VE İSİM KONTROLÜ (ZORLA ALMA)
     def start_game(kategori_adi):
-        # 1. Eğer ana ekrandaki kutuya yazı yazılmışsa onu al (Enter'a basılmasa bile)
         if "main_isim_input" in st.session_state and st.session_state.main_isim_input:
              st.session_state.kullanici_adi = st.session_state.main_isim_input
         
-        # 2. Hala boşsa 'Misafir' yap
         if not st.session_state.kullanici_adi:
             st.session_state.kullanici_adi = "Misafir"
         
-        # 3. İsmi kaydet/yükle (Eski skor varsa getir)
         skorlar = skorlari_yukle()
         if st.session_state.kullanici_adi in skorlar:
                 st.session_state.xp = skorlar[st.session_state.kullanici_adi]['puan']
         else:
                 st.session_state.xp = 0
         
-        # 4. Oyunu başlat
         st.session_state.kategori = kategori_adi
         st.session_state.page = "GAME"
         st.session_state.soru_sayisi = 0
@@ -894,7 +930,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 📜", key="start_divan"):
             start_game("DİVAN")
 
-    # ALT SIRA (Servet-i Fünun Eklendi)
+    # ALT SIRA
     with c_lower[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">💎</div><div class="menu-title">SERVET</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 💎", key="start_servet"):
@@ -910,7 +946,7 @@ if st.session_state.page == "MENU":
         if st.button("BAŞLA 🎨", key="start_sanat"):
             start_game("SANATLAR")
             
-    # EN ALT SIRA (KAVRAM & HARİTA)
+    # EN ALT SIRA
     c_bottom = st.columns(2)
     with c_bottom[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM YARIŞI</div></div>', unsafe_allow_html=True)
