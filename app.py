@@ -35,7 +35,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# --- 3. GELİŞMİŞ SKOR SİSTEMİ (PUAN + ZAMAN DAMGASI) ---
+# --- 3. SKOR SİSTEMİ (GELİŞMİŞ - ZAMAN DAMGALI) ---
 SKOR_DOSYASI = "skorlar.json"
 
 def skorlari_yukle():
@@ -44,7 +44,7 @@ def skorlari_yukle():
     try:
         with open(SKOR_DOSYASI, "r", encoding="utf-8") as f:
             data = json.load(f)
-            # Eski veri tipini (sadece int puan) yeni tipe (dict) çevirme koruması
+            # Eski veri yapısını (sadece puan) yeni yapıya (puan + zaman) çevir
             new_data = {}
             for k, v in data.items():
                 if isinstance(v, int):
@@ -61,16 +61,16 @@ def skoru_kaydet(kullanici, puan):
         veriler = skorlari_yukle()
         
         # Mevcut veriyi al
-        eski_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
-        eski_puan = eski_veri["puan"]
+        mevcut_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
+        eski_puan = mevcut_veri["puan"]
         
-        # Puan yüksekse güncelle, değilse eski puan kalsın ama ZAMANI güncelle
+        # Puan düşerse kaydetme, sadece yüksekse veya eşitse güncelle
+        # Ancak ZAMAN her zaman güncellenmeli (Online görünmesi için)
         yeni_puan = max(puan, eski_puan)
         
-        # Her işlemde zamanı güncelle (Online durumu için)
         veriler[kullanici] = {
             "puan": yeni_puan,
-            "zaman": time.time() # Şu anki zaman damgası
+            "zaman": time.time() # Şu anki zaman
         }
         
         with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
@@ -250,6 +250,7 @@ st.markdown(f"""
     }}
     
     @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -834,7 +835,7 @@ with st.sidebar:
             durum_ikonu = "🟢" if aktif_mi else ""
 
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP")
+            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP", unsafe_allow_html=True)
 
     st.markdown("---")
     if st.session_state.page != "MENU":
