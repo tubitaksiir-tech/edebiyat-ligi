@@ -18,6 +18,8 @@ SKOR_DOSYASI = "skorlar.json"
 ADMIN_DUYURU_DOSYASI = "admin_duyuru.json"
 GELEN_KUTUSU_DOSYASI = "gelen_mesajlar.json"
 OZEL_MESAJ_DOSYASI = "ozel_mesajlar.json"
+TOPLULUK_DOSYASI = "topluluk_mesajlari.json"
+BAN_LISTESI_DOSYASI = "ban_listesi.json"
 
 # --- 2. GÜVENLİ BAŞLANGIÇ ---
 defaults = {
@@ -44,170 +46,147 @@ for key, value in defaults.items():
 
 # A) SKOR SİSTEMİ
 def skorlari_yukle():
-    if not os.path.exists(SKOR_DOSYASI):
-        return {}
+    if not os.path.exists(SKOR_DOSYASI): return {}
     try:
         with open(SKOR_DOSYASI, "r", encoding="utf-8") as f:
             data = json.load(f)
             new_data = {}
             for k, v in data.items():
-                if isinstance(v, int):
-                    new_data[k] = {"puan": v, "zaman": 0}
-                else:
-                    new_data[k] = v
+                if isinstance(v, int): new_data[k] = {"puan": v, "zaman": 0}
+                else: new_data[k] = v
             return new_data
-    except:
-        return {}
+    except: return {}
 
-def skoru_kaydet(kullanici, puan):
-    if not kullanici or kullanici == "Misafir": return
+def skoru_guncelle_ve_kaydet(kullanici, puan_degisimi):
+    if not kullanici or kullanici == "Misafir": return 0
     try:
         veriler = skorlari_yukle()
         mevcut_veri = veriler.get(kullanici, {"puan": 0, "zaman": 0})
-        eski_puan = mevcut_veri["puan"]
-        
-        # Normal oyun akışında max puanı koru
-        yeni_puan = max(puan, eski_puan)
-        
+        yeni_puan = max(0, mevcut_veri["puan"] + puan_degisimi)
         veriler[kullanici] = {"puan": yeni_puan, "zaman": time.time()}
         with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
             json.dump(veriler, f, ensure_ascii=False, indent=4)
-    except:
-        pass
+        return yeni_puan
+    except: return 0
 
-# YENİ: ADMIN MANUEL PUAN GÜNCELLEME
 def admin_puan_degistir(kullanici, yeni_puan):
     try:
         veriler = skorlari_yukle()
         if kullanici in veriler:
-            # Zamanı koru, sadece puanı değiştir
-            eski_zaman = veriler[kullanici]["zaman"]
-            veriler[kullanici] = {"puan": int(yeni_puan), "zaman": eski_zaman}
-            
+            veriler[kullanici]["puan"] = int(yeni_puan)
             with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
                 json.dump(veriler, f, ensure_ascii=False, indent=4)
             return True
-    except:
-        return False
-    return False
+    except: return False
 
-# B) GENEL DUYURU SİSTEMİ
-def admin_duyuru_oku():
-    if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
+# B) TOPLULUK SİSTEMİ (MESAJLAR + BAN)
+def topluluk_mesajlari_yukle():
+    if not os.path.exists(TOPLULUK_DOSYASI): return []
     try:
-        with open(ADMIN_DUYURU_DOSYASI, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except: return None
-
-def admin_duyuru_yaz(mesaj):
-    veri = {"mesaj": mesaj, "zaman": time.time()}
-    with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f:
-        json.dump(veri, f, ensure_ascii=False)
-
-# C) KULLANICI MESAJ SİSTEMİ (GELEN KUTUSU)
-def mesajlari_yukle():
-    if not os.path.exists(GELEN_KUTUSU_DOSYASI): return []
-    try:
-        with open(GELEN_KUTUSU_DOSYASI, "r", encoding="utf-8") as f:
+        with open(TOPLULUK_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
     except: return []
 
-def mesaj_gonder(gonderen, mesaj):
-    mevcut_mesajlar = mesajlari_yukle()
-    yeni_mesaj = {
-        "gonderen": gonderen if gonderen else "Anonim",
-        "mesaj": mesaj,
-        "tarih": datetime.now().strftime("%d-%m %H:%M")
-    }
-    mevcut_mesajlar.append(yeni_mesaj)
-    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
-        json.dump(mevcut_mesajlar, f, ensure_ascii=False, indent=4)
-
-def mesajlari_temizle():
-    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
-        json.dump([], f)
-
-# D) KİŞİYE ÖZEL MESAJ SİSTEMİ (POP-UP + KAPATMA TUŞU)
-def kisiye_ozel_mesaj_gonder(alici, mesaj):
-    if not os.path.exists(OZEL_MESAJ_DOSYASI):
-        veriler = {}
-    else:
-        try:
-            with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
-                veriler = json.load(f)
-        except:
-            veriler = {}
+def topluluk_mesaj_gonder(gonderen, mesaj, resim_data=None):
+    if ban_kontrol(gonderen): return 
     
-    veriler[alici] = mesaj 
-    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
-        json.dump(veriler, f, ensure_ascii=False)
+    mevcut = topluluk_mesajlari_yukle()
+    is_admin = (gonderen == "Alperen Süngü") # Admin adı kontrolü (Opsiyonel, panelden yazınca zaten belli olur ama chatte de görünsün)
+    
+    yeni = {
+        "id": int(time.time() * 1000),
+        "gonderen": gonderen,
+        "mesaj": mesaj,
+        "resim": resim_data,
+        "tarih": datetime.now().strftime("%H:%M"),
+        "is_admin": is_admin
+    }
+    mevcut.append(yeni)
+    if len(mevcut) > 50: mevcut = mevcut[-50:] # Son 50 mesajı tut
+    
+    with open(TOPLULUK_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(mevcut, f, ensure_ascii=False)
+
+def ban_listesi_yukle():
+    if not os.path.exists(BAN_LISTESI_DOSYASI): return []
+    try:
+        with open(BAN_LISTESI_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except: return []
+
+def kullaniciyi_banla(kullanici):
+    banlar = ban_listesi_yukle()
+    if kullanici not in banlar:
+        banlar.append(kullanici)
+        with open(BAN_LISTESI_DOSYASI, "w", encoding="utf-8") as f:
+            json.dump(banlar, f, ensure_ascii=False)
+
+def bani_kaldir(kullanici):
+    banlar = ban_listesi_yukle()
+    if kullanici in banlar:
+        banlar.remove(kullanici)
+        with open(BAN_LISTESI_DOSYASI, "w", encoding="utf-8") as f:
+            json.dump(banlar, f, ensure_ascii=False)
+
+def ban_kontrol(kullanici):
+    banlar = ban_listesi_yukle()
+    return kullanici in banlar
+
+# DİĞER DOSYA İŞLEMLERİ
+def admin_duyuru_oku():
+    if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
+    try:
+        with open(ADMIN_DUYURU_DOSYASI, "r", encoding="utf-8") as f: return json.load(f)
+    except: return None
+def admin_duyuru_yaz(mesaj):
+    with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f: json.dump({"mesaj": mesaj, "zaman": time.time()}, f, ensure_ascii=False)
+
+def mesajlari_yukle():
+    if not os.path.exists(GELEN_KUTUSU_DOSYASI): return []
+    try:
+        with open(GELEN_KUTUSU_DOSYASI, "r", encoding="utf-8") as f: return json.load(f)
+    except: return []
+def mesaj_gonder(gonderen, mesaj):
+    mevcut = mesajlari_yukle()
+    mevcut.append({"gonderen": gonderen, "mesaj": mesaj, "tarih": datetime.now().strftime("%d-%m %H:%M")})
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f: json.dump(mevcut, f, ensure_ascii=False)
+def mesajlari_temizle():
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f: json.dump([], f)
+
+def kisiye_ozel_mesaj_gonder(alici, mesaj):
+    if not os.path.exists(OZEL_MESAJ_DOSYASI): veriler = {}
+    else:
+        try: with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f: veriler = json.load(f)
+        except: veriler = {}
+    veriler[alici] = mesaj
+    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f: json.dump(veriler, f, ensure_ascii=False)
 
 def kisiye_ozel_mesaj_kontrol(kullanici):
     if not kullanici or not os.path.exists(OZEL_MESAJ_DOSYASI): return
     try:
-        with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
-            veriler = json.load(f)
-        
+        with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f: veriler = json.load(f)
         if kullanici in veriler:
             mesaj = veriler[kullanici]
-            
-            # Arka planı karart ve mesajı göster
             st.markdown(f"""
-            <div style="
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background-color: rgba(0,0,0,0.85); z-index: 999990;
-                display: flex; flex-direction: column; justify-content: center; align-items: center;
-            ">
-                <div style="
-                    background-color: #c62828; color: white; padding: 40px;
-                    border-radius: 20px; border: 6px solid #ffeb3b;
-                    text-align: center; max-width: 90%; width: 450px;
-                    box-shadow: 0 0 50px rgba(255, 235, 59, 0.5);
-                    animation: fadeIn 0.5s;
-                ">
-                    <div style="font-size: 60px;">💌</div>
-                    <h2 style="color:white; margin:10px 0; font-weight:900;">SANA MESAJ VAR!</h2>
-                    <hr style="border-color: #ffeb3b;">
-                    <p style="font-size: 22px; font-weight: bold; color: #ffeb3b; margin: 20px 0;">{mesaj}</p>
-                    <p style="font-size: 14px; color: #eee; margin-bottom: 20px;">Devam etmek için aşağıdaki butona basınız.</p>
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999;display:flex;justify-content:center;align-items:center;">
+                <div style="background:#c62828;color:white;padding:40px;border-radius:20px;border:6px solid #ffeb3b;text-align:center;width:400px;box-shadow:0 0 50px rgba(255,235,59,0.5);">
+                    <h2 style="margin:0;color:white;">💌 MESAJIN VAR!</h2><hr style="border-color:#ffeb3b;">
+                    <p style="font-size:22px;font-weight:bold;color:#ffeb3b;">{mesaj}</p>
+                    <p style="font-size:12px;color:#ddd;">Devam etmek için butona bas.</p>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Kapatma Butonu
-            col1, col2, col3 = st.columns([1, 2, 1])
+            </div>""", unsafe_allow_html=True)
+            col1, col2, col3 = st.columns([1,2,1])
             with col2:
-                st.markdown("""
-                <style>
-                div[data-testid="stButton"] > button {
-                    position: relative;
-                    z-index: 999999;
-                    border: 3px solid white !important;
-                    background-color: #ffeb3b !important;
-                    color: #c62828 !important;
-                    font-size: 18px !important;
-                    font-weight: 900 !important;
-                    padding: 10px 20px !important;
-                }
-                div[data-testid="stButton"] > button:hover {
-                    background-color: white !important;
-                    color: #c62828 !important;
-                }
-                </style>
-                """, unsafe_allow_html=True)
-                
-                if st.button("MESAJI OKUDUM VE KAPAT ❎", key="popup_kapat"):
+                # Buton stili
+                st.markdown("""<style>div[data-testid="stButton"] > button {z-index:1000 !important; border:2px solid white !important;}</style>""", unsafe_allow_html=True)
+                if st.button("OKUDUM VE KAPAT ❎", key="popup_kapat"):
                     del veriler[kullanici]
-                    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
-                        json.dump(veriler, f, ensure_ascii=False)
+                    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f: json.dump(veriler, f, ensure_ascii=False)
                     st.rerun()
-            
             st.stop()
-            
-    except:
-        pass
+    except: pass
 
-# --- 4. RENK PALETİ VE CSS ---
+# --- 4. CSS STİLLERİ ---
 sidebar_color = "#1b3a1a"
 card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
@@ -217,169 +196,56 @@ bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-bookn
 
 st.markdown(f"""
     <style>
-    .stApp {{
-        background-image: url("{bg_image_url}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
+    .stApp {{ background-image: url("{bg_image_url}"); background-size: cover; background-attachment: fixed; }}
+    html, body, p, div, label, h1, h2, h3, h4, h6, span {{ font-family: 'Segoe UI', sans-serif; color: {text_color_cream} !important; }}
     
-    html, body, p, div, label, h1, h2, h3, h4, h5, h6, li, span, b, i {{
-        font-family: 'Segoe UI', sans-serif;
-        color: {text_color_cream} !important;
-    }}
+    .stTextInput input {{ background-color: {input_bg_color} !important; color: white !important; border: 2px solid white !important; text-align: center; font-weight: bold; }}
+    [data-testid="stSidebar"] {{ background-color: {sidebar_color} !important; border-right: 4px solid #3e7a39; }}
     
-    /* İSİM KUTUSU */
-    .stTextInput input {{
-        background-color: {input_bg_color} !important;
-        color: #ffffff !important;
-        border: 2px solid #ffffff !important;
-        opacity: 1 !important;
-        text-align: center;
-        font-weight: bold;
+    .question-card, .menu-card, .bio-box, .duyuru-wrapper {{ 
+        background-color: {card_bg_color} !important; border: 3px solid #3e7a39; border-radius: 20px; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5); padding: 20px; margin-bottom: 15px; text-align: center; 
     }}
-    .stTextInput label {{
-        color: {text_color_cream} !important;
-        font-weight: bold;
-        font-size: 16px !important;
-    }}
-
-    [data-testid="stSidebar"] {{
-        background-color: {sidebar_color} !important;
-        border-right: 4px solid #3e7a39;
-    }}
-    
-    /* KUTULAR GENEL */
-    .question-card, .stRadio, .menu-card, .bio-box, .duyuru-wrapper {{
-        background-color: {card_bg_color} !important;
-        border: 3px solid #3e7a39;
-        border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        padding: 20px;
-        margin-bottom: 15px;
-        text-align: center;
-    }}
-    
-    /* ÖZEL İÇERİK KUTULARI - OPAK YEŞİL */
     .eser-icerik-kutusu, .kavram-box {{
-        background-color: #1b5e20 !important;
-        color: #ffffff !important;
-        padding: 15px;
-        border-radius: 10px;
-        border: 2px solid #ffeb3b !important;
-        margin-top: 5px;
-        opacity: 1 !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-        text-align: left;
+        background-color: #1b5e20 !important; color: white !important; padding: 15px; border-radius: 10px;
+        border: 2px solid #ffeb3b !important; margin-top: 5px; opacity: 1 !important; text-align: left;
     }}
 
     .menu-card:hover {{ transform: scale(1.05); transition: 0.2s; }}
     
-    .duyuru-wrapper {{
-        border: 2px solid #ffeb3b; 
-        padding: 10px 15px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        flex-wrap: wrap;
-    }}
+    /* TOPLULUK BALONLARI */
+    .chat-bubble {{ padding: 10px 15px; border-radius: 15px; max-width: 80%; word-wrap: break-word; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }}
+    .chat-mine {{ background-color: #dcedc8; color: #1b5e20 !important; align-self: flex-end; float: right; border-bottom-right-radius: 2px; }}
+    .chat-other {{ background-color: #ffffff; color: #000000 !important; align-self: flex-start; float: left; border-bottom-left-radius: 2px; }}
+    .chat-admin {{ background-color: #ffcdd2; border: 2px solid #c62828; color: #b71c1c !important; }}
+    
+    .chat-sender {{ font-size: 11px; font-weight: bold; margin-bottom: 3px; display: block; opacity: 0.8; }}
+    .chat-text {{ font-size: 15px; }}
+    .chat-time {{ font-size: 9px; color: #555 !important; text-align: right; display: block; margin-top: 3px; }}
 
-    .mini-leaderboard {{
-        background-color: rgba(27, 94, 32, 0.95);
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #aed581;
-        text-align: center;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        font-size: 14px;
-        flex-wrap: wrap;
-    }}
+    /* Liderlik */
+    .mini-leaderboard {{ background-color: rgba(27, 94, 32, 0.95); border-radius: 10px; padding: 10px; margin-bottom: 20px; border: 1px solid #aed581; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; }}
     .leader-item {{ margin: 5px; font-weight: bold; color: #fffbe6; }}
-    
-    /* TOAST (Bildirim) */
-    div[data-testid="stToast"] {{
-        background-color: #1b5e20 !important;
-        color: white !important;
-        border: 2px solid #ffeb3b !important;
-        font-weight: bold !important;
-        font-size: 16px !important;
-    }}
 
-    .stButton button {{
-        background-color: #d84315 !important;
-        color: white !important;
-        border-radius: 15px !important;
-        font-weight: 900 !important;
-        border: 2px solid #fff !important;
-        box-shadow: 0 5px 0 #bf360c !important;
-        width: 100%;
-    }}
-    .stButton button:active {{ transform: translateY(3px); box-shadow: none !important; }}
+    .stButton button {{ background-color: #d84315 !important; color: white !important; border-radius: 15px !important; font-weight: 900 !important; border: 2px solid #fff !important; width: 100%; }}
     
-    .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; box-shadow: 0 8px 0px rgba(0,0,0,0.4); text-transform: uppercase; }}
+    .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; text-transform: uppercase; }}
+    .random-info-box {{ background-color: #1a237e !important; border: 4px solid #ffeb3b; color: white !important; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; animation: fadeIn 0.5s; }}
     
-    .mobile-score {{ background-color: {card_bg_color}; padding: 10px; border-radius: 15px; border: 3px solid #3e7a39; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around; font-weight: bold; font-size: 18px; color: {text_color_cream} !important; }}
-    
-    .sanat-aciklama {{ background-color: {card_bg_color}; color: {text_color_cream} !important; border-left: 6px solid #ffeb3b; padding: 20px; margin-top: 20px; font-size: 18px; border-radius: 10px; }}
-    
-    .kaydet-btn {{ display: block; background-color: #2e7d32; color: white !important; padding: 12px; text-align: center; border-radius: 15px; text-decoration: none; font-weight: 900; font-size: 18px; border: 3px solid #1b5e20; margin-top: 15px; }}
-    
-    .sema-hoca-fixed-wrapper {{
-         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-         z-index: 99999; animation: shake 0.5s;
-         box-shadow: 0 0 100px rgba(0,0,0,0.9);
-         border-radius: 20px; overflow: hidden; border: 6px solid white;
-    }}
-    .sema-hoca-alert-box-body {{ background-color: {red_warning_color}; color: white; text-align: center; padding: 30px; padding-bottom: 40px; }}
-    .sema-hoca-alert-box-body button {{ background-color: white !important; color: {red_warning_color} !important; border: 2px solid {red_warning_color} !important; font-weight: bold !important; margin-top: 20px; position: relative !important; z-index: 100000; }}
-    
-    .random-info-box {{
-        background-color: #1a237e !important; border: 4px solid #ffeb3b;
-        color: white !important; padding: 20px; border-radius: 15px; text-align: center;
-        margin-bottom: 20px; animation: fadeIn 0.5s;
-        box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
-    }}
-    
-    /* Expander Başlık */
-    .streamlit-expanderHeader {{
-        color: #ffeb3b !important;
-        font-weight: bold;
-    }}
-    
-    @keyframes shake {{ 0% {{ transform: translate(-50%, -50%) rotate(0deg); }} 25% {{ transform: translate(-50%, -50%) rotate(5deg); }} 50% {{ transform: translate(-50%, -50%) rotate(0eg); }} 75% {{ transform: translate(-50%, -50%) rotate(-5deg); }} 100% {{ transform: translate(-50%, -50%) rotate(0deg); }} }}
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- SCRIPT BAŞINDA DUYURU VE ÖZEL MESAJ KONTROLÜ ---
-# 1. Genel Duyuru
+# --- BAŞLANGIÇ KONTROLLERİ ---
 duyuru = admin_duyuru_oku()
 if duyuru and duyuru["zaman"] > st.session_state.son_duyuru_zamani:
     st.toast(duyuru["mesaj"], icon="📢")
     st.session_state.son_duyuru_zamani = duyuru["zaman"]
 
-# 2. Kişiye Özel Mesaj (Eğer isim varsa kontrol et)
 if st.session_state.kullanici_adi:
     kisiye_ozel_mesaj_kontrol(st.session_state.kullanici_adi)
 
-
-# --- SES ---
-def get_audio_html(sound_type):
-    if sound_type == "dogru":
-        audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_bb630cc098.mp3"
-    else:
-        audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_88447e769f.mp3"
-    return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
-
-# ======================================================
-# 5. DEVASA VERİTABANLARI
-# ======================================================
+# --- VERİTABANLARI ---
 @st.cache_data
 def get_game_db(kategori):
     if kategori == "CUMHURİYET":
@@ -437,7 +303,6 @@ def get_game_db(kategori):
             "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas"], "Hikaye": ["Son Emel", "Aşıkane"]},
             "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres"]}
         }
-    
     elif kategori == "SERVET-İ FÜNUN":
         return {
             "Tevfik Fikret": {"Şiir": ["Rübab-ı Şikeste", "Haluk'un Defteri", "Rübabın Cevabı", "Şermin", "Tarih-i Kadim", "Doksan Beşe Doğru"], "Manzum Hikaye": ["Balıkçılar", "Nesrin", "Ramaksan", "Hasta Çocuk"]},
@@ -452,7 +317,6 @@ def get_game_db(kategori):
             "Faik Ali Ozansoy": {"Şiir": ["Fani Teselliler", "Temasil", "Elhan-ı Vatan"]},
             "Celal Sahir Erozan": {"Şiir": ["Beyaz Gölgeler", "Buhran", "Siyah Kitap"]}
         }
-
     elif kategori == "TANZİMAT":
         return {
             "Namık Kemal": {"Roman": ["İntibah", "Cezmi"], "Tiyatro": ["Vatan Yahut Silistre", "Gülnihal", "Akif Bey", "Zavallı Çocuk", "Kara Bela", "Celaleddin Harzemşah"], "Eleştiri": ["Tahrib-i Harabat", "Takip"], "Tarih": ["Osmanlı Tarihi", "Kanije"]},
@@ -471,8 +335,7 @@ def get_game_db(kategori):
             "Sadullah Paşa": {"Şiir": ["Ondokuzuncu Asır Manzumesi"]},
             "Mizancı Murat": {"Roman": ["Turfanda mı Yoksa Turfa mı"]}
         }
-
-    else: # DİVAN
+    elif kategori == "DİVAN":
         return {
             "Fuzuli": {"Mesnevi": ["Leyla ile Mecnun", "Bengü Bade", "Sohbetü'l Esmar"], "Nesir": ["Şikayetname", "Hadikatü's Süeda", "Rind ü Zahid"]},
             "Baki": {"Şiir": ["Kanuni Mersiyesi", "Baki Divanı"], "Nesir": ["Fezail-i Mekke"]},
@@ -504,11 +367,15 @@ def get_game_db(kategori):
             "Taşlıcalı Yahya": {"Mesnevi": ["Şah ü Geda", "Yusuf ü Züleyha"]},
             "Zati": {"Mesnevi": ["Şem ü Pervane"]}
         }
+    return {}
 
 @st.cache_data
 def get_ozet_db():
     return [
         {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır. **Özellik:** Türk edebiyatının ilk edebi romanıdır."},
+        # ... (Diğer özetler aynı, yer kaplamasın diye kısalttım, önceki veritabanını buraya yapıştırırsın)
+        # Önceki kodda verdiğim "get_ozet_db" içeriğinin aynısı buraya gelecek
+        # Eğer eksik kalırsa, önceki kod bloklarından "get_ozet_db" içeriğini buraya al.
         {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "II. Selim döneminde İran'la yapılan savaşları ve Cezmi'nin kahramanlıklarını anlatır. **Özellik:** Türk edebiyatının ilk tarihi romanıdır."},
         {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey, alafrangalık özentisi, mirasyedi bir gençtir. Periveş adlı kadını soylu sanır. **Özellik:** Yanlış batılılaşmayı işleyen ilk realist romandır."},
         {"yazar": "Samipaşazade Sezai", "roman": "Sergüzeşt", "ozet": "Kafkasya'dan kaçırılıp İstanbul'a getirilen esir kız Dilber'in acıklı hikayesi. Dilber, Celal Bey'e aşık olur ama Nil Nehri'ne atlayarak intihar eder. **Özellik:** Esaret konusunu işleyen, romantizmden realizme geçiş eseridir."},
@@ -809,55 +676,223 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- HEADER (BAŞLIK & LOGO & DUYURU) ---
-if st.session_state.page == "MENU":
-    st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
-    st.write("") 
+# --- YÖNETİM SAYFASI (SOL) ---
+with st.sidebar:
+    st.header("👤 PROFİL")
+    if st.session_state.page == "MENU":
+        def update_sidebar_name(): st.session_state.kullanici_adi = st.session_state.sb_isim_input
+        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
+    else: st.info(f"Oynayan: {st.session_state.kullanici_adi}")
+        
+    st.markdown("---")
+    st.header("🏆 LİDERLİK (TOP 7)")
+    skorlar = skorlari_yukle()
+    sirali = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
+    for i, (isim, veri) in enumerate(sirali[:7]):
+        aktif = (time.time() - veri['zaman']) < 300
+        ikon = "🟢" if aktif else ""
+        madalya = "🥇" if i==0 else "🥈" if i==1 else "🥉" if i==2 else f"{i+1}."
+        st.markdown(f"**{madalya} {isim}** {ikon}: {veri['puan']} XP", unsafe_allow_html=True)
 
-    col_logo, col_title = st.columns([1, 4]) 
-    with col_logo:
-        if os.path.exists("background.jpg"):
-            with open("background.jpg", "rb") as f:
-                img_data = base64.b64encode(f.read()).decode()
-            st.markdown(f'<img src="data:image/jpg;base64,{img_data}" width="100%" style="border-radius:15px; border:3px solid #3e7a39;">', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="font-size:60px; text-align:center;">📚</div>', unsafe_allow_html=True)
-            
-    with col_title:
-        st.markdown(f"""
-        <div style="
-            background-color: {card_bg_color}; 
-            padding: 20px; 
-            border-radius: 15px; 
-            border: 3px solid #3e7a39; 
-            color: {text_color_cream}; 
-            font-weight: 900; 
-            font-size: 32px; 
-            text-align: center;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-            margin-top: 10px;
-        ">
-            EDEBİYAT LİGİ
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("---")
     
-    # --- YÖNETİCİYE HIZLI MESAJ (YENİ EKLEME) ---
+    # --- ADMIN GİRİŞİ ---
+    with st.expander("🔐 Admin"):
+        pwd = st.text_input("Şifre", type="password")
+        if pwd == "alperenadmin123":
+            t1, t2, t3, t4, t5 = st.tabs(["Gelen", "Duyuru", "Özel", "Skor", "Ban"])
+            with t1:
+                msj = mesajlari_yukle()
+                for m in reversed(msj): st.write(f"**{m['gonderen']}**: {m['mesaj']}")
+                if st.button("Sil"): mesajlari_temizle()
+            with t2:
+                d = st.text_input("Duyuru:")
+                if st.button("Yayınla"): admin_duyuru_yaz(d)
+            with t3:
+                u = st.selectbox("Kime:", list(skorlar.keys()))
+                m = st.text_input("Mesaj:")
+                if st.button("Gönder"): kisiye_ozel_mesaj_gonder(u, m)
+            with t4:
+                u_edit = st.selectbox("Kullanıcı:", list(skorlar.keys()), key="score_user")
+                if u_edit:
+                    cur = skorlar[u_edit]['puan']
+                    new = st.number_input("Puan:", value=cur, step=10)
+                    if st.button("Güncelle"): admin_puan_degistir(u_edit, new)
+            with t5:
+                # Ban Yönetimi Sekmesi
+                st.markdown("### 🚫 Ban Yönetimi")
+                
+                # Hem skor listesinden hem mesajlardan tüm kullanıcıları topla
+                all_users = set(skorlar.keys())
+                for m in topluluk_mesajlari_yukle():
+                    all_users.add(m['gonderen'])
+                
+                ban_user = st.selectbox("Kullanıcı Seç:", ["Seçiniz..."] + sorted(list(all_users)))
+                
+                if ban_user != "Seçiniz...":
+                    is_banned = ban_kontrol(ban_user)
+                    st.write(f"Durum: **{'🔴 BANLI' if is_banned else '🟢 TEMİZ'}**")
+                    
+                    if is_banned:
+                        if st.button("Banı Kaldır"):
+                            bani_kaldir(ban_user)
+                            st.success(f"{ban_user} banı kaldırıldı.")
+                            st.rerun()
+                    else:
+                        if st.button("Banla"):
+                            kullaniciyi_banla(ban_user)
+                            st.error(f"{ban_user} banlandı.")
+                            st.rerun()
+
+    if st.session_state.page != "MENU":
+        if st.button("⬅️ ANA MENÜ", key="exit_btn"):
+            st.session_state.page = "MENU"
+            st.rerun()
+
+# --- TOPLULUK SAYFASI ---
+if st.session_state.page == "TOPLULUK":
+    st.markdown('<div class="creator-name">💬 EDEBİYAT TOPLULUĞU</div>', unsafe_allow_html=True)
+    
+    if ban_kontrol(st.session_state.kullanici_adi):
+        st.error("⛔ BU TOPLULUKTAN UZAKLAŞTIRILDINIZ.")
+        if st.button("Ana Menüye Dön"):
+            st.session_state.page = "MENU"
+            st.rerun()
+        st.stop()
+
+    if st.button("⬅️ Menüye Dön"):
+        st.session_state.page = "MENU"
+        st.rerun()
+
+    mesajlar = topluluk_mesajlari_yukle()
+    
+    st.markdown("<div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; height: 400px; overflow-y: auto; display:flex; flex-direction:column-reverse;'>", unsafe_allow_html=True)
+    
+    for msg in reversed(mesajlar):
+        is_me = (msg['gonderen'] == st.session_state.kullanici_adi)
+        is_admin_msg = msg.get('is_admin', False)
+        
+        align_class = "chat-mine" if is_me else "chat-other"
+        admin_class = "chat-admin" if is_admin_msg else ""
+        
+        gonderen_adi = msg['gonderen']
+        if is_admin_msg:
+            gonderen_adi = f"👑 YÖNETİCİ | {gonderen_adi}"
+
+        img_html = ""
+        if msg.get('resim'):
+            img_html = f'<img src="{msg["resim"]}" style="max-width:100%; border-radius:10px; margin-top:5px;">'
+
+        st.markdown(f"""
+        <div class="chat-bubble {align_class} {admin_class}" style="margin-bottom: 10px; width: fit-content; max-width: 80%; display: block; clear: both; float: {'right' if is_me else 'left'};">
+            <span class="chat-sender" style="color: {'#1565c0' if is_admin_msg else '#333'} !important;">{gonderen_adi}</span>
+            <span class="chat-text" style="color: {'#b71c1c' if is_admin_msg else '#000'} !important;">{msg['mesaj']}</span>
+            {img_html}
+            <span class="chat-time">{msg['tarih']}</span>
+        </div>
+        <div style="clear: both;"></div>
+        """, unsafe_allow_html=True)
+        # Ban butonu BURADAN KALDIRILDI.
+
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("---")
+    
+    with st.form("topluluk_form", clear_on_submit=True):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            yeni_mesaj = st.text_input("Mesaj Yaz...", placeholder="Soru sor, sohbet et...")
+        with col2:
+            resim_yukle = st.file_uploader("📷 Foto", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
+        
+        gonder = st.form_submit_button("GÖNDER 🚀", use_container_width=True)
+        
+        if gonder:
+            if not yeni_mesaj and not resim_yukle:
+                st.warning("Boş mesaj gönderilemez.")
+            else:
+                resim_str = None
+                if resim_yukle:
+                    bytes_data = resim_yukle.getvalue()
+                    base64_str = base64.b64encode(bytes_data).decode()
+                    mime_type = resim_yukle.type
+                    resim_str = f"data:{mime_type};base64,{base64_str}"
+                
+                topluluk_mesaj_gonder(st.session_state.kullanici_adi, yeni_mesaj, resim_str)
+                st.rerun()
+
+# --- MENÜ SAYFASI ---
+elif st.session_state.page == "MENU":
+    c_upper = st.columns(3)
+    c_lower = st.columns(3)
+    c_bottom = st.columns(3)
+
+    def start_game(kategori_adi):
+        if "main_isim_input" in st.session_state and st.session_state.main_isim_input:
+             st.session_state.kullanici_adi = st.session_state.main_isim_input
+        if not st.session_state.kullanici_adi: st.session_state.kullanici_adi = "Misafir"
+        skorlar = skorlari_yukle()
+        if st.session_state.kullanici_adi in skorlar: st.session_state.xp = skorlar[st.session_state.kullanici_adi]['puan']
+        else: st.session_state.xp = 0
+        st.session_state.kategori = kategori_adi
+        st.session_state.page = "GAME"
+        st.session_state.soru_sayisi = 0
+        st.session_state.soru_bitti = False
+        st.session_state.mevcut_soru = yeni_soru_uret()
+        st.rerun()
+
+    # ÜST SIRA
+    with c_upper[0]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 🇹🇷", key="start_cumh"): start_game("CUMHURİYET")
+    with c_upper[1]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 🎩", key="start_tanz"): start_game("TANZİMAT")
+    with c_upper[2]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 📜", key="start_divan"): start_game("DİVAN")
+    
+    # ALT SIRA
+    with c_lower[0]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">💎</div><div class="menu-title">SERVET</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 💎", key="start_servet"): start_game("SERVET-İ FÜNUN")
+    with c_lower[1]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 📖", key="start_roman"): start_game("ROMAN_OZET")
+    with c_lower[2]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
+        if st.button("BAŞLA 🎨", key="start_sanat"): start_game("SANATLAR")
+        
+    # EN ALT SIRA
+    with c_bottom[0]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM</div></div>', unsafe_allow_html=True)
+        if st.button("YARIŞ 🧠", key="start_kavram"): start_game("KAVRAMLAR")
+    with c_bottom[1]:
+        st.markdown('<div class="menu-card"><div style="font-size:30px;">🗺️</div><div class="menu-title">SÖZLÜK</div></div>', unsafe_allow_html=True)
+        if st.button("İNCELE 🗺️", key="goto_map"):
+            st.session_state.page = "KAVRAM_HARITASI"
+            st.rerun()
+    with c_bottom[2]:
+        st.markdown('<div class="menu-card" style="border-color:#29b6f6;"><div style="font-size:30px;">💬</div><div class="menu-title" style="color:#29b6f6;">TOPLULUK</div></div>', unsafe_allow_html=True)
+        if st.button("GİRİŞ YAP 💬", key="goto_community"):
+            if not st.session_state.kullanici_adi: st.error("Önce ismini girmelisin!")
+            else:
+                st.session_state.page = "TOPLULUK"
+                st.rerun()
+
+    st.markdown("---")
+    
+    # --- YÖNETİCİYE HIZLI MESAJ ---
     with st.expander("📨 Yöneticiye Hızlı Mesaj (Tıkla)", expanded=False):
         with st.form("hizli_mesaj_formu"):
-            # Expander içinde input ve buton
             hizli_mesaj = st.text_input("Mesajınız:", placeholder="Hocam bir sorun var...", label_visibility="collapsed")
             col_h1, col_h2 = st.columns([4, 1])
             with col_h2:
                 gonder_btn_hizli = st.form_submit_button("Gönder")
-            
             if gonder_btn_hizli and hizli_mesaj:
-                # Kullanıcı adını al, yoksa "Misafir"
                 gonderen = st.session_state.kullanici_adi if st.session_state.kullanici_adi else "Misafir"
                 mesaj_gonder(gonderen, hizli_mesaj)
                 st.success("Mesajınız iletildi! 🚀")
 
-    st.markdown("---")
-    
     # --- KOMPAKT DUYURU ALANI ---
     img_tag = ""
     if os.path.exists("odul.jpg"):
@@ -877,244 +912,42 @@ if st.session_state.page == "MENU":
             🏆 Haftanın Birincisine <br> 
             <span style="color: #ffeb3b; font-size: 18px;">Limit AYT Edebiyat Cep Kitabı</span> Hediye! 
         </div>
-        <div>
-            {img_tag}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        <div>{img_tag}</div>
+    </div>""", unsafe_allow_html=True)
     
-    # --- MINI LİDERLİK TABLOSU (ORTA ALAN - TOP 5) ---
+    # --- MINI LİDERLİK TABLOSU (TOP 5) ---
     st.markdown("<div style='text-align:center; font-weight:bold; color:#ffeb3b; margin-bottom:5px;'>🏆 Liderlik Tablosu (Top 5) 🏆</div>", unsafe_allow_html=True)
     
     skorlar = skorlari_yukle()
     sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)[:5] 
     
-    if not sirali_skorlar:
-        st.info("Henüz kimse oynamadı. İlk sen ol! 🚀")
+    if not sirali_skorlar: st.info("Henüz kimse oynamadı. İlk sen ol! 🚀")
     else:
         lider_html = "<div class='mini-leaderboard'>"
         for i, (isim, veri) in enumerate(sirali_skorlar):
             puan = veri['puan']
-            # Aktiflik kontrolü (300 saniye = 5 dakika)
             aktif_mi = (time.time() - veri['zaman']) < 300 
             durum_ikonu = "🟢" if aktif_mi else ""
-            
             madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
             lider_html += f"<div class='leader-item'>{madalya} {isim} {durum_ikonu}<br><span style='color:#ffeb3b;'>{puan} XP</span></div>"
         lider_html += "</div>"
         st.markdown(lider_html, unsafe_allow_html=True)
 
-    # --- ANA EKRAN İSİM GİRME ALANI (EĞER İSİM YOKSA) ---
+    # --- ANA EKRAN İSİM GİRME ---
     if not st.session_state.kullanici_adi:
-        st.markdown("""
-        <div style="background-color: #1b5e20; padding: 15px; border-radius: 15px; border: 2px solid #ffeb3b; text-align: center; margin-bottom: 20px;">
-            <div style="color: #fffbe6; font-weight: bold; margin-bottom: 10px;">👇 Oyuna Başlamak İçin Adını Yaz 👇</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # KEY=main_isim_input. Callback yok, butonlar kontrol edecek.
+        st.markdown("""<div style="background-color: #1b5e20; padding: 15px; border-radius: 15px; border: 2px solid #ffeb3b; text-align: center; margin-bottom: 20px;"><div style="color: #fffbe6; font-weight: bold; margin-bottom: 10px;">👇 Oyuna Başlamak İçin Adını Yaz 👇</div></div>""", unsafe_allow_html=True)
         st.text_input("Adın Nedir?", label_visibility="collapsed", placeholder="Adınızı buraya yazın...", key="main_isim_input")
 
     # --- RASTGELE KAVRAM BUTONU ---
     if st.button("🎲 BANA RASTGELE BİR BİLGİ VER!", use_container_width=True):
         kavram_db = get_kavramlar_db()
-        secilen = random.choice(kavram_db)
-        st.session_state.rastgele_bilgi = secilen
+        st.session_state.rastgele_bilgi = random.choice(kavram_db)
     
     if st.session_state.rastgele_bilgi:
         bilgi = st.session_state.rastgele_bilgi
-        st.markdown(f"""
-        <div class="random-info-box">
-            <h3 style="color:#ffeb3b; margin:0;">✨ {bilgi['kavram']} ✨</h3>
-            <p style="font-size:18px; margin-top:10px;">{bilgi['aciklama']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f"""<div class="random-info-box"><h3 style="color:#ffeb3b; margin:0;">✨ {bilgi['kavram']} ✨</h3><p style="font-size:18px; margin-top:10px;">{bilgi['aciklama']}</p></div>""", unsafe_allow_html=True)
         if st.button("Kapat"):
             st.session_state.rastgele_bilgi = None
-            st.rerun()
-
-    st.markdown("---")
-
-# --- YAN MENÜ (SOL) ---
-with st.sidebar:
-    st.header("👤 PROFİL")
-    if st.session_state.page == "MENU":
-        def update_sidebar_name():
-            st.session_state.kullanici_adi = st.session_state.sb_isim_input
-            
-        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
-    else:
-        st.info(f"Oynayan: {st.session_state.kullanici_adi}")
-        
-    st.markdown("---")
-    # --- SOL MENÜ LİDERLİK TABLOSU (TOP 7) ---
-    st.header("🏆 LİDERLİK (TOP 7)")
-    
-    skorlar = skorlari_yukle()
-    # Puan'a göre sırala (x[1]['puan'])
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
-    
-    if not sirali_skorlar:
-        st.caption("Henüz veri yok.")
-    else:
-        for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
-            puan = veri['puan']
-            # Aktiflik kontrolü
-            aktif_mi = (time.time() - veri['zaman']) < 300 
-            durum_ikonu = "🟢" if aktif_mi else ""
-
-            madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP", unsafe_allow_html=True)
-
-    st.markdown("---")
-    
-    # --- GİZLİ ADMIN GİRİŞİ (ŞİFRE GÜNCELLENDİ) ---
-    with st.expander("🔐 Admin Girişi"):
-        admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
-        if admin_sifre == "alperenadmin123":
-            tab1, tab2, tab3, tab4 = st.tabs(["📥 Gelen", "📢 Duyuru", "💌 Özel Mesaj", "⚙️ Skorlar"])
-            
-            with tab1:
-                st.markdown("### Gelen Mesajlar")
-                mesajlar = mesajlari_yukle()
-                if not mesajlar:
-                    st.info("Henüz mesaj yok.")
-                else:
-                    for m in reversed(mesajlar):
-                        st.markdown(f"""
-                        <div style="background-color:#000; padding:10px; border-radius:5px; margin-bottom:5px; border:1px solid #ffeb3b;">
-                            <small style="color:#aaa;">{m['tarih']} - <b>{m['gonderen']}</b></small><br>
-                            {m['mesaj']}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    if st.button("Tüm Mesajları Sil"):
-                        mesajlari_temizle()
-                        st.rerun()
-
-            with tab2:
-                st.markdown("### Herkese Bildirim Gönder")
-                duyuru_metni = st.text_input("Duyuru Metni:")
-                if st.button("Yayınla"):
-                    admin_duyuru_yaz(duyuru_metni)
-                    st.success("Duyuru yayınlandı!")
-
-            with tab3:
-                st.markdown("### Kişiye Özel Mesaj (Popup)")
-                kullanici_listesi = list(skorlari_yukle().keys())
-                secilen_kisi = st.selectbox("Kime:", options=["Seçiniz..."] + kullanici_listesi)
-                ozel_mesaj_metni = st.text_input("Mesajın:")
-                
-                if st.button("Gönder") and secilen_kisi != "Seçiniz...":
-                    kisiye_ozel_mesaj_gonder(secilen_kisi, ozel_mesaj_metni)
-                    st.success(f"{secilen_kisi} adlı kullanıcıya mesaj gönderildi!")
-
-            with tab4:
-                st.markdown("### ⚙️ Skor Yönetimi")
-                kullanicilar = list(skorlari_yukle().keys())
-                user_to_edit = st.selectbox("Kullanıcı Seç", ["Seçiniz..."] + kullanicilar)
-                
-                if user_to_edit != "Seçiniz...":
-                    current_data = skorlari_yukle()[user_to_edit]
-                    current_score = current_data['puan']
-                    st.write(f"Mevcut Puan: **{current_score}**")
-                    
-                    new_score_val = st.number_input("Yeni Puan Girin:", value=current_score, step=10)
-                    
-                    if st.button("Puanı Güncelle"):
-                        if admin_puan_degistir(user_to_edit, new_score_val):
-                            st.success(f"{user_to_edit} puanı {new_score_val} olarak güncellendi!")
-                            time.sleep(1)
-                            st.rerun()
-                        else:
-                            st.error("Güncelleme hatası.")
-
-
-    st.markdown("---")
-
-    if st.session_state.page != "MENU":
-        st.metric("⭐ Level", f"{(st.session_state.soru_sayisi // 5) + 1}")
-        st.metric("💎 Puan", f"{st.session_state.xp}")
-        if st.button("⬅️ ÇIKIŞ", key="btn_exit_sidebar"):
-            st.session_state.page = "MENU"
-            st.session_state.xp = 0
-            st.rerun()
-
-# --- MENÜ SAYFASI (DEVAMI - BUTONLAR) ---
-if st.session_state.page == "MENU":
-    
-    # 3x2 Grid
-    c_upper = st.columns(3)
-    c_lower = st.columns(3)
-    
-    # OYUN BAŞLATMA VE İSİM KONTROLÜ (ZORLA ALMA)
-    def start_game(kategori_adi):
-        # 1. Eğer ana ekrandaki kutuya yazı yazılmışsa onu al (Enter'a basılmasa bile)
-        if "main_isim_input" in st.session_state and st.session_state.main_isim_input:
-             st.session_state.kullanici_adi = st.session_state.main_isim_input
-        
-        # 2. Hala boşsa 'Misafir' yap
-        if not st.session_state.kullanici_adi:
-            st.session_state.kullanici_adi = "Misafir"
-        
-        # 3. İsmi kaydet/yükle (Eski skor varsa getir)
-        skorlar = skorlari_yukle()
-        if st.session_state.kullanici_adi in skorlar:
-                st.session_state.xp = skorlar[st.session_state.kullanici_adi]['puan']
-        else:
-                st.session_state.xp = 0
-        
-        # 4. Oyunu başlat
-        st.session_state.kategori = kategori_adi
-        st.session_state.page = "GAME"
-        st.session_state.soru_sayisi = 0
-        st.session_state.soru_bitti = False
-        st.session_state.mevcut_soru = yeni_soru_uret()
-        st.rerun()
-
-    # ÜST SIRA
-    with c_upper[0]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🇹🇷</div><div class="menu-title">CUMH.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🇹🇷", key="start_cumh"):
-            start_game("CUMHURİYET")
-            
-    with c_upper[1]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎩</div><div class="menu-title">TANZ.</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎩", key="start_tanz"):
-            start_game("TANZİMAT")
-
-    with c_upper[2]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">📜</div><div class="menu-title">DİVAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📜", key="start_divan"):
-            start_game("DİVAN")
-
-    # ALT SIRA (Servet-i Fünun Eklendi)
-    with c_lower[0]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">💎</div><div class="menu-title">SERVET</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 💎", key="start_servet"):
-            start_game("SERVET-İ FÜNUN")
-
-    with c_lower[1]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">📖</div><div class="menu-title">ROMAN</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 📖", key="start_roman"):
-            start_game("ROMAN_OZET")
-            
-    with c_lower[2]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
-        if st.button("BAŞLA 🎨", key="start_sanat"):
-            start_game("SANATLAR")
-            
-    # EN ALT SIRA (KAVRAM & HARİTA)
-    c_bottom = st.columns(2)
-    with c_bottom[0]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM YARIŞI</div></div>', unsafe_allow_html=True)
-        if st.button("YARIŞ 🧠", key="start_kavram"):
-            start_game("KAVRAMLAR")
-            
-    with c_bottom[1]:
-        st.markdown('<div class="menu-card"><div style="font-size:30px;">🗺️</div><div class="menu-title">KAVRAM SÖZLÜĞÜ</div></div>', unsafe_allow_html=True)
-        if st.button("İNCELE 🗺️", key="goto_map"):
-            st.session_state.page = "KAVRAM_HARITASI"
             st.rerun()
 
     st.markdown("---")
@@ -1162,11 +995,8 @@ elif st.session_state.page == "KAVRAM_HARITASI":
         st.session_state.page = "MENU"
         st.rerun()
     
-    # Arama Kutusu
     arama = st.text_input("Kavram Ara:", placeholder="Örn: Gazel, Teşbih...")
-    
     kavramlar = get_kavramlar_db()
-    # Alfabetik Sırala
     kavramlar = sorted(kavramlar, key=lambda x: x['kavram'])
     
     found = False
@@ -1175,29 +1005,25 @@ elif st.session_state.page == "KAVRAM_HARITASI":
             found = True
             with st.expander(f"📌 {k['kavram']}"):
                 st.markdown(f"<div class='kavram-box'>{k['aciklama']}</div>", unsafe_allow_html=True)
-    
-    if not found and arama:
-        st.warning("Aradığınız kavram bulunamadı.")
+    if not found and arama: st.warning("Aradığınız kavram bulunamadı.")
 
 
 # --- GAME SAYFASI ---
 elif st.session_state.page == "GAME":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     
+    # SENKRONİZASYON: Her sayfa yenilendiğinde skoru dosyadan güncelle
+    kayitli_skorlar = skorlari_yukle()
+    if st.session_state.kullanici_adi in kayitli_skorlar:
+         st.session_state.xp = kayitli_skorlar[st.session_state.kullanici_adi]["puan"]
+
     soru = st.session_state.mevcut_soru
     
-    # --- SEMA HOCA UYARISI ---
     if st.session_state.sema_hoca_kizdi:
         st.markdown('<div class="sema-hoca-fixed-wrapper">', unsafe_allow_html=True)
-        st.markdown("""
-            <div class="sema-hoca-alert-box-body">
-                <div style="font-size: 60px;">😡</div>
-                <div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div>
-                <div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>
-        """, unsafe_allow_html=True)
-        
+        st.markdown("""<div class="sema-hoca-alert-box-body"><div style="font-size: 60px;">😡</div><div style="font-weight:900; font-size: 30px;">SEMA HOCAN<br>ÇOK KIZDI!</div><div style="font-size:20px; color:#ffeaa7; margin-top:10px;">Nasıl Bilemezsin?!</div>""", unsafe_allow_html=True)
         if st.button("Özür Dilerim 😔", key="btn_sorry"):
-            skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
+            skoru_guncelle_ve_kaydet(st.session_state.kullanici_adi, 0)
             if st.session_state.kategori == "SANATLAR":
                 st.session_state.sema_hoca_kizdi = False
                 st.rerun()
@@ -1208,7 +1034,6 @@ elif st.session_state.page == "GAME":
                 st.session_state.sema_hoca_kizdi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-        
         st.markdown('</div>', unsafe_allow_html=True) 
         st.markdown('</div>', unsafe_allow_html=True)
         st.stop()
@@ -1221,7 +1046,6 @@ elif st.session_state.page == "GAME":
         st.stop()
 
     level = (st.session_state.soru_sayisi // 5) + 1
-    
     st.markdown(f"<div class='mobile-score'><span style='color:{text_color_cream};'>⭐ Lv {level}</span><span style='color:#aed581;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
@@ -1250,25 +1074,18 @@ elif st.session_state.page == "GAME":
     with col2:
         st.write("") 
         st.write("")
-        
         if not st.session_state.soru_bitti:
             if st.button("YANITLA 🚀", key="btn_answer", type="primary", use_container_width=True):
                 st.session_state.cevap_verildi = True
-                
                 if cevap == soru['dogru_cevap']:
-                    st.session_state.xp += 100
+                    yeni_puan = skoru_guncelle_ve_kaydet(st.session_state.kullanici_adi, 100)
+                    st.session_state.xp = yeni_puan
                     st.markdown(get_audio_html("dogru"), unsafe_allow_html=True)
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
-                    
-                    skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
-                    
-                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru:
-                        st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
-
+                    if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru: st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
                     if st.session_state.kategori == "SANATLAR":
-                        if "aciklama" in soru:
-                            st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
+                        if "aciklama" in soru: st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
                         st.session_state.soru_bitti = True
                         st.rerun()
                     else:
@@ -1278,19 +1095,16 @@ elif st.session_state.page == "GAME":
                         st.session_state.cevap_verildi = False
                         st.session_state.mevcut_soru = yeni_soru_uret()
                         st.rerun()
-
-                else: # YANLIŞ CEVAP
+                else: 
                     st.markdown(get_audio_html("yanlis"), unsafe_allow_html=True)
                     st.session_state.sema_hoca_kizdi = True
                     st.error(f"YANLIŞ! Doğru: {soru['dogru_cevap']}")
-                    st.session_state.xp = max(0, st.session_state.xp - 20)
-                    skoru_kaydet(st.session_state.kullanici_adi, st.session_state.xp)
+                    yeni_puan = skoru_guncelle_ve_kaydet(st.session_state.kullanici_adi, -20)
+                    st.session_state.xp = yeni_puan
                     st.rerun()
         
         elif st.session_state.soru_bitti and not st.session_state.sema_hoca_kizdi:
-            if "aciklama" in soru:
-                st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
-                
+            if "aciklama" in soru: st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
             if st.button("GEÇ ➡️", key="btn_next", type="primary", use_container_width=True):
                 st.session_state.soru_sayisi += 1
                 st.session_state.soru_bitti = False
