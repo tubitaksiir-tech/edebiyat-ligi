@@ -46,16 +46,20 @@ for key, value in defaults.items():
 
 # A) SKOR SİSTEMİ
 def skorlari_yukle():
-    if not os.path.exists(SKOR_DOSYASI): return {}
+    if not os.path.exists(SKOR_DOSYASI):
+        return {}
     try:
         with open(SKOR_DOSYASI, "r", encoding="utf-8") as f:
             data = json.load(f)
             new_data = {}
             for k, v in data.items():
-                if isinstance(v, int): new_data[k] = {"puan": v, "zaman": 0}
-                else: new_data[k] = v
+                if isinstance(v, int):
+                    new_data[k] = {"puan": v, "zaman": 0}
+                else:
+                    new_data[k] = v
             return new_data
-    except: return {}
+    except:
+        return {}
 
 def skoru_guncelle_ve_kaydet(kullanici, puan_degisimi):
     if not kullanici or kullanici == "Misafir": return 0
@@ -67,7 +71,8 @@ def skoru_guncelle_ve_kaydet(kullanici, puan_degisimi):
         with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
             json.dump(veriler, f, ensure_ascii=False, indent=4)
         return yeni_puan
-    except: return 0
+    except:
+        return 0
 
 def admin_puan_degistir(kullanici, yeni_puan):
     try:
@@ -77,21 +82,26 @@ def admin_puan_degistir(kullanici, yeni_puan):
             with open(SKOR_DOSYASI, "w", encoding="utf-8") as f:
                 json.dump(veriler, f, ensure_ascii=False, indent=4)
             return True
-    except: return False
+    except:
+        return False
+    return False
 
 # B) TOPLULUK SİSTEMİ (MESAJLAR + BAN)
 def topluluk_mesajlari_yukle():
-    if not os.path.exists(TOPLULUK_DOSYASI): return []
+    if not os.path.exists(TOPLULUK_DOSYASI):
+        return []
     try:
         with open(TOPLULUK_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
-    except: return []
+    except:
+        return []
 
 def topluluk_mesaj_gonder(gonderen, mesaj, resim_data=None):
-    if ban_kontrol(gonderen): return 
+    if ban_kontrol(gonderen):
+        return 
     
     mevcut = topluluk_mesajlari_yukle()
-    is_admin = (gonderen == "Alperen Süngü") # Admin adı kontrolü (Opsiyonel, panelden yazınca zaten belli olur ama chatte de görünsün)
+    is_admin = (gonderen == "Alperen Süngü") 
     
     yeni = {
         "id": int(time.time() * 1000),
@@ -102,17 +112,20 @@ def topluluk_mesaj_gonder(gonderen, mesaj, resim_data=None):
         "is_admin": is_admin
     }
     mevcut.append(yeni)
-    if len(mevcut) > 50: mevcut = mevcut[-50:] # Son 50 mesajı tut
+    if len(mevcut) > 50:
+        mevcut = mevcut[-50:] 
     
     with open(TOPLULUK_DOSYASI, "w", encoding="utf-8") as f:
         json.dump(mevcut, f, ensure_ascii=False)
 
 def ban_listesi_yukle():
-    if not os.path.exists(BAN_LISTESI_DOSYASI): return []
+    if not os.path.exists(BAN_LISTESI_DOSYASI):
+        return []
     try:
         with open(BAN_LISTESI_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
-    except: return []
+    except:
+        return []
 
 def kullaniciyi_banla(kullanici):
     banlar = ban_listesi_yukle()
@@ -132,59 +145,81 @@ def ban_kontrol(kullanici):
     banlar = ban_listesi_yukle()
     return kullanici in banlar
 
-# DİĞER DOSYA İŞLEMLERİ
+# DİĞER DOSYA İŞLEMLERİ (Düzeltilen Kısımlar)
 def admin_duyuru_oku():
-    if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
+    if not os.path.exists(ADMIN_DUYURU_DOSYASI):
+        return None
     try:
-        with open(ADMIN_DUYURU_DOSYASI, "r", encoding="utf-8") as f: return json.load(f)
-    except: return None
+        with open(ADMIN_DUYURU_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return None
+
 def admin_duyuru_yaz(mesaj):
-    with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f: json.dump({"mesaj": mesaj, "zaman": time.time()}, f, ensure_ascii=False)
+    with open(ADMIN_DUYURU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump({"mesaj": mesaj, "zaman": time.time()}, f, ensure_ascii=False)
 
 def mesajlari_yukle():
-    if not os.path.exists(GELEN_KUTUSU_DOSYASI): return []
+    if not os.path.exists(GELEN_KUTUSU_DOSYASI):
+        return []
     try:
-        with open(GELEN_KUTUSU_DOSYASI, "r", encoding="utf-8") as f: return json.load(f)
-    except: return []
+        with open(GELEN_KUTUSU_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
 def mesaj_gonder(gonderen, mesaj):
     mevcut = mesajlari_yukle()
     mevcut.append({"gonderen": gonderen, "mesaj": mesaj, "tarih": datetime.now().strftime("%d-%m %H:%M")})
-    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f: json.dump(mevcut, f, ensure_ascii=False)
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(mevcut, f, ensure_ascii=False)
+
 def mesajlari_temizle():
-    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f: json.dump([], f)
+    with open(GELEN_KUTUSU_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump([], f)
 
 def kisiye_ozel_mesaj_gonder(alici, mesaj):
-    if not os.path.exists(OZEL_MESAJ_DOSYASI): veriler = {}
+    if not os.path.exists(OZEL_MESAJ_DOSYASI):
+        veriler = {}
     else:
-        try: with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f: veriler = json.load(f)
-        except: veriler = {}
+        try:
+            with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
+                veriler = json.load(f)
+        except:
+            veriler = {}
     veriler[alici] = mesaj
-    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f: json.dump(veriler, f, ensure_ascii=False)
+    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(veriler, f, ensure_ascii=False)
 
 def kisiye_ozel_mesaj_kontrol(kullanici):
-    if not kullanici or not os.path.exists(OZEL_MESAJ_DOSYASI): return
+    if not kullanici or not os.path.exists(OZEL_MESAJ_DOSYASI):
+        return
     try:
-        with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f: veriler = json.load(f)
+        with open(OZEL_MESAJ_DOSYASI, "r", encoding="utf-8") as f:
+            veriler = json.load(f)
+        
         if kullanici in veriler:
             mesaj = veriler[kullanici]
             st.markdown(f"""
             <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999;display:flex;justify-content:center;align-items:center;">
                 <div style="background:#c62828;color:white;padding:40px;border-radius:20px;border:6px solid #ffeb3b;text-align:center;width:400px;box-shadow:0 0 50px rgba(255,235,59,0.5);">
                     <h2 style="margin:0;color:white;">💌 MESAJIN VAR!</h2><hr style="border-color:#ffeb3b;">
-                    <p style="font-size:22px;font-weight:bold;color:#ffeb3b;">{mesaj}</p>
-                    <p style="font-size:12px;color:#ddd;">Devam etmek için butona bas.</p>
+                    <p style="font-size:20px;font-weight:bold;color:#ffeb3b;">{mesaj}</p>
                 </div>
             </div>""", unsafe_allow_html=True)
+            
             col1, col2, col3 = st.columns([1,2,1])
             with col2:
-                # Buton stili
-                st.markdown("""<style>div[data-testid="stButton"] > button {z-index:1000 !important; border:2px solid white !important;}</style>""", unsafe_allow_html=True)
+                # Butonu HTML katmanının üstüne çıkarmak için z-index ayarı
+                st.markdown("""<style>div[data-testid="stButton"] > button {z-index:1000 !important; border:3px solid white !important;}</style>""", unsafe_allow_html=True)
                 if st.button("OKUDUM VE KAPAT ❎", key="popup_kapat"):
                     del veriler[kullanici]
-                    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f: json.dump(veriler, f, ensure_ascii=False)
+                    with open(OZEL_MESAJ_DOSYASI, "w", encoding="utf-8") as f:
+                        json.dump(veriler, f, ensure_ascii=False)
                     st.rerun()
             st.stop()
-    except: pass
+    except:
+        pass
 
 # --- 4. CSS STİLLERİ ---
 sidebar_color = "#1b3a1a"
@@ -226,12 +261,16 @@ st.markdown(f"""
     /* Liderlik */
     .mini-leaderboard {{ background-color: rgba(27, 94, 32, 0.95); border-radius: 10px; padding: 10px; margin-bottom: 20px; border: 1px solid #aed581; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; }}
     .leader-item {{ margin: 5px; font-weight: bold; color: #fffbe6; }}
+    
+    /* Toast */
+    div[data-testid="stToast"] {{ background-color: #1b5e20 !important; color: white !important; border: 2px solid #ffeb3b !important; font-weight: bold !important; }}
 
     .stButton button {{ background-color: #d84315 !important; color: white !important; border-radius: 15px !important; font-weight: 900 !important; border: 2px solid #fff !important; width: 100%; }}
     
     .creator-name {{ background-color: {card_bg_color}; color: #ffeb3b !important; text-align: center; padding: 10px; font-weight: 900; font-size: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #3e7a39; text-transform: uppercase; }}
     .random-info-box {{ background-color: #1a237e !important; border: 4px solid #ffeb3b; color: white !important; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; animation: fadeIn 0.5s; }}
-    
+    .streamlit-expanderHeader {{ color: #ffeb3b !important; font-weight: bold; }}
+
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
@@ -303,6 +342,7 @@ def get_game_db(kategori):
             "Mehmet Rauf": {"Roman": ["Eylül", "Genç Kız Kalbi", "Karanfil ve Yasemin", "Halas"], "Hikaye": ["Son Emel", "Aşıkane"]},
             "Hüseyin Rahmi Gürpınar": {"Roman": ["Şıpsevdi", "Mürebbiye", "Kuyruklu Yıldız Altında Bir İzdivaç", "Gulyabani", "Cadı", "İffet", "Metres"]}
         }
+    
     elif kategori == "SERVET-İ FÜNUN":
         return {
             "Tevfik Fikret": {"Şiir": ["Rübab-ı Şikeste", "Haluk'un Defteri", "Rübabın Cevabı", "Şermin", "Tarih-i Kadim", "Doksan Beşe Doğru"], "Manzum Hikaye": ["Balıkçılar", "Nesrin", "Ramaksan", "Hasta Çocuk"]},
@@ -373,9 +413,6 @@ def get_game_db(kategori):
 def get_ozet_db():
     return [
         {"yazar": "Namık Kemal", "roman": "İntibah", "ozet": "Ali Bey, mirasyedi bir gençtir. Mahpeyker adlı hafif meşrep bir kadına aşık olur. Dilaşub adlı cariye ile Mahpeyker arasında kalır. **Özellik:** Türk edebiyatının ilk edebi romanıdır."},
-        # ... (Diğer özetler aynı, yer kaplamasın diye kısalttım, önceki veritabanını buraya yapıştırırsın)
-        # Önceki kodda verdiğim "get_ozet_db" içeriğinin aynısı buraya gelecek
-        # Eğer eksik kalırsa, önceki kod bloklarından "get_ozet_db" içeriğini buraya al.
         {"yazar": "Namık Kemal", "roman": "Cezmi", "ozet": "II. Selim döneminde İran'la yapılan savaşları ve Cezmi'nin kahramanlıklarını anlatır. **Özellik:** Türk edebiyatının ilk tarihi romanıdır."},
         {"yazar": "Recaizade Mahmut Ekrem", "roman": "Araba Sevdası", "ozet": "Bihruz Bey, alafrangalık özentisi, mirasyedi bir gençtir. Periveş adlı kadını soylu sanır. **Özellik:** Yanlış batılılaşmayı işleyen ilk realist romandır."},
         {"yazar": "Samipaşazade Sezai", "roman": "Sergüzeşt", "ozet": "Kafkasya'dan kaçırılıp İstanbul'a getirilen esir kız Dilber'in acıklı hikayesi. Dilber, Celal Bey'e aşık olur ama Nil Nehri'ne atlayarak intihar eder. **Özellik:** Esaret konusunu işleyen, romantizmden realizme geçiş eseridir."},
@@ -719,20 +756,13 @@ with st.sidebar:
                     new = st.number_input("Puan:", value=cur, step=10)
                     if st.button("Güncelle"): admin_puan_degistir(u_edit, new)
             with t5:
-                # Ban Yönetimi Sekmesi
                 st.markdown("### 🚫 Ban Yönetimi")
-                
-                # Hem skor listesinden hem mesajlardan tüm kullanıcıları topla
                 all_users = set(skorlar.keys())
-                for m in topluluk_mesajlari_yukle():
-                    all_users.add(m['gonderen'])
-                
+                for m in topluluk_mesajlari_yukle(): all_users.add(m['gonderen'])
                 ban_user = st.selectbox("Kullanıcı Seç:", ["Seçiniz..."] + sorted(list(all_users)))
-                
                 if ban_user != "Seçiniz...":
                     is_banned = ban_kontrol(ban_user)
                     st.write(f"Durum: **{'🔴 BANLI' if is_banned else '🟢 TEMİZ'}**")
-                    
                     if is_banned:
                         if st.button("Banı Kaldır"):
                             bani_kaldir(ban_user)
@@ -792,7 +822,6 @@ if st.session_state.page == "TOPLULUK":
         </div>
         <div style="clear: both;"></div>
         """, unsafe_allow_html=True)
-        # Ban butonu BURADAN KALDIRILDI.
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("---")
