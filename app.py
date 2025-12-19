@@ -4,6 +4,8 @@ import time
 import os
 import base64
 import json
+import extra_streamlit_components as stx
+from datetime import datetime, timedelta
 from datetime import datetime
 from collections import Counter
 
@@ -12,6 +14,15 @@ st.set_page_config(
     page_title="Edebiyat Ligi",
     page_icon="📚",
     layout="centered"
+# --- ÇEREZ YÖNETİCİSİ (BENİ HATIRLA) ---
+cookie_manager = stx.CookieManager()
+
+# Çerezi oku: Daha önce giriş yapmış mı?
+cookie_user = cookie_manager.get(cookie="edebiyat_ligi_oyuncusu")
+
+# Eğer çerezde isim varsa ve şu anki oturum boşsa, ismi otomatik doldur
+if cookie_user and not st.session_state.get('kullanici_adi'):
+    st.session_state.kullanici_adi = cookie_user
 )
 
 # DOSYA TANIMLARI
@@ -809,6 +820,10 @@ if st.session_state.page == "MENU":
         st.session_state.soru_sayisi = 0
         st.session_state.soru_bitti = False
         st.session_state.mevcut_soru = yeni_soru_uret()
+# İsmi tarayıcıya kaydet (30 Gün boyunca hatırlar)
+        if st.session_state.kullanici_adi and st.session_state.kullanici_adi != "Misafir":
+            expires = datetime.now() + timedelta(days=30)
+            cookie_manager.set("edebiyat_ligi_oyuncusu", st.session_state.kullanici_adi, expires_at=expires)
         st.rerun()
 
     # ÜST SIRA
@@ -966,7 +981,26 @@ elif st.session_state.page == "GAME":
     st.markdown(f"""<div class="question-card"><div style="color:{text_color_cream}; font-weight:bold; font-size:16px;">{title_text}</div><div style="font-size:22px; font-weight:900; color:#ffeb3b; margin: 15px 0; padding:10px; background:#3e7a39; border-radius:10px;">{content_text}</div><div style="font-size:18px; font-weight:bold; color:{text_color_cream};">{sub_text}</div></div>""", unsafe_allow_html=True)
 
     if st.session_state.kategori == "SANATLAR" and soru.get("yazar"):
-        st.caption(f"✍️ Şair: {soru['yazar']}")
+        st.markdown(f"""
+        <div style="text-align: center;">
+            <div style="
+                background-color: #2e5a27;
+                color: #fffbe6;
+                padding: 8px 15px;
+                border-radius: 10px;
+                font-weight: 900;
+                font-size: 18px;
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                border: 2px solid #ffeb3b;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+                display: inline-block;
+            ">
+                ✍️ Şair: {soru['yazar']}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     col1, col2 = st.columns([3, 1])
     with col1:
@@ -1034,7 +1068,15 @@ with st.sidebar:
         def update_sidebar_name(): st.session_state.kullanici_adi = st.session_state.sb_isim_input
         st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
     else: st.info(f"Oynayan: {st.session_state.kullanici_adi}")
-        
+        if st.button("⬅️ ÇIKIŞ", key="btn_exit_sidebar"):
+            # Çerezi sil (Beni unut)
+            cookie_manager.delete("edebiyat_ligi_oyuncusu")
+            
+            # Normal çıkış işlemleri
+            st.session_state.page = "MENU"
+            st.session_state.kullanici_adi = ""
+            st.session_state.xp = 0
+            st.rerun()
     st.markdown("---")
     st.header("🏆 LİDERLİK (TOP 7)")
     skorlar = skorlari_yukle()
