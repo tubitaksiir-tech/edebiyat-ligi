@@ -185,7 +185,7 @@ card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
 input_bg_color = "#3e7a39"
-bg_image_url = "https://e0.pxfuel.com/wallpapers/985/844/desktop-wallpaper-booknerd-book-and-background-literature.jpg"
+bg_image_url = "https://hizliresim.com/s8sygrd"
 
 st.markdown(f"""
     <style>
