@@ -185,7 +185,7 @@ card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
 input_bg_color = "#3e7a39"
-bg_image_url = "https://hizliresim.com/s8sygrd"
+bg_image_url = "https://i.hizliresim.com/s8sygrd.jpg"
 
 st.markdown(f"""
     <style>
