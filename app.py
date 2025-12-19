@@ -15,7 +15,6 @@ st.set_page_config(
 )
 
 # --- URL (BENİ HATIRLA) SİSTEMİ ---
-# Kullanıcı adını URL'den çekmeye çalış
 try:
     query_params = st.query_params
     url_user = query_params.get("oyuncu", None)
@@ -41,7 +40,7 @@ defaults = {
     'sanat_aciklama': "",
     'calisma_yazar': None,
     'soru_bitti': False,
-    'kullanici_adi': url_user if url_user else "", # URL'de varsa onu al
+    'kullanici_adi': url_user if url_user else "",
     'rastgele_bilgi': None,
     'son_duyuru_zamani': 0.0
 }
@@ -50,7 +49,6 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# Eğer URL'den gelen isim varsa ve session boşsa eşitle
 if url_user and not st.session_state.kullanici_adi:
     st.session_state.kullanici_adi = url_user
 
@@ -119,17 +117,13 @@ def rapor_kaydet(kullanici, soru_metni, verilen_cevap, dogru_mu, dogru_cevap, ka
             user_data["dogru_sayisi"] += 1
         else:
             user_data["yanlis_sayisi"] += 1
-            # Kategori Analizi
-            if kategori in user_data.get("yanlis_analiz_kategori", {}): 
-                user_data["yanlis_analiz_kategori"][kategori] += 1
+            if kategori in user_data.get("yanlis_analiz_kategori", {}): user_data["yanlis_analiz_kategori"][kategori] += 1
             else: 
                 if "yanlis_analiz_kategori" not in user_data: user_data["yanlis_analiz_kategori"] = {}
                 user_data["yanlis_analiz_kategori"][kategori] = 1
             
-            # Konu Analizi
             if konu_basligi:
-                if konu_basligi in user_data.get("yanlis_analiz_konu", {}): 
-                    user_data["yanlis_analiz_konu"][konu_basligi] += 1
+                if konu_basligi in user_data.get("yanlis_analiz_konu", {}): user_data["yanlis_analiz_konu"][konu_basligi] += 1
                 else: 
                     if "yanlis_analiz_konu" not in user_data: user_data["yanlis_analiz_konu"] = {}
                     user_data["yanlis_analiz_konu"][konu_basligi] = 1
@@ -427,8 +421,8 @@ def get_sanatlar_db():
         {"sanat": "Rücu (Geri Dönüş)", "beyit": "Erbab-ı teşair çoğalıp şair azaldı / Yok öyle değil, şairin ancak adı kaldı", "aciklama": "Şair önce bir söz söyleyip sonra 'yok öyle değil' diyerek fikrini değiştirmiş gibi yapıyor.", "yazar": "Muallim Naci"},
         {"sanat": "Tezil (Şaka/Alay)", "beyit": "Benim şiirim böyledir işte / Okuyanlar olur hep birer işte", "aciklama": "Ciddi bir konuyu alaya alarak veya şaka yollu anlatma sanatı.", "yazar": "Anonim"},
         {"sanat": "Leff ü Neşr", "beyit": "Gönlümde ateş, gözümde yaşlar / Biri yakar, biri boğar", "aciklama": "Ateş-yakar, yaş-boğar simetrisi.", "yazar": "Anonim"},
-        {"sanat": "Terdid", "beyit": "Dişin mi ağrıyor, çek kurtul / Başın mı ağrıyor, bir çeyreğe iki aspirin / Verem misin, üzülme, onun da çaresi var / Ölür gidersin", "aciklama": "Sözü hiç beklenmedik bir sonla bitirme sanatı.", "yazar": "Orhan Veli Kanık"},
-        {"sanat": "İktibas", "beyit": "Zalimin zulmü varsa, mazlumun Allah'ı var / 'İnnallahe meassabirin' dedi", "aciklama": "Şair, ayet veya hadis alıntılayarak sözünü güçlendiriyor.", "yazar": "Anonim"},
+        {"sanat": "Terdid", "beyit": "Dişin mi ağrıyor, çek kurtul / Başın mı ağrıyor, bir çeyreğe iki aspirin / Verem misin, üzülme, onun da çaresi var / Ölür gidersin", "aciklama": "Beklenmedik sonla bitirme.", "yazar": "Orhan Veli Kanık"},
+        {"sanat": "İktibas", "beyit": "Zalimin zulmü varsa, mazlumun Allah'ı var / 'İnnallahe meassabirin' dedi", "aciklama": "Ayet alıntısı.", "yazar": "Anonim"},
         {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "Atasözü kullanma.", "yazar": "Seyrani"},
         {"sanat": "Cinas", "beyit": "Niçin kondun a bülbül kapımdaki asmaya / Ben yarimden vazgeçmem götürseler asmaya", "aciklama": "Asma (bitki) - Asma (idam).", "yazar": "Anonim (Mani)"},
         {"sanat": "Kinaye", "beyit": "Bulamadım dünyada gönüle mekan / Nerde bir gül bitse etrafı diken", "aciklama": "Hem gerçek (gülün dikeni) hem mecaz (güzelliğin yanında sıkıntı olması) anlamı kastedilmiş.", "yazar": "Sümmani"},
@@ -458,6 +452,42 @@ def get_sanatlar_db():
         {"sanat": "Telmih", "beyit": "Gökyüzünde İsa ile / Tur dağında Musa ile", "aciklama": "Peygamberlere gönderme.", "yazar": "Yunus Emre"},
         {"sanat": "Mübalağa", "beyit": "Aşkınla tutuştu gönül, yandı kül oldu / Gözyaşım sel oldu, aktı göl oldu", "aciklama": "Abartılı anlatım.", "yazar": "Aşık Veysel"},
         {"sanat": "Teşbih", "beyit": "Aslan gibi yiğitler, kükrerdi cephede / Düşmana korku salar, titretirdi her yerde", "aciklama": "Yiğitler aslana benzetilmiş.", "yazar": "Anonim"}
+    ]
+
+# YENİ OYUN MODU VERİTABANI: ŞAİR TAHMİN (KİM BU ŞAİR?)
+@st.cache_data
+def get_sair_tanimi_db():
+    return [
+        {"cevap": "Fuzuli", "ipucu": "16. yüzyıl Divan şairidir. Aşk ve ızdırap şairi olarak bilinir. 'Su Kasidesi' ve 'Leyla ile Mecnun' mesnevisi en ünlü eserleridir. Şikayetname adlı eseriyle ünlüdür."},
+        {"cevap": "Baki", "ipucu": "16. yüzyıl Divan şairidir. 'Sultanü'ş Şuara' (Şairler Sultanı) olarak bilinir. Kanuni Mersiyesi ile tanınır. Din dışı konuları, zevk ve eğlenceyi işlemiştir."},
+        {"cevap": "Nedim", "ipucu": "Lale Devri'nin en önemli şairidir. Şarkı nazım şeklinin en önemli temsilcisidir. İstanbul'u, eğlenceyi ve sadabadı anlatır. Mahallileşme akımının öncüsüdür."},
+        {"cevap": "Nefi", "ipucu": "17. yüzyıl Hiciv (yergi) ustasıdır. 'Siham-ı Kaza' (Kaza Okları) adlı eseriyle bilinir. Övgüde de yergide de sınır tanımaz."},
+        {"cevap": "Nabi", "ipucu": "Hikemi (öğretici) tarzın kurucusudur. 'Hayriye' adlı eseriyle oğluna öğütler verir. Düşünceye dayalı şiirler yazar."},
+        {"cevap": "Şeyh Galip", "ipucu": "Divan edebiyatının son büyük şairidir. Sebk-i Hindi akımının temsilcisidir. 'Hüsn ü Aşk' adlı alegorik mesnevisiyle tanınır."},
+        {"cevap": "Namık Kemal", "ipucu": "Vatan şairi olarak bilinir. Tanzimat 1. dönem sanatçısıdır. 'İntibah' (ilk edebi roman) ve 'Cezmi' (ilk tarihi roman) eserlerinin yazarıdır."},
+        {"cevap": "Recaizade Mahmut Ekrem", "ipucu": "Tanzimat 2. dönem sanatçısıdır. 'Üstad' olarak anılır. 'Araba Sevdası' (ilk realist roman) eserinin yazarıdır. 'Sanat sanat içindir' anlayışını savunur."},
+        {"cevap": "Abdülhak Hamit Tarhan", "ipucu": "Tanzimat 2. dönem şairidir. 'Şair-i Azam' olarak bilinir. 'Makber' şiiriyle eşinin ölümü üzerine duyduğu acıyı anlatır. Tezatlar şairidir."},
+        {"cevap": "Tevfik Fikret", "ipucu": "Servet-i Fünun şiirinin en önemli temsilcisidir. 'Sis', 'Ferda', 'Balıkçılar' önemli şiirleridir. Hece ölçüsüyle sadece çocuklar için 'Şermin'i yazmıştır."},
+        {"cevap": "Halit Ziya Uşaklıgil", "ipucu": "Türk romanının babası sayılır. Servet-i Fünun döneminin en büyük nesir ustasıdır. 'Mai ve Siyah', 'Aşk-ı Memnu' gibi başyapıtları vardır."},
+        {"cevap": "Mehmet Akif Ersoy", "ipucu": "İstiklal Marşı şairimizdir. Milli Edebiyat dönemi bağımsız sanatçısıdır. 'Safahat' adlı eserinde şiirlerini toplamıştır. Realist bir şairdir."},
+        {"cevap": "Yahya Kemal Beyatlı", "ipucu": "Milli Edebiyat dönemi bağımsızlarındandır. İstanbul şairi olarak bilinir. Aruz ölçüsünü Türkçeye başarıyla uygulamıştır. 'Kendi Gök Kubbemiz' önemli eseridir."},
+        {"cevap": "Ahmet Haşim", "ipucu": "Fecr-i Ati topluluğunun en önemli temsilcisidir. Sembolizm ve Empresyonizm akımlarından etkilenmiştir. 'Piyale' ve 'Göl Saatleri' önemli eserleridir."},
+        {"cevap": "Yakup Kadri Karaosmanoğlu", "ipucu": "Cumhuriyet dönemi yazarıdır. 'Yaban', 'Kiralık Konak', 'Sodom ve Gomore' gibi romanlarıyla Türk toplumunun geçirdiği değişimleri anlatır."},
+        {"cevap": "Halide Edip Adıvar", "ipucu": "Milli Mücadele'nin kadın kahramanıdır. 'Ateşten Gömlek', 'Vurun Kahpeye', 'Sinekli Bakkal' gibi romanlarıyla tanınır."},
+        {"cevap": "Reşat Nuri Güntekin", "ipucu": "Anadolu'yu romanlarında en iyi işleyen yazarlardan biridir. 'Çalıkuşu', 'Yaprak Dökümü', 'Yeşil Gece' gibi eserleriyle tanınır."},
+        {"cevap": "Orhan Veli Kanık", "ipucu": "Garip akımının kurucusudur. Şiirde kafiye, redif ve ölçüye karşı çıkmıştır. Sıradan insanı anlatır. 'İstanbul'u Dinliyorum' şiiri meşhurdur."},
+        {"cevap": "Cemal Süreya", "ipucu": "İkinci Yeni şiirinin en önemli isimlerindendir. 'Üvercinka', 'Sevda Sözleri' gibi eserleri vardır. İroni ve zeka dolu şiirler yazar."},
+        {"cevap": "Attila İlhan", "ipucu": "Mavi Hareketi'nin öncüsüdür. 'Ben Sana Mecburum', 'Sisler Bulvarı' gibi şiirleriyle tanınır. Hem şair hem romancıdır."},
+        {"cevap": "Necip Fazıl Kısakürek", "ipucu": "Mistisizm ve metafizik konuları işler. 'Kaldırımlar' şairi olarak bilinir. 'Çile' adlı şiir kitabı ve 'Bir Adam Yaratmak' tiyatrosu önemlidir."},
+        {"cevap": "Nazım Hikmet", "ipucu": "Serbest nazım ve toplumcu gerçekçi şiirin öncüsüdür. 'Memleketimden İnsan Manzaraları', 'Kuvayi Milliye Destanı' önemli eserleridir."},
+        {"cevap": "Ahmet Hamdi Tanpınar", "ipucu": "Zaman, rüya ve bilinçaltı kavramlarını işler. 'Huzur', 'Saatleri Ayarlama Enstitüsü' romanları ve 'Beş Şehir' denemesi başyapıtlarıdır."},
+        {"cevap": "Oğuz Atay", "ipucu": "Postmodern Türk romanının öncüsüdür. 'Tutunamayanlar' romanıyla aydın bunalımını ve ironiyi işlemiştir."},
+        {"cevap": "Yaşar Kemal", "ipucu": "Çukurova'yı ve efsaneleri anlatır. 'İnce Memed' serisiyle dünya çapında tanınır. Destansı bir anlatımı vardır."},
+        {"cevap": "Orhan Pamuk", "ipucu": "Nobel Edebiyat Ödülü alan ilk Türk yazardır. 'Kara Kitap', 'Benim Adım Kırmızı', 'Masumiyet Müzesi' önemli eserleridir."},
+        {"cevap": "Sait Faik Abasıyanık", "ipucu": "Durum (Çehov) hikayesinin Türk edebiyatındaki en önemli temsilcisidir. İstanbul'u, adaları ve balıkçıları anlatır. 'Semaver', 'Alemdağ'da Var Bir Yılan' eserleridir."},
+        {"cevap": "Sabahattin Ali", "ipucu": "Toplumcu gerçekçi yazarımızdır. 'Kürk Mantolu Madonna', 'Kuyucaklı Yusuf', 'İçimizdeki Şeytan' romanlarıyla tanınır."},
+        {"cevap": "Cahit Sıtkı Tarancı", "ipucu": "'Otuz Beş Yaş' şairi olarak bilinir. Ölüm korkusu ve yaşama sevinci şiirlerinin ana temasıdır."},
+        {"cevap": "Arif Nihat Asya", "ipucu": "Bayrak şairi olarak bilinir. Milli ve manevi duyguları işleyen şiirler yazmıştır. Rubai türünde de eserleri vardır."}
     ]
 
 @st.cache_data
@@ -524,7 +554,6 @@ def get_kavramlar_db():
         {"kavram": "Dua", "aciklama": "Kasidenin sonunda övülen kişi için iyi dileklerde bulunulan bölüm."},
         {"kavram": "Mahlas", "aciklama": "Şairin şiirlerinde kullandığı takma ad."},
         {"kavram": "Cönk", "aciklama": "Halk şiirlerinin toplandığı sığır dili şeklindeki defter."},
-        {"kavram": "Divan", "aciklama": "Şairin şiirlerini belli bir düzene göre topladığı kitap."},
         {"kavram": "Mısra-ı Berceste", "aciklama": "Bir şiirin dillerde dolaşan, atasözü gibi olmuş en meşhur dizesi."},
         {"kavram": "Sebk-i Hindi", "aciklama": "Hint üslubu. Anlam derinliği, kapalı anlatım ve hayal zenginliği olan akım."},
         {"kavram": "Türki-i Basit", "aciklama": "Basit Türkçe akımı. Yabancı kelimelerden arınmış, sade Türkçe ile şiir yazma anlayışı."},
@@ -614,42 +643,6 @@ def get_kavramlar_db():
         {"kavram": "Vücudname", "aciklama": "İnsanın yaratılış evrelerini anlatan tasavvufi eser."}
     ]
 
-@st.cache_data
-def get_reading_db():
-    return {
-        "Orhan Veli Kanık": {
-            "bio": "Garip akımının kurucusudur. 'Sokağı şiire taşıyan adam'dır.",
-            "eserler": {
-                "İstanbul'u Dinliyorum": "Şairin İstanbul'a olan aşkını sesler ve imgelerle anlattığı şiir.",
-                "Kitabe-i Seng-i Mezar": "Sıradan bir insan olan Süleyman Efendi'yi anlatan şiir."
-            }
-        },
-        "Ahmet Hamdi Tanpınar": {
-            "bio": "Rüya, Zaman ve Bilinçaltı kavramlarını işler. Şiirde sembolisttir.",
-            "eserler": {
-                "Huzur": "Mümtaz ve Nuran aşkı üzerinden Doğu-Batı çatışması. AYT favorisidir.",
-                "Beş Şehir": "Ankara, Erzurum, Konya, Bursa ve İstanbul üzerine denemeler."
-            }
-        },
-        "Ferit Edgü": {"bio": "Küçürek öykü ustası. Hakkari'de öğretmenlik yaparken yaşadıklarını yazar.", "eserler": {"Hakkari'de Bir Mevsim": "Yabancılaşma ve yalnızlık."}},
-        "Ziya Osman Saba": {"bio": "Yedi Meşaleciler'in şairi. Ev ve küçük mutlulukları işler.", "eserler": {"Sebil ve Güvercinler": "Huzur ve ahiret özlemi."}},
-        "Arif Damar": {"bio": "Toplumcu gerçekçi şair.", "eserler": {"Günden Güne": "Toplumsal umut."}},
-        "Enis Behiç Koryürek": {"bio": "Beş Hececilerdendir. Deniz şiirleriyle tanınır.", "eserler": {"Gemiciler": "Türk denizciliği."}},
-        "Ahmet Muhip Dıranas": {"bio": "Saf şiir ve sembolizm.", "eserler": {"Fahriye Abla": "Efsaneleşmiş lirik şiir."}},
-        "Cahit Sıtkı Tarancı": {"bio": "Ölüm, yaşama sevinci ve yalnızlık. 'Otuz Beş Yaş' şairidir.", "eserler": {"Otuz Beş Yaş": "Ölüm korkusu."}},
-        "Behçet Necatigil": {"bio": "Evler Şairi. Modern insanın yalnızlığı.", "eserler": {"Kapalı Çarşı": "Şehir ve insan."}},
-        "Fazıl Hüsnü Dağlarca": {"bio": "'Türkçem benim ses bayrağım' der. Destan şairidir.", "eserler": {"Üç Şehitler Destanı": "Kurtuluş Savaşı."}},
-        "Peyami Safa": {"bio": "Psikolojik romanın güçlü kalemi. Doğu-Batı çatışması.", "eserler": {"Fatih-Harbiye": "Kültür çatışması.", "Dokuzuncu Hariciye Koğuşu": "Psikolojik roman."}},
-        "Tarık Buğra": {"bio": "Tarihi ve psikolojik derinlikli romanlar.", "eserler": {"Küçük Ağa": "Kuvayi Milliye bilinci."}},
-        "Halide Edip Adıvar": {"bio": "Milli Mücadele'nin kadın kahramanı.", "eserler": {"Sinekli Bakkal": "Töre romanı.", "Ateşten Gömlek": "Kurtuluş Savaşı."}},
-        "Reşat Nuri Güntekin": {"bio": "Anadolu romancısı. Realizm.", "eserler": {"Çalıkuşu": "İdealist öğretmen.", "Yaprak Dökümü": "Sosyal değişim."}},
-        "Mehmet Rauf": {"bio": "Servet-i Fünun yazarı. Psikolojik roman.", "eserler": {"Eylül": "İlk psikolojik roman."}},
-        "Yakup Kadri Karaosmanoğlu": {"bio": "Nehir romanlarıyla toplum tarihini yazar.", "eserler": {"Yaban": "Aydın-Köylü çatışması.", "Kiralık Konak": "Kuşak çatışması."}},
-        "Sait Faik Abasıyanık": {"bio": "Durum hikayecisi. İstanbul aşığı.", "eserler": {"Semaver": "Sıradan insanlar.", "Alemdağ'da Var Bir Yılan": "Sürrealizm."}},
-        "Oğuz Atay": {"bio": "Postmodernizmin öncüsü.", "eserler": {"Tutunamayanlar": "Aydın bunalımı."}},
-        "Namık Kemal": {"bio": "Vatan şairi. Tanzimat 1. Dönem.", "eserler": {"İntibah": "İlk edebi roman.", "Vatan Yahut Silistre": "İlk tiyatro."}}
-    }
-
 # --- YENİ SORU ÜRETME ---
 def yeni_soru_uret():
     kategori = st.session_state.kategori
@@ -690,6 +683,18 @@ def yeni_soru_uret():
         siklar = yanlis_siklar + [dogru_cevap]
         random.shuffle(siklar)
         return {"tur": "DİVAN KAVRAMI", "eser": soru_data["aciklama"], "dogru_cevap": dogru_cevap, "siklar": siklar}
+        
+    elif kategori == "SAIR_TAHMIN": # YENİ MOD
+        db = get_sair_tanimi_db()
+        soru_data = random.choice(db)
+        dogru_cevap = soru_data["cevap"]
+        # Yanlış şıkları aynı veritabanından seç
+        tum_sairler = list(set([x["cevap"] for x in db]))
+        if dogru_cevap in tum_sairler: tum_sairler.remove(dogru_cevap)
+        yanlis_siklar = random.sample(tum_sairler, min(3, len(tum_sairler)))
+        siklar = yanlis_siklar + [dogru_cevap]
+        random.shuffle(siklar)
+        return {"tur": "ŞAİR TAHMİN", "eser": soru_data["ipucu"], "dogru_cevap": dogru_cevap, "siklar": siklar}
     
     else:
         db = get_game_db(kategori)
@@ -855,7 +860,7 @@ if st.session_state.page == "MENU":
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨", key="start_sanat"): start_game("SANATLAR")
         
-    # EN ALT SIRA (KAVRAM & HARİTA)
+    # EN ALT SIRA (KAVRAM & HARİTA & YENİ ŞAİR MODU)
     with c_bottom[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM</div></div>', unsafe_allow_html=True)
         if st.button("YARIŞ 🧠", key="start_kavram"): start_game("KAVRAMLAR")
@@ -864,6 +869,11 @@ if st.session_state.page == "MENU":
         if st.button("İNCELE 🗺️", key="goto_map"):
             st.session_state.page = "KAVRAM_HARITASI"
             st.rerun()
+    # YENİ MOD BUTONU
+    with c_bottom[2]:
+        st.markdown('<div class="menu-card" style="border-color:#29b6f6;"><div style="font-size:30px;">🕵️‍♂️</div><div class="menu-title" style="color:#29b6f6;">ŞAİR KİM?</div></div>', unsafe_allow_html=True)
+        if st.button("TAHMİN ET 🕵️‍♂️", key="start_sair_tahmin"):
+            start_game("SAIR_TAHMIN")
 
     st.markdown("---")
     st.markdown(f"""<div class="menu-card" style="background-color:{card_bg_color}; border-color:#ffeb3b;"><div style="font-size:40px;">🎅🏻 🌨️ 🎄</div><div class="menu-title" style="color:#ffeb3b;">KIŞ OKUMA KÖŞESİ</div><div style="font-size:12px; color:{text_color_cream};">Ansiklopedi & Bilgi</div></div>""", unsafe_allow_html=True)
@@ -927,7 +937,7 @@ elif st.session_state.page == "KAVRAM_HARITASI":
 elif st.session_state.page == "GAME":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     
-    # SENKRONİZASYON: Her sayfa yenilendiğinde skoru dosyadan güncelle
+    # SENKRONİZASYON
     kayitli_skorlar = skorlari_yukle()
     if st.session_state.kullanici_adi in kayitli_skorlar:
          st.session_state.xp = kayitli_skorlar[st.session_state.kullanici_adi]["puan"]
@@ -964,11 +974,12 @@ elif st.session_state.page == "GAME":
     st.markdown(f"<div class='mobile-score'><span style='color:{text_color_cream};'>⭐ Lv {level}</span><span style='color:#aed581;'>💎 {st.session_state.xp} XP</span></div>", unsafe_allow_html=True)
     st.progress((st.session_state.soru_sayisi % 5) * 20)
     
+    # SORU BAŞLIĞI VE İÇERİK AYARLARI
     if st.session_state.kategori == "SANATLAR":
         title_text = "BU HANGİ EDEBİ SANAT?"
         content_text = f'"{soru["eser"]}"'
         sub_text = "Dizelerdeki sanatı bul!"
-        konu_basligi = soru['dogru_cevap'] # Rapor için
+        konu_basligi = soru['dogru_cevap']
     elif st.session_state.kategori == "ROMAN_OZET":
         title_text = "BU ROMANIN YAZARI KİM?"
         content_text = soru["eser"]
@@ -978,6 +989,11 @@ elif st.session_state.page == "GAME":
         title_text = "BU KAVRAM NEDİR?"
         content_text = soru["eser"]
         sub_text = "Tanımı verilen terimi bul!"
+        konu_basligi = soru['dogru_cevap']
+    elif st.session_state.kategori == "SAIR_TAHMIN": # YENİ
+        title_text = "KİM BU ŞAİR?"
+        content_text = soru["eser"]
+        sub_text = "Özellikleri verilen şairi bul!"
         konu_basligi = soru['dogru_cevap']
     else:
         title_text = f"TÜR: {soru['tur']}"
@@ -1003,7 +1019,6 @@ elif st.session_state.page == "GAME":
                 border: 2px solid #ffeb3b;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.5);
                 display: inline-block;
-                opacity: 1;
             ">
                 ✍️ Şair: {soru['yazar']}
             </div>
@@ -1030,20 +1045,30 @@ elif st.session_state.page == "GAME":
                     cevap, 
                     is_correct, 
                     soru['dogru_cevap'],
-                    st.session_state.kategori, # Kategori (Dönem)
-                    konu_basligi # Konu (Yazar/Sanat)
+                    st.session_state.kategori,
+                    konu_basligi
                 )
 
                 if is_correct:
+                    # Puan kazanma (Söz sanatları dahil her yerde)
                     yeni_puan = skoru_guncelle_ve_kaydet(st.session_state.kullanici_adi, 100)
                     st.session_state.xp = yeni_puan
                     st.markdown(get_audio_html("dogru"), unsafe_allow_html=True)
                     st.success("MÜKEMMEL! +100 XP 🎯")
                     st.balloons()
+                    
                     if st.session_state.kategori == "ROMAN_OZET" and "eser_adi" in soru: st.info(f"✅ Romanın Adı: **{soru['eser_adi']}**")
+                    
                     if st.session_state.kategori == "SANATLAR":
                         if "aciklama" in soru: st.markdown(f"""<div class="sanat-aciklama"><b>💡 HOCA NOTU:</b><br>{soru['aciklama']}</div>""", unsafe_allow_html=True)
                         st.session_state.soru_bitti = True
+                        st.rerun()
+                    elif st.session_state.kategori == "SAIR_TAHMIN": # Şair Tahmin'de direkt geçebilir
+                        time.sleep(1.5)
+                        st.session_state.soru_sayisi += 1
+                        st.session_state.soru_bitti = False
+                        st.session_state.cevap_verildi = False
+                        st.session_state.mevcut_soru = yeni_soru_uret()
                         st.rerun()
                     else:
                         time.sleep(1.5)
@@ -1068,101 +1093,3 @@ elif st.session_state.page == "GAME":
                 st.session_state.cevap_verildi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
-
-# --- YÖNETİM SAYFASI (SOL) ---
-with st.sidebar:
-    st.header("👤 PROFİL")
-    if st.session_state.page == "MENU":
-        def update_sidebar_name(): st.session_state.kullanici_adi = st.session_state.sb_isim_input
-        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
-    else: 
-        st.info(f"Oynayan: {st.session_state.kullanici_adi}")
-        # URL'den çıkış yapma butonu
-        if st.button("⬅️ ÇIKIŞ (Unut)", key="logout_btn"):
-             st.query_params.clear() # URL'yi temizle
-             st.session_state.kullanici_adi = ""
-             st.session_state.xp = 0
-             st.session_state.page = "MENU"
-             st.rerun()
-        
-    st.markdown("---")
-    st.header("🏆 LİDERLİK (TOP 7)")
-    skorlar = skorlari_yukle()
-    sirali = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
-    for i, (isim, veri) in enumerate(sirali[:7]):
-        aktif = (time.time() - veri['zaman']) < 300
-        ikon = "🟢" if aktif else ""
-        madalya = "🥇" if i==0 else "🥈" if i==1 else "🥉" if i==2 else f"{i+1}."
-        st.markdown(f"**{madalya} {isim}** {ikon}: {veri['puan']} XP", unsafe_allow_html=True)
-
-    st.markdown("---")
-    
-    # --- ADMIN GİRİŞİ ---
-    with st.expander("🔐 Admin"):
-        pwd = st.text_input("Şifre", type="password")
-        if pwd == "alperenadmin123":
-            t1, t2, t3, t4, t5 = st.tabs(["Gelen", "Duyuru", "Özel", "Skor", "Rapor"])
-            with t1:
-                msj = mesajlari_yukle()
-                for m in reversed(msj): st.write(f"**{m['gonderen']}**: {m['mesaj']}")
-                if st.button("Sil"): mesajlari_temizle()
-            with t2:
-                d = st.text_input("Duyuru:")
-                if st.button("Yayınla"): admin_duyuru_yaz(d)
-            with t3:
-                u = st.selectbox("Kime:", list(skorlar.keys()))
-                m = st.text_input("Mesaj:")
-                if st.button("Gönder"): kisiye_ozel_mesaj_gonder(u, m)
-            with t4:
-                u_edit = st.selectbox("Kullanıcı:", list(skorlar.keys()), key="score_user")
-                if u_edit:
-                    cur = skorlar[u_edit]['puan']
-                    new = st.number_input("Puan:", value=cur, step=10)
-                    if st.button("Güncelle"): admin_puan_degistir(u_edit, new)
-            with t5:
-                # DETAYLI RAPOR SEKMEKİ (ANALİZ EKLENDİ)
-                st.markdown("### 📊 Oyuncu Raporları")
-                raporlar = raporlari_yukle()
-                user_report = st.selectbox("İncele:", ["Seçiniz..."] + list(raporlar.keys()))
-                
-                if user_report != "Seçiniz...":
-                    data = raporlar[user_report]
-                    st.write(f"**Son Görülme:** {data['son_gorulme']}")
-                    st.write(f"**Toplam Soru:** {data['toplam_cozulen']}")
-                    st.write(f"**Doğru:** {data['dogru_sayisi']} | **Yanlış:** {data['yanlis_sayisi']}")
-                    
-                    st.divider()
-                    
-                    # EN ÇOK YANLIŞ YAPILANLAR (ANALİZ)
-                    col_analiz1, col_analiz2 = st.columns(2)
-                    
-                    with col_analiz1:
-                        st.markdown("**⚠️ En Çok Yanlış Yapılan DÖNEMLER**")
-                        if "yanlis_analiz_kategori" in data and data["yanlis_analiz_kategori"]:
-                            sorted_kategori = sorted(data["yanlis_analiz_kategori"].items(), key=lambda item: item[1], reverse=True)[:3]
-                            for k, v in sorted_kategori:
-                                st.error(f"{k}: {v} Yanlış")
-                        else:
-                            st.info("Veri yok.")
-
-                    with col_analiz2:
-                        st.markdown("**⚠️ En Çok Yanlış Yapılan KONULAR**")
-                        if "yanlis_analiz_konu" in data and data["yanlis_analiz_konu"]:
-                            sorted_konu = sorted(data["yanlis_analiz_konu"].items(), key=lambda item: item[1], reverse=True)[:3]
-                            for k, v in sorted_konu:
-                                st.error(f"{k}: {v} Yanlış")
-                        else:
-                            st.info("Veri yok.")
-                            
-                    st.divider()
-                    st.markdown("#### ❌ Son 30 Hata")
-                    for err in reversed(data['hatalar']):
-                        with st.expander(f"{err['zaman']} - {err['konu']} ({err['kategori']})"):
-                            st.write(f"**Soru:** {err['soru']}")
-                            st.write(f"**Verilen Cevap:** ❌ {err['yanlis_cevap']}")
-                            st.write(f"**Doğru Cevap:** ✅ {err['dogru_cevap']}")
-
-    if st.session_state.page != "MENU":
-        if st.button("⬅️ ANA MENÜ", key="exit_btn"):
-            st.session_state.page = "MENU"
-            st.rerun()
