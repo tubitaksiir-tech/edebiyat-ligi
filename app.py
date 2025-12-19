@@ -18,6 +18,7 @@ SKOR_DOSYASI = "skorlar.json"
 ADMIN_DUYURU_DOSYASI = "admin_duyuru.json"
 GELEN_KUTUSU_DOSYASI = "gelen_mesajlar.json"
 OZEL_MESAJ_DOSYASI = "ozel_mesajlar.json"
+RAPOR_DOSYASI = "oyuncu_raporlari.json"  # YENİ: Detaylı loglar burada
 
 # --- 2. GÜVENLİ BAŞLANGIÇ ---
 defaults = {
@@ -77,6 +78,52 @@ def admin_puan_degistir(kullanici, yeni_puan):
                 json.dump(veriler, f, ensure_ascii=False, indent=4)
             return True
     except: return False
+
+# YENİ: RAPORLAMA SİSTEMİ (YANLIŞLARI KAYDETME)
+def raporlari_yukle():
+    if not os.path.exists(RAPOR_DOSYASI): return {}
+    try:
+        with open(RAPOR_DOSYASI, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except: return {}
+
+def rapor_kaydet(kullanici, soru_metni, verilen_cevap, dogru_mu, dogru_cevap):
+    if not kullanici or kullanici == "Misafir": return
+    try:
+        raporlar = raporlari_yukle()
+        if kullanici not in raporlar:
+            raporlar[kullanici] = {
+                "toplam_cozulen": 0,
+                "dogru_sayisi": 0,
+                "yanlis_sayisi": 0,
+                "son_gorulme": "",
+                "hatalar": [] 
+            }
+        
+        # Genel istatistikleri güncelle
+        raporlar[kullanici]["toplam_cozulen"] += 1
+        raporlar[kullanici]["son_gorulme"] = datetime.now().strftime("%d-%m %H:%M:%S")
+        
+        if dogru_mu:
+            raporlar[kullanici]["dogru_sayisi"] += 1
+        else:
+            raporlar[kullanici]["yanlis_sayisi"] += 1
+            # Yanlış yapılan soruyu kaydet
+            hata_kaydi = {
+                "soru": soru_metni,
+                "yanlis_cevap": verilen_cevap,
+                "dogru_cevap": dogru_cevap,
+                "zaman": datetime.now().strftime("%H:%M")
+            }
+            # Hatalar listesine ekle (Son 20 hatayı tut yeter)
+            raporlar[kullanici]["hatalar"].append(hata_kaydi)
+            if len(raporlar[kullanici]["hatalar"]) > 20:
+                raporlar[kullanici]["hatalar"] = raporlar[kullanici]["hatalar"][-20:]
+        
+        with open(RAPOR_DOSYASI, "w", encoding="utf-8") as f:
+            json.dump(raporlar, f, ensure_ascii=False, indent=4)
+    except:
+        pass
 
 # B) DİĞER DOSYA İŞLEMLERİ
 def admin_duyuru_oku():
@@ -363,160 +410,6 @@ def get_sanatlar_db():
     ]
 
 @st.cache_data
-def get_kavramlar_db():
-    return [
-        {"kavram": "Tezil", "aciklama": "Ciddi bir şiire (genellikle bir nazireye) alaycı ve mizahi bir dille yazılan karşılık şiiri."},
-        {"kavram": "Nazire", "aciklama": "Bir şairin şiirine başka bir şair tarafından aynı ölçü, kafiye ve redifle yazılan benzer şiir."},
-        {"kavram": "Tegazzül", "aciklama": "Kasidenin içinde, aynı ölçü ve kafiyede araya sıkıştırılan gazel bölümü."},
-        {"kavram": "Fahriye", "aciklama": "Şairin kendi şairliğini, yeteneğini ve sanatını övdüğü bölüm."},
-        {"kavram": "Surname", "aciklama": "Şehzadelerin sünnet düğünlerini veya hanım sultanların evlilik törenlerini, şenlikleri anlatan eserler."},
-        {"kavram": "Kaside", "aciklama": "Genellikle din ve devlet büyüklerini övmek amacıyla yazılan, belli kuralları olan uzun şiir (33-99 beyit)."},
-        {"kavram": "Gazel", "aciklama": "Aşk, şarap, güzellik gibi lirik konuları işleyen, 5-15 beyitlik en yaygın nazım şekli."},
-        {"kavram": "Tahmis", "aciklama": "Bir gazelin her beytinin üzerine üçer dize eklenerek beşli hale getirilmesi."},
-        {"kavram": "Muhammes", "aciklama": "Beşer dizelik bentlerden oluşan nazım şekli."},
-        {"kavram": "Taşdir", "aciklama": "Bir gazelin beyitleri arasına üçer dize eklenerek beşlenmesi."},
-        {"kavram": "Kamer (Mah)", "aciklama": "Ay. (Sevgilinin yüzünün parlaklığı ve yuvarlaklığı için kullanılır)."},
-        {"kavram": "Bade (Mey)", "aciklama": "Şarap. (Tasavvufta ilahi aşkı veya marifeti temsil eder)."},
-        {"kavram": "Selvi (Serv-i hıraman)", "aciklama": "Sevgilinin uzun, düzgün ve salınan boyu."},
-        {"kavram": "Saki", "aciklama": "İçki sunan güzel. (Tasavvufta mürşit, yol gösterici)."},
-        {"kavram": "Meyhane", "aciklama": "İçki içilen yer. (Tasavvufta tekke, dergah veya aşığın kalbi)."},
-        {"kavram": "Rind", "aciklama": "Dünya malına değer vermeyen, şekilcilikten uzak, gönül adamı."},
-        {"kavram": "Zahid (Sofu)", "aciklama": "Dinin sadece dış görünüşüne önem veren, kaba, anlayışsız ve aşktan anlamayan kişi."},
-        {"kavram": "Rakip (Ağyar)", "aciklama": "Sevgiliye ulaşmaya çalışan diğer kişiler, engelleyenler, düşmanlar."},
-        {"kavram": "Hamse", "aciklama": "Bir şairin yazdığı beş mesnevinin oluşturduğu külliyat."},
-        {"kavram": "Tevhid", "aciklama": "Allah’ın varlığını ve birliğini anlatan şiirler."},
-        {"kavram": "Münacaat", "aciklama": "Allah’a yalvarış, yakarış ve dua konulu şiirler."},
-        {"kavram": "Naat", "aciklama": "Hz. Muhammed’i övmek için yazılan şiirler."},
-        {"kavram": "Hicviye", "aciklama": "Bir kişiyi, kurumu veya toplumu eleştirmek, yermek için yazılan şiirler."},
-        {"kavram": "Mersiye", "aciklama": "Ölen bir kişinin ardından duyulan üzüntüyü anlatan şiirler."},
-        {"kavram": "Mesnevi", "aciklama": "Her beyti kendi içinde kafiyeli (aa, bb, cc...), hikaye anlatmaya yarayan uzun nazım şekli."},
-        {"kavram": "Rubai", "aciklama": "Tek dörtlükten oluşan, aaba kafiye düzenindeki felsefi şiir."},
-        {"kavram": "Tuyuğ", "aciklama": "Türklerin bulduğu, maniye benzeyen tek dörtlükten oluşan nazım şekli."},
-        {"kavram": "Murabba", "aciklama": "Dörder dizelik bentlerden oluşan nazım şekli."},
-        {"kavram": "Şarkı", "aciklama": "Bestelenmek amacıyla yazılan, nakaratları olan, Murabba’nın bir türü."},
-        {"kavram": "Terkib-i Bent", "aciklama": "Bentlerle kurulan, her bendin sonunda kafiyesi değişen 'vasıta beyti' bulunan uzun şiir."},
-        {"kavram": "Terci-i Bent", "aciklama": "Vasıta beytinin her bendin sonunda aynen tekrar edildiği, genellikle felsefi ve dini konuları işleyen şiir."},
-        {"kavram": "Müstezat", "aciklama": "Gazelin her dizesine 'ziyade' denilen kısa bir dize eklenerek oluşturulan şiir."},
-        {"kavram": "Kıta", "aciklama": "Genellikle iki beyitten oluşan, matla beyti olmayan nazım parçası."},
-        {"kavram": "Lügaz", "aciklama": "Manzum bilmece. (Genellikle nesneler sorulur)."},
-        {"kavram": "Muamma", "aciklama": "Cevabı genelde bir insan ismi veya Allah'ın ismi olan zor manzum bilmece."},
-        {"kavram": "Şehrengiz", "aciklama": "Bir şehrin güzelliklerini ve o şehrin güzellerini anlatan eser."},
-        {"kavram": "Sakiname", "aciklama": "İçkiyi, içki meclislerini ve adabını anlatan eser."},
-        {"kavram": "Gazavatname", "aciklama": "Din uğruna yapılan savaşları ve kahramanlıkları anlatan eser."},
-        {"kavram": "Siyer", "aciklama": "Hz. Muhammed’in hayatını anlatan eser."},
-        {"kavram": "Hilye", "aciklama": "Hz. Muhammed’in veya dört halifenin fiziksel ve ruhsal özelliklerini anlatan eser."},
-        {"kavram": "Pendname", "aciklama": "Öğüt veren, ahlaki didaktik eserler."},
-        {"kavram": "Kıyafetname", "aciklama": "İnsanların dış görünüşlerinden karakter tahlili yapan eserler."},
-        {"kavram": "Siyasetname", "aciklama": "Devlet yönetimi hakkında bilgi veren eserler."},
-        {"kavram": "Bahariye", "aciklama": "Kasidelerin nesib bölümünde bahar mevsiminin tasvir edildiği kısım."},
-        {"kavram": "Şitaiye", "aciklama": "Kış mevsiminin tasvir edildiği şiirler."},
-        {"kavram": "Iydiye (Bayramiye)", "aciklama": "Bayram günlerini anlatan veya bayramda sunulan şiirler."},
-        {"kavram": "Rahşiye", "aciklama": "Atları övmek ve tasvir etmek için yazılan şiirler."},
-        {"kavram": "Matla", "aciklama": "Gazel veya kasidenin ilk beyti (aa)."},
-        {"kavram": "Makta", "aciklama": "Gazel veya kasidenin son beyti (Şairin mahlası bulunur)."},
-        {"kavram": "Beytü'l-Gazel", "aciklama": "Gazelin en güzel beyti."},
-        {"kavram": "Taç Beyit", "aciklama": "Kasidede şairin mahlasının geçtiği beyit."},
-        {"kavram": "Şah Beyit", "aciklama": "Şiirin en güzel, en dokunaklı beyti."},
-        {"kavram": "Yek-ahenk", "aciklama": "Baştan sona aynı konuyu işleyen gazel."},
-        {"kavram": "Yek-avaz", "aciklama": "Her beyti aynı söyleyiş güzelliğinde olan gazel."},
-        {"kavram": "Musammat Gazel", "aciklama": "Dize ortasında iç kafiyesi olan, bölündüğünde dörtlük olabilen gazel."},
-        {"kavram": "Nesib (Teşbib)", "aciklama": "Kasidenin girişindeki tasvir bölümü."},
-        {"kavram": "Girizgah", "aciklama": "Kasidede tasvir bölümünden övgü bölümüne geçişi sağlayan beyit."},
-        {"kavram": "Methiye", "aciklama": "Kasidenin asıl bölümü, sunulan kişinin övüldüğü kısım."},
-        {"kavram": "Dua", "aciklama": "Kasidenin sonunda övülen kişi için iyi dileklerde bulunulan bölüm."},
-        {"kavram": "Mahlas", "aciklama": "Şairin şiirlerinde kullandığı takma ad."},
-        {"kavram": "Cönk", "aciklama": "Halk şiirlerinin toplandığı sığır dili şeklindeki defter."},
-        {"kavram": "Divan", "aciklama": "Şairin şiirlerini belli bir düzene göre topladığı kitap."},
-        {"kavram": "Mısra-ı Berceste", "aciklama": "Bir şiirin dillerde dolaşan, atasözü gibi olmuş en meşhur dizesi."},
-        {"kavram": "Sebk-i Hindi", "aciklama": "Hint üslubu. Anlam derinliği, kapalı anlatım ve hayal zenginliği olan akım."},
-        {"kavram": "Türki-i Basit", "aciklama": "Basit Türkçe akımı. Yabancı kelimelerden arınmış, sade Türkçe ile şiir yazma anlayışı."},
-        {"kavram": "Encümen-i Şuara", "aciklama": "Tanzimat öncesi toplanan şairler topluluğu."},
-        {"kavram": "Gonca", "aciklama": "Sevgilinin açılmamış, küçük ağzı."},
-        {"kavram": "Lal", "aciklama": "Yakut taşı. (Sevgilinin kırmızı dudağı)."},
-        {"kavram": "İnci (Dürr/Gevher)", "aciklama": "Sevgilinin dişleri veya şairin sözleri."},
-        {"kavram": "Nergis", "aciklama": "Sevgilinin baygın, süzgün veya sarhoş bakan gözü."},
-        {"kavram": "Badem (Çeşm-i Badem)", "aciklama": "Sevgilinin göz şekli."},
-        {"kavram": "Keman (Yay)", "aciklama": "Sevgilinin kavisli kaşları."},
-        {"kavram": "Tir (Ok/Har)", "aciklama": "Sevgilinin kirpikleri (Aşığın kalbine saplanır)."},
-        {"kavram": "Gamze", "aciklama": "Sevgilinin yan bakışı, süzgün bakışı (Yaralayıcıdır)."},
-        {"kavram": "Yılan (Mar)", "aciklama": "Sevgilinin saçı (Kıvrımlı, uzun ve siyah olması)."},
-        {"kavram": "Akrep (Kajdum)", "aciklama": "Sevgilinin saçının ucu veya zülfü."},
-        {"kavram": "Zincir", "aciklama": "Sevgilinin saçı (Aşık delidir ve bu zincire bağlanır)."},
-        {"kavram": "Hat (Sebze)", "aciklama": "Genç sevgilinin yüzündeki ayva tüyleri."},
-        {"kavram": "Ben (Hâl / Felfel)", "aciklama": "Sevgilinin yüzündeki siyah nokta (Genelde tuzağa konan yeme benzetilir)."},
-        {"kavram": "Misk / Amber", "aciklama": "Güzel koku. (Sevgilinin saçının veya meclisin kokusu)."},
-        {"kavram": "Gül", "aciklama": "Sevgili (Güzelliği, kırmızılığı ve nazlı oluşuyla)."},
-        {"kavram": "Bülbül", "aciklama": "Aşık (Güle olan aşkı ve feryat edişiyle)."},
-        {"kavram": "Pervane (Kelebek)", "aciklama": "Aşık (Mumun ışığına dönüp sonunda kendini yakmasıyla)."},
-        {"kavram": "Şem (Mum)", "aciklama": "Sevgili (Parlaklığı, etrafını aydınlatması ama kendine yaklaşanı yakmasıyla)."},
-        {"kavram": "Hüma", "aciklama": "Başına konduğu kişiye iktidar ve mutluluk getiren efsanevi kuş."},
-        {"kavram": "Anka (Simurg)", "aciklama": "Kaf Dağı'nda yaşayan, küllerinden doğan efsanevi kuş."},
-        {"kavram": "Hüdhüd", "aciklama": "Haberci kuş (Süleyman Peygamber ve Belkıs kıssasında geçer)."},
-        {"kavram": "Saba", "aciklama": "Sevgilinin kokusunu aşığa getiren hafif sabah rüzgarı."},
-        {"kavram": "Mihr (Afitab / Şems)", "aciklama": "Güneş (Sevgilinin yüzü veya sultan)."},
-        {"kavram": "Çark (Felek)", "aciklama": "Gökyüzü, kader (Aşığa hep zulmeder, talihi ters döndürür)."},
-        {"kavram": "Kan (Hun)", "aciklama": "Aşığın gözyaşı veya şarap."},
-        {"kavram": "Eşk (Sirişk)", "aciklama": "Gözyaşı."},
-        {"kavram": "Ah", "aciklama": "Aşığın iç çekişi (Göklere yükselen duman veya ateş)."},
-        {"kavram": "Yakup", "aciklama": "Hüzün sembolü (Yusuf'a hasretinden kör olan baba)."},
-        {"kavram": "Yusuf", "aciklama": "Güzellik sembolü."},
-        {"kavram": "Züleyha", "aciklama": "Aşık kadın sembolü."},
-        {"kavram": "Mecnun", "aciklama": "Aşkı uğruna aklını yitirmiş aşık."},
-        {"kavram": "Leyla", "aciklama": "Uğruna çöllere düşülen sevgili (Gece, karanlık saçlı)."},
-        {"kavram": "Ferhat", "aciklama": "Aşkı için dağları delen aşık."},
-        {"kavram": "Hüsrev", "aciklama": "Kudretli hükümdar (Ferhat'ın rakibi)."},
-        {"kavram": "Teşbih", "aciklama": "Benzetme sanatı."},
-        {"kavram": "İstiare (Eğretileme)", "aciklama": "Bir sözü benzetme amacıyla başka bir söz yerine kullanma."},
-        {"kavram": "Mecaz-ı Mürsel", "aciklama": "Benzetme amacı gütmeden bir sözü başka söz yerine kullanma."},
-        {"kavram": "Teşhis", "aciklama": "Kişileştirme (İnsan dışı varlıklara insan özelliği verme)."},
-        {"kavram": "İntak", "aciklama": "Konuşturma (İnsan dışı varlıkları konuşturma)."},
-        {"kavram": "Tenasüp", "aciklama": "Anlamca birbiriyle ilgili kelimeleri bir arada kullanma sanatı."},
-        {"kavram": "Telmih", "aciklama": "Herkesçe bilinen bir olaya, kişiye veya kıssaya gönderme yapma."},
-        {"kavram": "Hüsn-i Talil", "aciklama": "Güzel nedene bağlama (Gerçek nedenin dışında hayali ve güzel bir neden uydurma)."},
-        {"kavram": "Tecahül-i Arif", "aciklama": "Bilip de bilmemezlikten gelme sanatı."},
-        {"kavram": "Kinaye", "aciklama": "Bir sözü hem gerçek hem mecaz anlama gelecek şekilde kullanma."},
-        {"kavram": "Tevriye", "aciklama": "İki anlamı olan bir sözcüğün yakın anlamını söyleyip uzak anlamını kastetme."},
-        {"kavram": "Tariz", "aciklama": "İğneleme, sitem (Söylenilenin tam tersini kastetme)."},
-        {"kavram": "Mübalağa", "aciklama": "Abartma sanatı."},
-        {"kavram": "Tezat", "aciklama": "Zıt anlamlı kelimeleri veya kavramları bir arada kullanma."},
-        {"kavram": "Cinas", "aciklama": "Yazılışları aynı, anlamları farklı kelimeleri bir arada kullanma."},
-        {"kavram": "Aliterasyon", "aciklama": "Ünsüz harf tekrarıyla ahenk sağlama."},
-        {"kavram": "Asonans", "aciklama": "Ünlü harf tekrarıyla ahenk sağlama."},
-        {"kavram": "Seci", "aciklama": "Düz yazıda (nesirde) yapılan kafiye."},
-        {"kavram": "İrsal-i Mesel", "aciklama": "Şiirde atasözü veya vecize kullanma."},
-        {"kavram": "Leff ü Neşr", "aciklama": "İlk dizede söylenenlerle ilgili kelimeleri ikinci dizede sıralama."},
-        {"kavram": "Nida", "aciklama": "Seslenme sanatı (Ey, Hey!)."},
-        {"kavram": "İstifham", "aciklama": "Soru sorma sanatı (Cevap beklemeden)."},
-        {"kavram": "Aruz", "aciklama": "Hecelerin uzunluk ve kısalığına dayanan nazım ölçüsü."},
-        {"kavram": "Vezin", "aciklama": "Ölçü."},
-        {"kavram": "Kafiye (Uyak)", "aciklama": "Dize sonlarındaki ses benzerliği."},
-        {"kavram": "Redif", "aciklama": "Kafiyeden sonra gelen, aynı görev ve anlamdaki ek veya kelime tekrarı."},
-        {"kavram": "Zihaf", "aciklama": "Aruzda uzun heceyi kısa okuma kusuru."},
-        {"kavram": "İmale", "aciklama": "Aruzda kısa heceyi uzun okuma (kusur sayılır ama bazen gereklidir)."},
-        {"kavram": "Vasl (Ulama)", "aciklama": "Ünsüzle biten kelimeyi ünlüyle başlayan kelimeye bağlama."},
-        {"kavram": "Med", "aciklama": "Bir buçuk ses değeri (Uzun heceyi daha da uzatma)."},
-        {"kavram": "Takti", "aciklama": "Aruz veznini bulmak için şiiri duraklarına göre ayırma."},
-        {"kavram": "Menkıbe", "aciklama": "Din büyüklerinin kerametlerini anlatan hikaye."},
-        {"kavram": "Velayetname", "aciklama": "Velilerin hayatını anlatan eser."},
-        {"kavram": "Fütüvvetname", "aciklama": "Ahilik teşkilatının kurallarını anlatan eser."},
-        {"kavram": "Habname", "aciklama": "Rüya şeklinde anlatılan olaylar veya eleştiriler."},
-        {"kavram": "Serazad", "aciklama": "Serbest, özgür (Kayıtsız sevgili veya nazım şekli)."},
-        {"kavram": "Müfred (Fert)", "aciklama": "Tek beyitten oluşan, bağımsız şiir."},
-        {"kavram": "Azade", "aciklama": "Tek mısralık bağımsız şiir."},
-        {"kavram": "Lugaz", "aciklama": "Özellikleri anlatılarak sorulan şey (Bilmece)."},
-        {"kavram": "Tardiye", "aciklama": "Muhammesin özel bir kalıbıyla yazılan şekli."},
-        {"kavram": "Müseddes", "aciklama": "Altılı bentlerden oluşan nazım şekli."},
-        {"kavram": "Müsebba", "aciklama": "Yedili bentlerden oluşan nazım şekli."},
-        {"kavram": "Müsemmen", "aciklama": "Sekizli bentlerden oluşan nazım şekli."},
-        {"kavram": "Muaşşer", "aciklama": "Onlu bentlerden oluşan nazım şekli."},
-        {"kavram": "Mevlid", "aciklama": "Hz. Muhammed’in doğumunu anlatan eser."},
-        {"kavram": "Miraciye", "aciklama": "Hz. Muhammed’in miraca yükselişini anlatan eser."},
-        {"kavram": "Hicretname", "aciklama": "Hicreti anlatan eser."},
-        {"kavram": "Kırk Hadis", "aciklama": "Kırk hadisin tercüme ve şerh edildiği manzum eserler."},
-        {"kavram": "Vücudname", "aciklama": "İnsanın yaratılış evrelerini anlatan tasavvufi eser."}
-    ]
-
-@st.cache_data
 def get_reading_db():
     return {
         "Orhan Veli Kanık": {
@@ -607,117 +500,7 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- YÖNETİM SAYFASI (SOL) ---
-with st.sidebar:
-    st.header("👤 PROFİL")
-    if st.session_state.page == "MENU":
-        def update_sidebar_name():
-            st.session_state.kullanici_adi = st.session_state.sb_isim_input
-            
-        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
-    else:
-        st.info(f"Oynayan: {st.session_state.kullanici_adi}")
-        
-    st.markdown("---")
-    # --- SOL MENÜ LİDERLİK TABLOSU (TOP 7) ---
-    st.header("🏆 LİDERLİK (TOP 7)")
-    
-    skorlar = skorlari_yukle()
-    # Puan'a göre sırala (x[1]['puan'])
-    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
-    
-    if not sirali_skorlar:
-        st.caption("Henüz veri yok.")
-    else:
-        for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
-            puan = veri['puan']
-            # Aktiflik kontrolü
-            aktif_mi = (time.time() - veri['zaman']) < 300 
-            durum_ikonu = "🟢" if aktif_mi else ""
-
-            madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP", unsafe_allow_html=True)
-
-    st.markdown("---")
-    
-    # --- GİZLİ ADMIN GİRİŞİ (ŞİFRE GÜNCELLENDİ) ---
-    with st.expander("🔐 Admin Girişi"):
-        admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
-        if admin_sifre == "alperenadmin123":
-            tab1, tab2, tab3, tab4 = st.tabs(["📥 Gelen", "📢 Duyuru", "💌 Özel Mesaj", "⚙️ Skorlar"])
-            
-            with tab1:
-                st.markdown("### Gelen Mesajlar")
-                mesajlar = mesajlari_yukle()
-                if not mesajlar:
-                    st.info("Henüz mesaj yok.")
-                else:
-                    for m in reversed(mesajlar):
-                        st.markdown(f"""
-                        <div style="background-color:#000; padding:10px; border-radius:5px; margin-bottom:5px; border:1px solid #ffeb3b;">
-                            <small style="color:#aaa;">{m['tarih']} - <b>{m['gonderen']}</b></small><br>
-                            {m['mesaj']}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    if st.button("Tüm Mesajları Sil"):
-                        mesajlari_temizle()
-                        st.rerun()
-
-            with tab2:
-                st.markdown("### Herkese Bildirim Gönder")
-                duyuru_metni = st.text_input("Duyuru Metni:")
-                if st.button("Yayınla"):
-                    admin_duyuru_yaz(duyuru_metni)
-                    st.success("Duyuru yayınlandı!")
-
-            with tab3:
-                st.markdown("### Kişiye Özel Mesaj (Popup)")
-                kullanici_listesi = list(skorlari_yukle().keys())
-                secilen_kisi = st.selectbox("Kime:", options=["Seçiniz..."] + kullanici_listesi)
-                ozel_mesaj_metni = st.text_input("Mesajın:")
-                
-                if st.button("Gönder") and secilen_kisi != "Seçiniz...":
-                    kisiye_ozel_mesaj_gonder(secilen_kisi, ozel_mesaj_metni)
-                    st.success(f"{secilen_kisi} adlı kullanıcıya mesaj gönderildi!")
-
-            with tab4:
-                st.markdown("### ⚙️ Skor Yönetimi")
-                st.warning("Dikkat: Buradan yapılan değişiklik anında işlenir.")
-                
-                kullanicilar = list(skorlari_yukle().keys())
-                kullanicilar.sort() # Alfabetik sıra
-                
-                user_to_edit = st.selectbox("Kullanıcı Seç", ["Seçiniz..."] + kullanicilar, key="score_edit_user")
-                
-                if user_to_edit != "Seçiniz...":
-                    current_data = skorlari_yukle()[user_to_edit]
-                    current_score = current_data['puan']
-                    
-                    st.write(f"Mevcut Puan: **{current_score}**")
-                    
-                    new_score_val = st.number_input("Yeni Puan Girin:", value=current_score, step=10, key="new_score_val")
-                    
-                    if st.button("Puanı Güncelle", type="primary"):
-                        if admin_puan_degistir(user_to_edit, new_score_val):
-                            st.success(f"✅ {user_to_edit} adlı kullanıcının puanı {new_score_val} olarak güncellendi!")
-                            time.sleep(1.5)
-                            st.rerun()
-                        else:
-                            st.error("Bir hata oluştu.")
-
-
-    st.markdown("---")
-
-    if st.session_state.page != "MENU":
-        st.metric("⭐ Level", f"{(st.session_state.soru_sayisi // 5) + 1}")
-        st.metric("💎 Puan", f"{st.session_state.xp}")
-        if st.button("⬅️ ÇIKIŞ", key="btn_exit_sidebar"):
-            st.session_state.page = "MENU"
-            st.session_state.xp = 0
-            st.rerun()
-
-# --- MENÜ SAYFASI (DEVAMI - BUTONLAR) ---
+# --- HEADER (BAŞLIK & LOGO & DUYURU) ---
 if st.session_state.page == "MENU":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     st.write("") 
@@ -748,7 +531,7 @@ if st.session_state.page == "MENU":
             EDEBİYAT LİGİ
         </div>
         """, unsafe_allow_html=True)
-
+    
     # --- YÖNETİCİYE HIZLI MESAJ ---
     with st.expander("📨 Yöneticiye Hızlı Mesaj (Tıkla)", expanded=False):
         with st.form("hizli_mesaj_formu"):
@@ -760,8 +543,6 @@ if st.session_state.page == "MENU":
                 gonderen = st.session_state.kullanici_adi if st.session_state.kullanici_adi else "Misafir"
                 mesaj_gonder(gonderen, hizli_mesaj)
                 st.success("Mesajınız iletildi! 🚀")
-
-    st.markdown("---")
 
     # --- KOMPAKT DUYURU ALANI ---
     img_tag = ""
@@ -863,7 +644,7 @@ if st.session_state.page == "MENU":
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🎨</div><div class="menu-title">SANAT</div></div>', unsafe_allow_html=True)
         if st.button("BAŞLA 🎨", key="start_sanat"): start_game("SANATLAR")
         
-    # EN ALT SIRA
+    # EN ALT SIRA (KAVRAM & HARİTA)
     c_bottom = st.columns(2)
     with c_bottom[0]:
         st.markdown('<div class="menu-card"><div style="font-size:30px;">🧠</div><div class="menu-title">KAVRAM YARIŞI</div></div>', unsafe_allow_html=True)
@@ -936,7 +717,6 @@ elif st.session_state.page == "KAVRAM_HARITASI":
 elif st.session_state.page == "GAME":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     
-    # SENKRONİZASYON: Her sayfa yenilendiğinde skoru dosyadan güncelle
     kayitli_skorlar = skorlari_yukle()
     if st.session_state.kullanici_adi in kayitli_skorlar:
          st.session_state.xp = kayitli_skorlar[st.session_state.kullanici_adi]["puan"]
@@ -1001,7 +781,20 @@ elif st.session_state.page == "GAME":
         if not st.session_state.soru_bitti:
             if st.button("YANITLA 🚀", key="btn_answer", type="primary", use_container_width=True):
                 st.session_state.cevap_verildi = True
-                if cevap == soru['dogru_cevap']:
+                
+                # --- YANIT KONTROLÜ VE LOGLAMA ---
+                is_correct = (cevap == soru['dogru_cevap'])
+                
+                # Detaylı Rapor Kaydı (YENİ)
+                rapor_kaydet(
+                    st.session_state.kullanici_adi, 
+                    content_text, 
+                    cevap, 
+                    is_correct, 
+                    soru['dogru_cevap']
+                )
+
+                if is_correct:
                     yeni_puan = skoru_guncelle_ve_kaydet(st.session_state.kullanici_adi, 100)
                     st.session_state.xp = yeni_puan
                     st.markdown(get_audio_html("dogru"), unsafe_allow_html=True)
@@ -1035,3 +828,69 @@ elif st.session_state.page == "GAME":
                 st.session_state.cevap_verildi = False
                 st.session_state.mevcut_soru = yeni_soru_uret()
                 st.rerun()
+
+# --- YÖNETİM SAYFASI (SOL) ---
+with st.sidebar:
+    st.header("👤 PROFİL")
+    if st.session_state.page == "MENU":
+        def update_sidebar_name(): st.session_state.kullanici_adi = st.session_state.sb_isim_input
+        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
+    else: st.info(f"Oynayan: {st.session_state.kullanici_adi}")
+        
+    st.markdown("---")
+    st.header("🏆 LİDERLİK (TOP 7)")
+    skorlar = skorlari_yukle()
+    sirali = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
+    for i, (isim, veri) in enumerate(sirali[:7]):
+        aktif = (time.time() - veri['zaman']) < 300
+        ikon = "🟢" if aktif else ""
+        madalya = "🥇" if i==0 else "🥈" if i==1 else "🥉" if i==2 else f"{i+1}."
+        st.markdown(f"**{madalya} {isim}** {ikon}: {veri['puan']} XP", unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # --- ADMIN GİRİŞİ ---
+    with st.expander("🔐 Admin"):
+        pwd = st.text_input("Şifre", type="password")
+        if pwd == "alperenadmin123":
+            t1, t2, t3, t4, t5 = st.tabs(["Gelen", "Duyuru", "Özel", "Skor", "Rapor"])
+            with t1:
+                msj = mesajlari_yukle()
+                for m in reversed(msj): st.write(f"**{m['gonderen']}**: {m['mesaj']}")
+                if st.button("Sil"): mesajlari_temizle()
+            with t2:
+                d = st.text_input("Duyuru:")
+                if st.button("Yayınla"): admin_duyuru_yaz(d)
+            with t3:
+                u = st.selectbox("Kime:", list(skorlar.keys()))
+                m = st.text_input("Mesaj:")
+                if st.button("Gönder"): kisiye_ozel_mesaj_gonder(u, m)
+            with t4:
+                u_edit = st.selectbox("Kullanıcı:", list(skorlar.keys()), key="score_user")
+                if u_edit:
+                    cur = skorlar[u_edit]['puan']
+                    new = st.number_input("Puan:", value=cur, step=10)
+                    if st.button("Güncelle"): admin_puan_degistir(u_edit, new)
+            with t5:
+                # DETAYLI RAPOR SEKMEKİ
+                st.markdown("### 📊 Oyuncu Raporları")
+                raporlar = raporlari_yukle()
+                user_report = st.selectbox("İncele:", ["Seçiniz..."] + list(raporlar.keys()))
+                
+                if user_report != "Seçiniz...":
+                    data = raporlar[user_report]
+                    st.write(f"**Son Görülme:** {data['son_gorulme']}")
+                    st.write(f"**Toplam Soru:** {data['toplam_cozulen']}")
+                    st.write(f"**Doğru:** {data['dogru_sayisi']} | **Yanlış:** {data['yanlis_sayisi']}")
+                    
+                    st.markdown("#### ❌ Yapılan Hatalar (Son 20)")
+                    for err in reversed(data['hatalar']):
+                        with st.expander(f"{err['zaman']} - Soru Detayı"):
+                            st.write(f"**Soru:** {err['soru']}")
+                            st.write(f"**Verilen Cevap:** ❌ {err['yanlis_cevap']}")
+                            st.write(f"**Doğru Cevap:** ✅ {err['dogru_cevap']}")
+
+    if st.session_state.page != "MENU":
+        if st.button("⬅️ ANA MENÜ", key="exit_btn"):
+            st.session_state.page = "MENU"
+            st.rerun()
