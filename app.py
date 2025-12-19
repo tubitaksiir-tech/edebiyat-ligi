@@ -49,12 +49,12 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
+# URL'den isim geldiyse ve session boşsa eşle
 if url_user and not st.session_state.kullanici_adi:
     st.session_state.kullanici_adi = url_user
 
 # --- 3. VERİ YÖNETİM SİSTEMLERİ ---
 
-# A) SKOR SİSTEMİ
 def skorlari_yukle():
     if not os.path.exists(SKOR_DOSYASI): return {}
     try:
@@ -90,7 +90,6 @@ def admin_puan_degistir(kullanici, yeni_puan):
             return True
     except: return False
 
-# B) RAPORLAMA SİSTEMİ
 def raporlari_yukle():
     if not os.path.exists(RAPOR_DOSYASI): return {}
     try:
@@ -121,7 +120,7 @@ def rapor_kaydet(kullanici, soru_metni, verilen_cevap, dogru_mu, dogru_cevap, ka
             else: 
                 if "yanlis_analiz_kategori" not in user_data: user_data["yanlis_analiz_kategori"] = {}
                 user_data["yanlis_analiz_kategori"][kategori] = 1
-            
+                
             if konu_basligi:
                 if konu_basligi in user_data.get("yanlis_analiz_konu", {}): user_data["yanlis_analiz_konu"][konu_basligi] += 1
                 else: 
@@ -136,7 +135,6 @@ def rapor_kaydet(kullanici, soru_metni, verilen_cevap, dogru_mu, dogru_cevap, ka
             json.dump(raporlar, f, ensure_ascii=False, indent=4)
     except: pass
 
-# C) DİĞER DOSYA İŞLEMLERİ
 def admin_duyuru_oku():
     if not os.path.exists(ADMIN_DUYURU_DOSYASI): return None
     try:
@@ -215,23 +213,6 @@ st.markdown(f"""
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     </style>
     """, unsafe_allow_html=True)
-
-# --- SCRIPT BAŞI KONTROLLER ---
-duyuru = admin_duyuru_oku()
-if duyuru and duyuru["zaman"] > st.session_state.son_duyuru_zamani:
-    st.toast(duyuru["mesaj"], icon="📢")
-    st.session_state.son_duyuru_zamani = duyuru["zaman"]
-
-if st.session_state.kullanici_adi:
-    kisiye_ozel_mesaj_kontrol(st.session_state.kullanici_adi)
-
-# --- SES ---
-def get_audio_html(sound_type):
-    if sound_type == "dogru":
-        audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_bb630cc098.mp3"
-    else:
-        audio_url = "https://cdn.pixabay.com/audio/2021/08/04/audio_88447e769f.mp3"
-    return f"""<audio autoplay="true" style="display:none;"><source src="{audio_url}" type="audio/mp3"></audio>"""
 
 # ======================================================
 # 5. EKSİKSİZ VERİTABANLARI
@@ -376,32 +357,24 @@ def get_ozet_db():
         {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Kiralık Konak", "ozet": "Naim Efendi (Gelenek), Servet Bey (Yozlaşma) ve Seniha (Köklerinden kopuş) üzerinden üç nesil arasındaki çatışmayı anlatır. **Özellik:** Kuşak çatışmasını en iyi işleyen romandır."},
         {"yazar": "Yakup Kadri Karaosmanoğlu", "roman": "Sodom ve Gomore", "ozet": "Mütareke dönemi İstanbul'unda işgalcilerle işbirliği yapan yozlaşmış çevreleri anlatır. Leyla ve Necdet baş karakterlerdir."},
         {"yazar": "Reşat Nuri Güntekin", "roman": "Çalıkuşu", "ozet": "Feride, Kamran'a küsüp Anadolu'da öğretmenlik yapar. **Özellik:** İdealist öğretmen tipini Anadolu'ya sevdiren romandır."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Yeşil Gece", "ozet": "Öğretmen Şahin Efendi'nin softalarla ve yobazlıkla mücadelesini anlatır. **Özellik:** İrtica ile mücadeleyi anlatan tezli bir romandır."},
-        {"yazar": "Reşat Nuri Güntekin", "roman": "Yaprak Dökümü", "ozet": "Ali Rıza Bey ve ailesinin yanlış batılılaşma ve ahlaki çöküş nedeniyle dağılmasını anlatır. Toplumsal değişimi işler."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Sinekli Bakkal", "ozet": "Rabia ve Peregrini aşkı üzerinden II. Abdülhamit dönemi İstanbul'unu ve Doğu-Batı sentezini anlatır. **Özellik:** Töre romanı özelliği taşır."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Vurun Kahpeye", "ozet": "Aliye Öğretmen'in Anadolu'da yobaz Hacı Fettah ve işbirlikçiler tarafından linç edilmesini anlatır. **Özellik:** Kurtuluş Savaşı'nı işleyen önemli romanlardandır."},
-        {"yazar": "Halide Edip Adıvar", "roman": "Ateşten Gömlek", "ozet": "Ayşe, Peyami ve İhsan'ın Anadolu'ya geçip Milli Mücadele'ye katılmasını anlatır. **Özellik:** Kurtuluş Savaşı üzerine yazılan ilk romandır."},
-        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı. **Özellik:** Otobiyografik özellikler taşıyan psikolojik romandır."},
-        {"yazar": "Peyami Safa", "roman": "Fatih-Harbiye", "ozet": "Neriman'ın Fatih (Doğu) ile Harbiye (Batı) arasında kalışını, Şinasi ve Macit üzerinden anlatır. Doğu-Batı çatışması işlenir."},
-        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Saatleri Ayarlama Enstitüsü", "ozet": "Hayri İrdal ve Halit Ayarcı üzerinden Türk toplumunun modernleşme ironisi anlatılır. **Özellik:** Doğu-Batı ikilemini ironik dille anlatan postmodern bir eserdir."},
-        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Huzur", "ozet": "Mümtaz ve Nuran aşkı, İstanbul sevgisi ve II. Dünya Savaşı huzursuzluğu işlenir. **Özellik:** Bilinç akışı tekniğinin kullanıldığı, şiirsel üsluplu romandır."},
-        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. Küçük burjuva aydınının dramını anlatır. **Özellik:** Türk edebiyatının ilk postmodern romanıdır."},
-        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i İstanbul sokaklarında arar. **Özellik:** Şeyh Galip'in Hüsn ü Aşk'ına göndermeler içeren postmodern bir romandır."},
-        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'nın zulmüne başkaldıran Memed'in dağa çıkıp eşkıya olmasını ve köylü haklarını savunmasını anlatır. **Özellik:** Eşkıyalık ve başkaldırı temasını işleyen destansı romandır."},
-        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı hüzünlü aşk ve sonrasında içine kapanışı anlatılır. Yalnızlık ve yabancılaşma temalıdır."},
-        {"yazar": "Sabahattin Ali", "roman": "Kuyucaklı Yusuf", "ozet": "Yusuf'un ailesinin öldürülmesi, Kaymakam tarafından evlat edinilmesi ve Muazzez'e olan aşkı anlatılır. **Özellik:** Kasaba gerçekçiliğini işleyen ilk önemli romandır."},
-        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı ve psikolojik çöküşü. Gecikmeli Ankara treniyle gelen kadını bekler. **Özellik:** Yabancılaşma konusunu işleyen modernist bir eserdir."},
-        {"yazar": "Adalet Ağaoğlu", "roman": "Ölmeye Yatmak", "ozet": "Aysel'in bir otel odasında intiharı düşünürken geçmişiyle hesaplaşması. Cumhuriyet dönemi aydınının sorgulamasını içerir."},
-        {"yazar": "Ferit Edgü", "roman": "Hakkari'de Bir Mevsim", "ozet": "Bir öğretmenin Hakkari'nin Pirkanis köyündeki yalnızlığı ve köylülerle iletişimi (O adlı roman). **Özellik:** Küçürek öykü tekniğine yakın, varoluşçu bir romandır."},
-        {"yazar": "Kemal Tahir", "roman": "Devlet Ana", "ozet": "Osmanlı'nın kuruluşunu, Ertuğrul Gazi ve Osman Bey üzerinden anlatan tarihi romandır. **Özellik:** Batılılaşmaya karşı yerli bir roman dili oluşturma çabasıdır."},
-        {"yazar": "Kemal Tahir", "roman": "Yorgun Savaşçı", "ozet": "Milli Mücadele dönemini Cehennem Yüzbaşı Cemil üzerinden anlatan tarihi roman. İttihatçıların mücadelesi işlenir."},
-        {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Kuvayi Milliye karşıtlığından, Akşehir'de bilinçlenerek Milli Mücadele destekçisine dönüşmesi. **Özellik:** Milli Mücadele'ye insan psikolojisi üzerinden bakan romandır."},
-        {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın (İflahsızın Yusuf, Köse Hasan, Pehlivan Ali) dramı. **Özellik:** İşçi sınıfının sorunlarını anlatan toplumcu gerçekçi bir eserdir."},
-        {"yazar": "Nabizade Nazım", "roman": "Zehra", "ozet": "Zehra'nın kocası Suphi'ye olan hastalıklı kıskançlığı ve ailenin çöküşü anlatılır. **Özellik:** İlk psikolojik roman denemesidir."},
-        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "Antalya'nın Kaş ilçesinde geçer. Karabibik'in tarlasını sürmek için öküz alma çabası anlatılır. **Özellik:** İlk köy romanıdır."},
-        {"yazar": "Şemsettin Sami", "roman": "Taaşşuk-ı Talat ve Fitnat", "ozet": "Talat ve Fitnat'ın aşkı, görücü usulü evliliğin sakıncaları anlatılır. **Özellik:** İlk yerli romandır."},
-        {"yazar": "Yusuf Atılgan", "roman": "Aylak Adam", "ozet": "C. adlı karakterin İstanbul sokaklarında 'B'yi (aradığı kadını) araması ve topluma yabancılaşması. **Özellik:** Modernist Türk romanının en önemli örneklerindendir."},
-        {"yazar": "Latife Tekin", "roman": "Sevgili Arsız Ölüm", "ozet": "Köyden kente göç eden bir ailenin batıl inançlarla dolu fantastik hikayesi. **Özellik:** Büyülü gerçekçilik akımının Türk edebiyatındaki önemli örneğidir."}
+        {"yazar": "Reşat Nuri Güntekin", "roman": "Yaprak Dökümü", "ozet": "Ali Rıza Bey ve ailesinin ahlaki çöküşü."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Sinekli Bakkal", "ozet": "Rabia ve Peregrini aşkı üzerinden Doğu-Batı sentezi."},
+        {"yazar": "Halide Edip Adıvar", "roman": "Ateşten Gömlek", "ozet": "Ayşe, Peyami ve İhsan'ın Milli Mücadele'ye katılması."},
+        {"yazar": "Peyami Safa", "roman": "Dokuzuncu Hariciye Koğuşu", "ozet": "Hasta bir çocuğun bacağındaki kemik veremi ve Nüzhet'e olan aşkı."},
+        {"yazar": "Peyami Safa", "roman": "Fatih-Harbiye", "ozet": "Neriman'ın Fatih (Doğu) ile Harbiye (Batı) arasında kalışı."},
+        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Saatleri Ayarlama Enstitüsü", "ozet": "Hayri İrdal ve Halit Ayarcı üzerinden modernleşme ironisi."},
+        {"yazar": "Ahmet Hamdi Tanpınar", "roman": "Huzur", "ozet": "Mümtaz ve Nuran aşkı, İstanbul sevgisi."},
+        {"yazar": "Oğuz Atay", "roman": "Tutunamayanlar", "ozet": "Turgut Özben, intihar eden arkadaşı Selim Işık'ın izini sürer. **Özellik:** İlk postmodern roman."},
+        {"yazar": "Orhan Pamuk", "roman": "Kara Kitap", "ozet": "Galip, kayıp karısı Rüya'yı ve Celal'i arar. Şeyh Galip'e göndermeler vardır."},
+        {"yazar": "Yaşar Kemal", "roman": "İnce Memed", "ozet": "Abdi Ağa'ya başkaldıran Memed'in dağa çıkıp eşkıya olması."},
+        {"yazar": "Sabahattin Ali", "roman": "Kürk Mantolu Madonna", "ozet": "Raif Efendi'nin Almanya'da Maria Puder ile yaşadığı aşk."},
+        {"yazar": "Sabahattin Ali", "roman": "Kuyucaklı Yusuf", "ozet": "Yusuf'un ailesinin öldürülmesi ve Muazzez'e olan aşkı."},
+        {"yazar": "Yusuf Atılgan", "roman": "Aylak Adam", "ozet": "C.'nin İstanbul sokaklarında 'B'yi araması."},
+        {"yazar": "Yusuf Atılgan", "roman": "Anayurt Oteli", "ozet": "Otel katibi Zebercet'in yalnızlığı."},
+        {"yazar": "Kemal Tahir", "roman": "Devlet Ana", "ozet": "Osmanlı'nın kuruluşunu anlatan tarihi roman."},
+        {"yazar": "Tarık Buğra", "roman": "Küçük Ağa", "ozet": "İstanbullu Hoca'nın Milli Mücadele'ye katılması."},
+        {"yazar": "Orhan Kemal", "roman": "Bereketli Topraklar Üzerinde", "ozet": "Çukurova'ya çalışmaya giden üç arkadaşın dramı."},
+        {"yazar": "Nabizade Nazım", "roman": "Karabibik", "ozet": "Antalya'nın Kaş ilçesinde geçen ilk köy romanı."}
     ]
 
 # GENİŞLETİLMİŞ SÖZ SANATLARI VERİTABANI (YAZARLAR EKLENDİ VE ÇEŞİTLENDİRİLDİ)
@@ -411,47 +384,43 @@ def get_sanatlar_db():
         {"sanat": "Teşbih (Benzetme)", "beyit": "Cennet gibi güzel vatanım...", "aciklama": "Burada vatan (benzeyen), cennete (benzetilen) benzetilmiştir. 'Gibi' edatı kullanılmıştır.", "yazar": "Anonim"},
         {"sanat": "İstiare (Eğretileme)", "beyit": "Şakaklarıma kar mı yağdı ne var? / Benim mi Allahım bu çizgili yüz?", "aciklama": "Beyaz saç 'kar'a benzetilmiş ama sadece kar söylenmiş.", "yazar": "Cahit Sıtkı Tarancı"},
         {"sanat": "Tezat (Zıtlık)", "beyit": "Ağlarım hatıra geldikçe gülüştüklerimiz.", "aciklama": "Ağlamak ve gülüşmek zıt eylemlerdir.", "yazar": "Mahmut Ekrem"},
-        {"sanat": "Hüsnü Talil (Güzel Neden)", "beyit": "Güzel şeyler düşünelim diye / Yemyeşil oluvermiş ağaçlar", "aciklama": "Ağaçların yeşermesi güzel düşünmeye bağlanmış.", "yazar": "Melih Cevdet Anday"},
-        {"sanat": "Telmih (Hatırlatma)", "beyit": "Gökyüzünde İsa ile, Tur dağında Musa ile / Elindeki asâ ile, çağırayım Mevlâm seni", "aciklama": "Peygamber kıssalarına gönderme.", "yazar": "Yunus Emre"},
-        {"sanat": "Tecahülü Arif (Bilmezlik)", "beyit": "Göz gördü gönül sevdi seni ey yüzü mahım / Kurbanın olam var mı benim bunda günahım?", "aciklama": "Şair aşık olduğunu bildiği halde bilmezden geliyor.", "yazar": "Nahifi"},
-        {"sanat": "Mübalağa (Abartma)", "beyit": "Bir ah çeksem dağı taşı eritir / Gözüm yaşı değirmeni yürütür", "aciklama": "Gözyaşıyla değirmen yürütmek imkansız bir abartıdır.", "yazar": "Karacaoğlan"},
-        {"sanat": "İntak (Konuşturma)", "beyit": "Ben ki toz kanatlı bir kelebeğim / Minicik gövdeme yüklü Kafdağı", "aciklama": "Kelebek konuşturulmuştur.", "yazar": "Cahit Külebi"},
-        {"sanat": "Tevriye (İki Anlamlılık)", "beyit": "Bu kadar letafet çünkü sende var / Beyaz gerdanında bir de ben gerek", "aciklama": "'Ben' kelimesi hem kişi hem vücut lekesi.", "yazar": "Nedim"},
-        {"sanat": "Teşhis (Kişileştirme)", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler (eli kolu bağlı olmak, ağlamak) verilmiştir.", "yazar": "Attila İlhan"},
-        {"sanat": "Rücu (Geri Dönüş)", "beyit": "Erbab-ı teşair çoğalıp şair azaldı / Yok öyle değil, şairin ancak adı kaldı", "aciklama": "Şair önce bir söz söyleyip sonra 'yok öyle değil' diyerek fikrini değiştirmiş gibi yapıyor.", "yazar": "Muallim Naci"},
-        {"sanat": "Tezil (Şaka/Alay)", "beyit": "Benim şiirim böyledir işte / Okuyanlar olur hep birer işte", "aciklama": "Ciddi bir konuyu alaya alarak veya şaka yollu anlatma sanatı.", "yazar": "Anonim"},
-        {"sanat": "Leff ü Neşr", "beyit": "Gönlümde ateş, gözümde yaşlar / Biri yakar, biri boğar", "aciklama": "Ateş-yakar, yaş-boğar simetrisi.", "yazar": "Anonim"},
-        {"sanat": "Terdid", "beyit": "Dişin mi ağrıyor, çek kurtul / Başın mı ağrıyor, bir çeyreğe iki aspirin / Verem misin, üzülme, onun da çaresi var / Ölür gidersin", "aciklama": "Beklenmedik sonla bitirme.", "yazar": "Orhan Veli Kanık"},
-        {"sanat": "İktibas", "beyit": "Zalimin zulmü varsa, mazlumun Allah'ı var / 'İnnallahe meassabirin' dedi", "aciklama": "Ayet alıntısı.", "yazar": "Anonim"},
-        {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "Atasözü kullanma.", "yazar": "Seyrani"},
-        {"sanat": "Cinas", "beyit": "Niçin kondun a bülbül kapımdaki asmaya / Ben yarimden vazgeçmem götürseler asmaya", "aciklama": "Asma (bitki) - Asma (idam).", "yazar": "Anonim (Mani)"},
-        {"sanat": "Kinaye", "beyit": "Bulamadım dünyada gönüle mekan / Nerde bir gül bitse etrafı diken", "aciklama": "Hem gerçek (gülün dikeni) hem mecaz (güzelliğin yanında sıkıntı olması) anlamı kastedilmiş.", "yazar": "Sümmani"},
-        {"sanat": "Tariz", "beyit": "Bir yetim görünce döktür dişini / Bozmaya çabala halkın işini / Günde yüz adamın vur kır başını", "aciklama": "Söylenenin tam tersini kastederek kişiyi iğneleme sanatı.", "yazar": "Neyzen Tevfik"},
-        {"sanat": "Tekrir", "beyit": "Kaldırımlar, çilekeş yalnızların annesi / Kaldırımlar, içimde yaşamış bir insandır", "aciklama": "'Kaldırımlar' kelimesi tekrar edilerek ahenk sağlanmış.", "yazar": "Necip Fazıl Kısakürek"},
-        {"sanat": "Mübalağa", "beyit": "Merkez-i hakkaatsın girye-i cihan / Bütün dünya ağlasa, ben gülmem", "aciklama": "Bütün dünyanın ağlaması imkansız bir abartıdır.", "yazar": "Namık Kemal"},
-        {"sanat": "Tenasüp", "beyit": "Aramazdık gece mehtabı yüzün parlarken / Bir uzak yıldıza benzerdi güneş sen varken", "aciklama": "Gece, mehtap, yıldız, güneş birbiriyle uyumlu kelimelerdir.", "yazar": "Faruk Nafiz Çamlıbel"},
-        {"sanat": "Telmih", "beyit": "Ne büyüksün ki kanın kurtarıyor tevhidi / Bedr'in aslanları ancak bu kadar şanlı idi", "aciklama": "Bedir Savaşı'na ve İslam tarihine gönderme yapılmış.", "yazar": "Mehmet Akif Ersoy"},
-        {"sanat": "İstifham", "beyit": "Kim bu cennet vatanın uğruna olmaz ki feda?", "aciklama": "Cevap bekleme amacı gütmeden soru sorma sanatı.", "yazar": "Mehmet Akif Ersoy"},
+        {"sanat": "Hüsnü Talil", "beyit": "Güzel şeyler düşünelim diye / Yemyeşil oluvermiş ağaçlar", "aciklama": "Doğal olay (yeşerme) güzel bir nedene bağlanmış.", "yazar": "Melih Cevdet Anday"},
+        {"sanat": "Telmih", "beyit": "Gökyüzünde İsa ile, Tur dağında Musa ile / Elindeki asâ ile, çağırayım Mevlâm seni", "aciklama": "Peygamber kıssalarına gönderme yapılmış.", "yazar": "Yunus Emre"},
+        {"sanat": "Tecahülü Arif", "beyit": "Göz gördü gönül sevdi seni ey yüzü mahım / Kurbanın olam var mı benim bunda günahım?", "aciklama": "Şair bildiği halde bilmezlikten geliyor.", "yazar": "Nahifi"},
+        {"sanat": "Mübalağa", "beyit": "Bir ah çeksem dağı taşı eritir / Gözüm yaşı değirmeni yürütür", "aciklama": "Gözyaşıyla değirmen yürütmek imkansız bir abartıdır.", "yazar": "Karacaoğlan"},
+        {"sanat": "İntak", "beyit": "Ben ki toz kanatlı bir kelebeğim / Minicik gövdeme yüklü Kafdağı", "aciklama": "Kelebek konuşturulmuştur.", "yazar": "Cahit Külebi"},
+        {"sanat": "Tevriye", "beyit": "Bu kadar letafet çünkü sende var / Beyaz gerdanında bir de ben gerek", "aciklama": "'Ben' kelimesi hem kişi hem vücut lekesi anlamında.", "yazar": "Nedim"},
+        {"sanat": "Teşhis", "beyit": "Haliç'te bir vapuru vurdular dört kişi / Demirlemişti eli kolu bağlıydı ağlıyordu", "aciklama": "Vapura insani özellikler verilmiş.", "yazar": "Attila İlhan"},
+        {"sanat": "Rücu (Geri Dönüş)", "beyit": "Erbab-ı teşair çoğalıp şair azaldı / Yok öyle değil, şairin ancak adı kaldı", "aciklama": "Şair bir söz söyleyip sonra 'Yok öyle değil' diyerek fikrini değiştirmiş gibi yapıyor.", "yazar": "Muallim Naci"},
+        {"sanat": "Tezil (Şaka/Alay)", "beyit": "Benim şiirim böyledir işte / Okuyanlar olur hep birer işte", "aciklama": "Ciddi bir konuyu alaya alarak anlatma sanatı.", "yazar": "Anonim"},
+        {"sanat": "Leff ü Neşr", "beyit": "Gönlümde ateş, gözümde yaşlar / Biri yakar, biri boğar", "aciklama": "Ateş-yakar, yaş-boğar kelimeleri simetrik kullanılmış.", "yazar": "Anonim"},
+        {"sanat": "Terdid", "beyit": "Dişin mi ağrıyor, çek kurtul / Başın mı ağrıyor, bir çeyreğe iki aspirin / Verem misin, üzülme, onun da çaresi var / Ölür gidersin", "aciklama": "Sözü beklenmedik bir sonla bitirme.", "yazar": "Orhan Veli Kanık"},
+        {"sanat": "İktibas", "beyit": "Zalimin zulmü varsa, mazlumun Allah'ı var / 'İnnallahe meassabirin' (Allah sabredenlerle beraberdir)", "aciklama": "Ayet veya hadis alıntılama sanatı.", "yazar": "Anonim"},
+        {"sanat": "İrsal-i Mesel", "beyit": "Balık baştan kokar bunu bilmemek / Seyrani gafilin ahmaklığıdır", "aciklama": "Şiirde atasözü kullanma.", "yazar": "Seyrani"},
+        {"sanat": "Cinas", "beyit": "Niçin kondun a bülbül kapımdaki asmaya / Ben yarimden vazgeçmem götürseler asmaya", "aciklama": "Asma (bitki) ve asma (idam) eş sesli kelimeler.", "yazar": "Anonim (Mani)"},
+        {"sanat": "Kinaye", "beyit": "Bulamadım dünyada gönüle mekan / Nerde bir gül bitse etrafı diken", "aciklama": "Hem gerçek (gülün dikeni) hem mecaz (güzelliğin sıkıntısı) anlamı var.", "yazar": "Sümmani"},
+        {"sanat": "Tariz", "beyit": "Bir yetim görünce döktür dişini / Bozmaya çabala halkın işini / Günde yüz adamın vur kır başını", "aciklama": "Söylenenin tam tersini kastederek iğneleme.", "yazar": "Neyzen Tevfik"},
+        {"sanat": "Tekrir", "beyit": "Kaldırımlar, çilekeş yalnızların annesi / Kaldırımlar, içimde yaşamış bir insandır", "aciklama": "Kaldırımlar kelimesi tekrar edilerek ahenk sağlanmış.", "yazar": "Necip Fazıl Kısakürek"},
+        {"sanat": "Mübalağa", "beyit": "Merkez-i hakkaatsın girye-i cihan / Bütün dünya ağlasa, ben gülmem", "aciklama": "Bütün dünyanın ağlaması abartıdır.", "yazar": "Namık Kemal"},
+        {"sanat": "Tenasüp", "beyit": "Aramazdık gece mehtabı yüzün parlarken / Bir uzak yıldıza benzerdi güneş sen varken", "aciklama": "Gece, mehtap, yıldız, güneş birbiriyle uyumlu kelimeler.", "yazar": "Faruk Nafiz Çamlıbel"},
+        {"sanat": "Telmih", "beyit": "Ne büyüksün ki kanın kurtarıyor tevhidi / Bedr'in aslanları ancak bu kadar şanlı idi", "aciklama": "Bedir Savaşı'na gönderme yapılmış.", "yazar": "Mehmet Akif Ersoy"},
+        {"sanat": "İstifham", "beyit": "Kim bu cennet vatanın uğruna olmaz ki feda?", "aciklama": "Cevap beklemeden soru sorma sanatı.", "yazar": "Mehmet Akif Ersoy"},
         {"sanat": "Nida", "beyit": "Ey mavi göklerin beyaz ve kızıl süsü!", "aciklama": "Seslenme sanatı.", "yazar": "Arif Nihat Asya"},
-        {"sanat": "Seci", "beyit": "İlahi, kabul senden, ret senden / Şifa senden, dert senden", "aciklama": "Düzyazıda veya şiirde cümle sonlarında yapılan iç kafiye.", "yazar": "Sinan Paşa"},
-        {"sanat": "Aliterasyon", "beyit": "Eylülde melul oldu gönül soldu da lale / Bir kaküle meyletti gönül geldi bu hale", "aciklama": "'L' harfinin sık tekrarıyla ahenk sağlanmış.", "yazar": "Edip Ayel"},
-        {"sanat": "Asonans", "beyit": "Neysen sen, nefes sen, neylersin neyi / Neyzensen, nefessen neylersin neyi", "aciklama": "'E' sesinin sık tekrarıyla ahenk sağlanmış.", "yazar": "Anonim"},
-        {"sanat": "Hüsnü Talil", "beyit": "Sen gelince güller açar bahçemde / Sen gidince solar bütün çiçekler", "aciklama": "Çiçeklerin açması veya solması sevgilinin gelişine/gidişine bağlanmış.", "yazar": "Anonim"},
-        {"sanat": "Teşbih-i Beliğ", "beyit": "Selvi boylum, elma yanaklım", "aciklama": "Sadece benzeyen ve benzetilen unsurlar kullanılmış (Güzel benzetme).", "yazar": "Anonim"},
-        {"sanat": "Mecaz-ı Mürsel", "beyit": "Bütün İstanbul sokağa döküldü", "aciklama": "İstanbul (Şehir) söylenip içindeki halk kastedilmiş.", "yazar": "Anonim"},
-        {"sanat": "Kinaye", "beyit": "Dadaloğlu'm der ki belim büküldü / Gözümün cevheri yere döküldü", "aciklama": "Bel bükülmesi hem yaşlılık (gerçek) hem çaresizlik (mecaz) anlamında.", "yazar": "Dadaloğlu"},
+        {"sanat": "Seci", "beyit": "İlahi, kabul senden, ret senden / Şifa senden, dert senden", "aciklama": "Düzyazıda veya şiirde yapılan iç kafiye.", "yazar": "Sinan Paşa"},
+        {"sanat": "Aliterasyon", "beyit": "Eylülde melul oldu gönül soldu da lale / Bir kaküle meyletti gönül geldi bu hale", "aciklama": "'L' harfinin sık tekrarı.", "yazar": "Edip Ayel"},
+        {"sanat": "Asonans", "beyit": "Neysen sen, nefes sen, neylersin neyi / Neyzensen, nefessen neylersin neyi", "aciklama": "'E' sesinin sık tekrarı.", "yazar": "Anonim"},
+        {"sanat": "Hüsnü Talil", "beyit": "Sen gelince güller açar bahçemde / Sen gidince solar bütün çiçekler", "aciklama": "Çiçeklerin açması/solması sevgilinin gelişine/gidişine bağlanmış.", "yazar": "Anonim"},
+        {"sanat": "Teşbih-i Beliğ", "beyit": "Selvi boylum, elma yanaklım", "aciklama": "Sadece benzeyen ve benzetilen kullanılmış (Güzel benzetme).", "yazar": "Anonim"},
+        {"sanat": "Mecaz-ı Mürsel", "beyit": "Bütün İstanbul sokağa döküldü", "aciklama": "İstanbul (Şehir) söylenip halk kastedilmiş.", "yazar": "Anonim"},
+        {"sanat": "Kinaye", "beyit": "Dadaloğlu'm der ki belim büküldü / Gözümün cevheri yere döküldü", "aciklama": "Bel bükülmesi hem yaşlılık hem çaresizlik.", "yazar": "Dadaloğlu"},
         {"sanat": "Tariz", "beyit": "Yiyin efendiler yiyin, bu han-ı iştiha sizin", "aciklama": "Yiyin derken aslında 'yemeyin, sömürmeyin' demek istiyor.", "yazar": "Tevfik Fikret"},
-        {"sanat": "Tevriye", "beyit": "Gül yağını eller sürünür çatlasa bülbül", "aciklama": "El (organ) ve El (yabancı) anlamı bir arada.", "yazar": "Nevres-i Kadim"},
-        {"sanat": "Leff ü Neşr", "beyit": "Bakışların kor ateş, sözlerin buz gibi / Biri yakar derinden, biri üşütür", "aciklama": "Ateş-yakar, buz-üşütür kelimeleri simetrik.", "yazar": "Anonim"},
-        {"sanat": "Rücu", "beyit": "Zaman gelir ki cihan içre ins ü can kalmaz / Değil değil, zemin kalır, zaman kalmaz", "aciklama": "Önce bir şey söyleyip sonra vazgeçip başka bir şey söyleme.", "yazar": "Ziya Paşa"},
+        {"sanat": "Tevriye", "beyit": "Gül yağını eller sürünür çatlasa bülbül", "aciklama": "El (organ) ve El (yabancı) anlamı.", "yazar": "Nevres-i Kadim"},
+        {"sanat": "Leff ü Neşr", "beyit": "Bakışların kor ateş, sözlerin buz gibi / Biri yakar derinden, biri üşütür", "aciklama": "Ateş-yakar, buz-üşütür simetrisi.", "yazar": "Anonim"},
+        {"sanat": "Rücu", "beyit": "Zaman gelir ki cihan içre ins ü can kalmaz / Değil değil, zemin kalır, zaman kalmaz", "aciklama": "Önce bir şey deyip sonra vazgeçme.", "yazar": "Ziya Paşa"},
         {"sanat": "İstifham", "beyit": "Hangi çılgın bana zincir vuracakmış? Şaşarım!", "aciklama": "Soru sorarak duyguyu güçlendirme.", "yazar": "Mehmet Akif Ersoy"},
         {"sanat": "Tedric", "beyit": "Geçsin günler, haftalar, aylar, mevsimler, yıllar", "aciklama": "Kavramların dereceli olarak sıralanması.", "yazar": "Enis Behiç Koryürek"},
         {"sanat": "Akis", "beyit": "Gamzen ciğerim deldi / Deldi ciğerim gamzen", "aciklama": "Sözün ters çevrilerek tekrar edilmesi.", "yazar": "Ali Şir Nevai"},
-        {"sanat": "İştikak", "beyit": "Dünyada sevilmiş ve seven nafile bekler", "aciklama": "Sevmek kökünden türeyen kelimelerin bir arada kullanılması.", "yazar": "Yahya Kemal Beyatlı"},
-        {"sanat": "Cinas", "beyit": "Kısmetindir gezdiren yer yer seni / Arşa çıksan akıbet yer yer seni", "aciklama": "Yer (Mekan) - Yer (Yemek fiili).", "yazar": "İbni Kemal"},
-        {"sanat": "Telmih", "beyit": "Gökyüzünde İsa ile / Tur dağında Musa ile", "aciklama": "Peygamberlere gönderme.", "yazar": "Yunus Emre"},
-        {"sanat": "Mübalağa", "beyit": "Aşkınla tutuştu gönül, yandı kül oldu / Gözyaşım sel oldu, aktı göl oldu", "aciklama": "Abartılı anlatım.", "yazar": "Aşık Veysel"},
-        {"sanat": "Teşbih", "beyit": "Aslan gibi yiğitler, kükrerdi cephede / Düşmana korku salar, titretirdi her yerde", "aciklama": "Yiğitler aslana benzetilmiş.", "yazar": "Anonim"}
+        {"sanat": "İştikak", "beyit": "Dünyada sevilmiş ve seven nafile bekler", "aciklama": "Sevmek kökünden türeyen kelimelerin bir arada kullanılması.", "yazar": "Yahya Kemal Beyatlı"}
     ]
 
 # YENİ OYUN MODU VERİTABANI: ŞAİR TAHMİN (KİM BU ŞAİR?)
@@ -643,6 +612,160 @@ def get_kavramlar_db():
         {"kavram": "Vücudname", "aciklama": "İnsanın yaratılış evrelerini anlatan tasavvufi eser."}
     ]
 
+# --- YÖNETİCİYE HIZLI MESAJ ---
+# (Yönetim Paneli)
+with st.sidebar:
+    st.header("👤 PROFİL")
+    if st.session_state.page == "MENU":
+        def update_sidebar_name():
+            st.session_state.kullanici_adi = st.session_state.sb_isim_input
+            
+        st.text_input("Oyuncu Adı:", value=st.session_state.kullanici_adi, key="sb_isim_input", on_change=update_sidebar_name)
+    else:
+        st.info(f"Oynayan: {st.session_state.kullanici_adi}")
+        # URL'den çıkış yapma butonu
+        if st.button("⬅️ ÇIKIŞ (Unut)", key="logout_btn"):
+             st.query_params.clear() # URL'yi temizle
+             st.session_state.kullanici_adi = ""
+             st.session_state.xp = 0
+             st.session_state.page = "MENU"
+             st.rerun()
+        
+    st.markdown("---")
+    # --- SOL MENÜ LİDERLİK TABLOSU (TOP 7) ---
+    st.header("🏆 LİDERLİK (TOP 7)")
+    
+    skorlar = skorlari_yukle()
+    # Puan'a göre sırala (x[1]['puan'])
+    sirali_skorlar = sorted(skorlar.items(), key=lambda x: x[1]['puan'], reverse=True)
+    
+    if not sirali_skorlar:
+        st.caption("Henüz veri yok.")
+    else:
+        for i, (isim, veri) in enumerate(sirali_skorlar[:7]):
+            puan = veri['puan']
+            # Aktiflik kontrolü
+            aktif_mi = (time.time() - veri['zaman']) < 300 
+            durum_ikonu = "🟢" if aktif_mi else ""
+
+            madalya = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
+            st.markdown(f"**{madalya} {isim}** {durum_ikonu}: {puan} XP", unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # --- GİZLİ ADMIN GİRİŞİ (ŞİFRE GÜNCELLENDİ) ---
+    with st.expander("🔐 Admin Girişi"):
+        admin_sifre = st.text_input("Şifre", type="password", key="admin_pass")
+        if admin_sifre == "alperenadmin123":
+            t1, t2, t3, t4, t5 = st.tabs(["📥 Gelen", "📢 Duyuru", "💌 Özel Mesaj", "⚙️ Skor Yönetimi", "📊 Oyuncu Raporları"])
+            
+            with t1:
+                st.markdown("### Gelen Mesajlar")
+                mesajlar = mesajlari_yukle()
+                if not mesajlar:
+                    st.info("Henüz mesaj yok.")
+                else:
+                    for m in reversed(mesajlar):
+                        st.markdown(f"""
+                        <div style="background-color:#000; padding:10px; border-radius:5px; margin-bottom:5px; border:1px solid #ffeb3b;">
+                            <small style="color:#aaa;">{m['tarih']} - <b>{m['gonderen']}</b></small><br>
+                            {m['mesaj']}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    if st.button("Tüm Mesajları Sil"):
+                        mesajlari_temizle()
+                        st.rerun()
+
+            with t2:
+                st.markdown("### Herkese Bildirim Gönder")
+                duyuru_metni = st.text_input("Duyuru Metni:")
+                if st.button("Yayınla"):
+                    admin_duyuru_yaz(duyuru_metni)
+                    st.success("Duyuru yayınlandı!")
+
+            with t3:
+                st.markdown("### Kişiye Özel Mesaj (Popup)")
+                kullanici_listesi = list(skorlari_yukle().keys())
+                secilen_kisi = st.selectbox("Kime:", options=["Seçiniz..."] + kullanici_listesi)
+                ozel_mesaj_metni = st.text_input("Mesajın:")
+                
+                if st.button("Gönder") and secilen_kisi != "Seçiniz...":
+                    kisiye_ozel_mesaj_gonder(secilen_kisi, ozel_mesaj_metni)
+                    st.success(f"{secilen_kisi} adlı kullanıcıya mesaj gönderildi!")
+
+            with t4:
+                st.markdown("### ⚙️ Skor Yönetimi")
+                st.warning("Dikkat: Buradan yapılan değişiklik anında işlenir.")
+                
+                kullanicilar = list(skorlari_yukle().keys())
+                kullanicilar.sort() # Alfabetik sıra
+                
+                user_to_edit = st.selectbox("Kullanıcı Seç", ["Seçiniz..."] + kullanicilar, key="score_edit_user")
+                
+                if user_to_edit != "Seçiniz...":
+                    current_data = skorlari_yukle()[user_to_edit]
+                    current_score = current_data['puan']
+                    
+                    st.write(f"Mevcut Puan: **{current_score}**")
+                    
+                    new_score_val = st.number_input("Yeni Puan Girin:", value=current_score, step=10, key="new_score_val")
+                    
+                    if st.button("Puanı Güncelle", type="primary"):
+                        if admin_puan_degistir(user_to_edit, new_score_val):
+                            st.success(f"✅ {user_to_edit} adlı kullanıcının puanı {new_score_val} olarak güncellendi!")
+                            time.sleep(1.5)
+                            st.rerun()
+                        else:
+                            st.error("Bir hata oluştu.")
+            with t5:
+                # DETAYLI RAPOR SEKMEKİ (ANALİZ EKLENDİ)
+                st.markdown("### 📊 Oyuncu Raporları")
+                raporlar = raporlari_yukle()
+                user_report = st.selectbox("İncele:", ["Seçiniz..."] + list(raporlar.keys()))
+                
+                if user_report != "Seçiniz...":
+                    data = raporlar[user_report]
+                    st.write(f"**Son Görülme:** {data['son_gorulme']}")
+                    st.write(f"**Toplam Soru:** {data['toplam_cozulen']}")
+                    st.write(f"**Doğru:** {data['dogru_sayisi']} | **Yanlış:** {data['yanlis_sayisi']}")
+                    
+                    st.divider()
+                    
+                    # EN ÇOK YANLIŞ YAPILANLAR (ANALİZ)
+                    col_analiz1, col_analiz2 = st.columns(2)
+                    
+                    with col_analiz1:
+                        st.markdown("**⚠️ En Çok Yanlış Yapılan DÖNEMLER**")
+                        if "yanlis_analiz_kategori" in data and data["yanlis_analiz_kategori"]:
+                            sorted_kategori = sorted(data["yanlis_analiz_kategori"].items(), key=lambda item: item[1], reverse=True)[:3]
+                            for k, v in sorted_kategori:
+                                st.error(f"{k}: {v} Yanlış")
+                        else:
+                            st.info("Veri yok.")
+
+                    with col_analiz2:
+                        st.markdown("**⚠️ En Çok Yanlış Yapılan KONULAR**")
+                        if "yanlis_analiz_konu" in data and data["yanlis_analiz_konu"]:
+                            sorted_konu = sorted(data["yanlis_analiz_konu"].items(), key=lambda item: item[1], reverse=True)[:3]
+                            for k, v in sorted_konu:
+                                st.error(f"{k}: {v} Yanlış")
+                        else:
+                            st.info("Veri yok.")
+                            
+                    st.divider()
+                    st.markdown("#### ❌ Son 30 Hata")
+                    for err in reversed(data['hatalar']):
+                        with st.expander(f"{err['zaman']} - {err['konu']} ({err['kategori']})"):
+                            st.write(f"**Soru:** {err['soru']}")
+                            st.write(f"**Verilen Cevap:** ❌ {err['yanlis_cevap']}")
+                            st.write(f"**Doğru Cevap:** ✅ {err['dogru_cevap']}")
+
+    if st.session_state.page != "MENU":
+        if st.button("⬅️ ANA MENÜ", key="exit_btn"):
+            st.session_state.page = "MENU"
+            st.rerun()
+
 # --- YENİ SORU ÜRETME ---
 def yeni_soru_uret():
     kategori = st.session_state.kategori
@@ -710,7 +833,7 @@ def yeni_soru_uret():
         random.shuffle(siklar)
         return {"eser": secilen_eser, "tur": secilen_tur, "dogru_cevap": secilen_yazar, "siklar": siklar}
 
-# --- HEADER (BAŞLIK & LOGO & DUYURU) ---
+# --- MENÜ SAYFASI ---
 if st.session_state.page == "MENU":
     st.markdown('<div class="creator-name">👑 ALPEREN SÜNGÜ 👑</div>', unsafe_allow_html=True)
     st.write("") 
@@ -979,7 +1102,7 @@ elif st.session_state.page == "GAME":
         title_text = "BU HANGİ EDEBİ SANAT?"
         content_text = f'"{soru["eser"]}"'
         sub_text = "Dizelerdeki sanatı bul!"
-        konu_basligi = soru['dogru_cevap']
+        konu_basligi = soru['dogru_cevap'] # Rapor için
     elif st.session_state.kategori == "ROMAN_OZET":
         title_text = "BU ROMANIN YAZARI KİM?"
         content_text = soru["eser"]
@@ -1019,6 +1142,7 @@ elif st.session_state.page == "GAME":
                 border: 2px solid #ffeb3b;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.5);
                 display: inline-block;
+                opacity: 1;
             ">
                 ✍️ Şair: {soru['yazar']}
             </div>
