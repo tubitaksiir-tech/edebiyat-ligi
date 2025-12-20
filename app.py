@@ -185,7 +185,7 @@ card_bg_color = "#2e5a27"
 text_color_cream = "#fffbe6"
 red_warning_color = "#c62828"
 input_bg_color = "#3e7a39"
-bg_image_url = "https://ibb.co/TDm9RQg0"
+bg_image_url = "https://i.ibb.co/vCZ0mNjd/Gemini-Generated-mage-x4rhr0x4rhr0x4rh.png"
 
 st.markdown(f"""
     <style>
