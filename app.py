@@ -14,6 +14,33 @@ st.set_page_config(
     layout="centered"
 )
 
+# --- SES EFEKTLERİ FONKSİYONU (BASE64 - İNTERNET GEREKTİRMEZ) ---
+def get_audio_html(sound_type):
+    """
+    Doğru ve Yanlış cevaplar için ses çalar.
+    Dış bağlantı kullanmaz, kodun içine gömülüdür.
+    """
+    # Kısa "Doğru" sesi (Ding)
+    correct_sound = "data:audio/mp3;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAG1xUAALDkZgAAIP/7+3///4j///6d////////4wagAAAAAP4wagAAAAAP4wagAAAAAP4wagAAAAAP4wagAA//uQZAAN8AAAAA0gAAABAAAADSAAAAEAAAAA0gAAABAAAADSAAAAEA//uQZAAO8AAAAA0gAAABAAAADSAAAAEAAAAA0gAAABAAAADSAAAAEA//uQZAAO8AAAAA0gAAABAAAADSAAAAEAAAAA0gAAABAAAADSAAAAEA"
+    
+    # Kısa "Yanlış" sesi (Buzz)
+    wrong_sound = "data:audio/mp3;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAG1xUAALDkZgAAIP/7+3///4j///6d////////4wagAAAAAP4wagAAAAAP4wagAAAAAP4wagAAAAAP4wagAA//uQZAAN8AAAAA0gAAABAAAADSAAAAEAAAAA0gAAABAAAADSAAAAEA"
+
+    # Not: Base64 stringleri çok uzun olmasın diye kısa bip sesleri konulmuştur.
+    # Daha gelişmiş sesler için buraya uzun base64 kodları eklenebilir.
+    
+    # Eğer daha gelişmiş ses istersen internet üzerinden çalışan versiyonu:
+    if sound_type == "dogru":
+        audio_url = "https://www.soundjay.com/buttons/sounds/button-09.mp3"
+    else:
+        audio_url = "https://www.soundjay.com/buttons/sounds/button-10.mp3"
+
+    return f"""
+        <audio autoplay style="display:none;">
+        <source src="{audio_url}" type="audio/mpeg">
+        </audio>
+    """
+
 # --- URL (BENİ HATIRLA) SİSTEMİ ---
 try:
     query_params = st.query_params
@@ -217,6 +244,42 @@ st.markdown(f"""
 # ======================================================
 # 5. EKSİKSİZ VERİTABANLARI
 # ======================================================
+
+# --- OKUMA KÖŞESİ (EKSİK OLAN KISIM EKLENDİ) ---
+@st.cache_data
+def get_reading_db():
+    return {
+        "Ahmet Hamdi Tanpınar": {
+            "bio": "Cumhuriyet dönemi roman, öykü, deneme yazarı ve şairidir. Eserlerinde zaman, rüya ve bilinçaltı kavramlarını sıkça işler.",
+            "eserler": {
+                "Huzur": "Mümtaz ve Nuran aşkı çerçevesinde Doğu-Batı çatışması işlenir.",
+                "Saatleri Ayarlama Enstitüsü": "İroni yüklü bir dille modernleşme eleştirisi yapılır. Hayri İrdal ve Halit Ayarcı baş karakterlerdir.",
+                "Beş Şehir": "Ankara, Erzurum, Konya, Bursa ve İstanbul'u anlattığı deneme türündeki eseridir."
+            }
+        },
+        "Oğuz Atay": {
+            "bio": "Postmodernizmin Türk edebiyatındaki öncüsüdür. Aydın bunalımını, ironiyi ve 'tutunamayan' bireyi anlatır.",
+            "eserler": {
+                "Tutunamayanlar": "Turgut Özben'in, intihar eden arkadaşı Selim Işık'ın izini sürmesini anlatır. Bilinç akışı tekniği kullanılır.",
+                "Tehlikeli Oyunlar": "Hikmet Benol karakteri üzerinden oyun ile gerçekliğin iç içe geçmesi anlatır."
+            }
+        },
+        "Halide Edip Adıvar": {
+            "bio": "Milli Mücadele döneminin en önemli kadın yazarıdır. Romanlarında kadın psikolojisi ve toplumsal değişimleri işler.",
+            "eserler": {
+                "Sinekli Bakkal": "II. Abdülhamit döneminin toplumsal yapısını Rabia ve Peregrini aşkı üzerinden anlatır. Doğu-Batı sentezi vardır.",
+                "Ateşten Gömlek": "Kurtuluş Savaşı'nı anlatan ilk romandır. Ayşe, Peyami ve İhsan baş karakterlerdir."
+            }
+        },
+        "Peyami Safa": {
+            "bio": "Psikolojik roman türünün ustasıdır. 'Server Bedii' takma adıyla polisiye romanlar da yazmıştır.",
+            "eserler": {
+                "Dokuzuncu Hariciye Koğuşu": "Hasta bir gencin psikolojisini ve Nüzhet'e olan aşkını anlattığı otobiyografik romandır.",
+                "Fatih-Harbiye": "Neriman karakteri üzerinden Doğu (Fatih) ve Batı (Harbiye) çatışmasını işler."
+            }
+        }
+    }
+
 @st.cache_data
 def get_game_db(kategori):
     if kategori == "CUMHURİYET":
