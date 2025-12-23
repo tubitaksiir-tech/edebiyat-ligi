@@ -1049,8 +1049,8 @@ if st.session_state.page == "MENU":
     st.markdown(f"""
     <div class='duyuru-wrapper'>
         <div style="flex: 1; color: #fffbe6; font-weight: bold; font-size: 16px; text-align: left;">
-            🏆 Haftanın Birincisine <br> 
-            <span style="color: #ffeb3b; font-size: 18px;">Limit AYT Edebiyat Cep Kitabı</span> Hediye! 
+            🏆 2 Haftanın Birincisine <br> 
+            <span style="color: #ffeb3b; font-size: 18px;">Stefan Zweig  Joseph Fouché Romanı</span> Hediye! 
         </div>
         <div>{img_tag}</div>
     </div>""", unsafe_allow_html=True)
